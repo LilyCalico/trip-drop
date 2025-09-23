@@ -169,7 +169,7 @@ export default function SignupPage() {
 
       {/* Login Link */}
       <div className="mt-[3.2rem] text-center">
-        <Link href="/login" className="underline">
+        <Link href="/auth/login" className="underline">
           Already have an account?
         </Link>
       </div>
