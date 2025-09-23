@@ -1,21 +1,12 @@
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import AuthWrapper from "@/components/custom/auth/AuthWrapper";
+import ErrorMessage from "@/components/custom/auth/ErrorMessage";
+import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
 import supabase from "@/lib/supabaseClient";
-
-const Label = ({ id, text }: { id: string; text: string }) => {
-  return (
-    <label className="text-[1.4rem]" htmlFor={id}>
-      {text}
-    </label>
-  );
-};
-
-const ErrorMessage = ({ message }: { message: string }) => {
-  return <div className="mt-1 text-red-500 text-[1.2rem]">{message}</div>;
-};
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -86,10 +77,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="w-[70vw] max-w-[40rem] mx-auto mt-[12rem]">
-      <h1 className="text-font-primary font-semibold mb-[5.6rem] text-[1.8rem] text-center">
-        Sign up
-      </h1>
+    <AuthWrapper title="Sign up">
       <form onSubmit={onSubmit} className="space-y-[3.2rem]">
         <div>
           <Label id="signup-email" text="Email" />
@@ -177,6 +165,6 @@ export default function SignupPage() {
       {message && (
         <div className="mt-[3.2rem] text-muted-foreground">{message}</div>
       )}
-    </div>
+    </AuthWrapper>
   );
 }

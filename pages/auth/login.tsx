@@ -1,56 +1,46 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import AuthWrapper from "@/components/custom/auth/AuthWrapper";
+import ErrorMessage from "@/components/custom/auth/ErrorMessage";
+import Label from "@/components/custom/auth/Label";
+import Button from "@/components/custom/Button";
+import Input from "@/components/custom/Input";
 import supabase from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    let unsubscribe: (() => void) | null = null;
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      setUserEmail(data.session?.user?.email ?? null);
-      const { data: listener } = supabase.auth.onAuthStateChange(
-        (_e, session) => {
-          setUserEmail(session?.user?.email ?? null);
-        }
-      );
-      unsubscribe = () => listener.subscription.unsubscribe();
-    })();
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
 
   const signInWithPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    if (signInError) {
-      setError(signInError.message);
-    } else {
-      setMessage("ログイン成功");
+
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      alert("Login successful");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="mx-auto mt-[12rem] max-w-[70vw] bg-red-200">
-      <h1 className="text-xl font-semibold mb-4">Login</h1>
-      <form onSubmit={signInWithPassword} className="space-y-3">
-        <div className="space-y-1">
-          <label htmlFor="login-email">Email</label>
+    <AuthWrapper title="Sign in">
+      <form onSubmit={signInWithPassword} className="space-y-[3.2rem]">
+        <div>
+          <Label id="login-email" text="Email" />
           <Input
             id="login-email"
             type="email"
@@ -61,8 +51,8 @@ export default function LoginPage() {
             autoComplete="off"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="login-password">Password</label>
+        <div>
+          <Label id="login-password" text="Password" />
           <Input
             id="login-password"
             type="password"
@@ -72,12 +62,15 @@ export default function LoginPage() {
             autoComplete="off"
           />
         </div>
-      </form>
 
-      {error && <div className="mt-3 text-red-600 text-sm">{error}</div>}
-      {message && (
-        <div className="mt-3 text-sm text-muted-foreground">{message}</div>
-      )}
-    </div>
+        {error && <ErrorMessage message={error} className="text-center" />}
+
+        <div className="flex justify-center">
+          <Button type="submit" disabled={loading}>
+            {loading ? "Loading..." : "Sign in"}
+          </Button>
+        </div>
+      </form>
+    </AuthWrapper>
   );
 }
