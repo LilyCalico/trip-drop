@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiFillHome, AiOutlineMenu } from "react-icons/ai";
 import { FaBed, FaCalendar, FaPlane } from "react-icons/fa";
+import Button from "@/components/custom/Button";
+import { useAuthStore } from "@/lib/auth/useAuthStore";
+import supabase from "@/lib/supabaseClient";
 
 const MenuItems = [
   {
@@ -47,31 +51,60 @@ const MenuLabel = ({
   );
 };
 
-const Menu = ({ isOpen }: { isOpen: boolean }) => {
+const Menu = ({
+  isOpen,
+  onClose,
+  onLoggedOut
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onLoggedOut: () => void;
+}) => {
+  const userEmail = useAuthStore((s) => s.user?.email ?? null);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    onClose();
+    onLoggedOut();
+  };
+
   return (
     <div
       className={
-        "pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] absolute top-0 right-0 z-20 transform transition-transform duration-300 ease-out bg-white " +
+        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] absolute top-0 right-0 z-20 transform transition-transform duration-300 ease-out bg-white " +
         (isOpen ? "translate-x-0" : "translate-x-full")
       }
     >
-      <h1 className="text-center font-bold mb-[4rem]">Sample Trip Title</h1>
+      <div>
+        <h1 className="text-center font-bold mb-[4rem]">Sample Trip Title</h1>
 
-      <div className="flex flex-col gap-[3.2rem]">
-        {MenuItems.map((item) => (
-          <MenuLabel
-            key={item.label}
-            icon={item.icon}
-            label={item.label}
-            href={item.href}
-          />
-        ))}
+        <div className="flex flex-col gap-[3.2rem]">
+          {MenuItems.map((item) => (
+            <MenuLabel
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              href={item.href}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-center items-center gap-[0.8rem]">
+        {userEmail && <p>{userEmail}</p>}
+        <Button
+          type="button"
+          onClick={handleLogout}
+          className="bg-white text-black border border-gray-300 mx-auto"
+        >
+          Logout
+        </Button>
       </div>
     </div>
   );
 };
 
 export default function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleMenuClick = () => {
@@ -100,7 +133,11 @@ export default function Header() {
           onClick={() => setIsMenuOpen(false)}
         />
       )}
-      <Menu isOpen={isMenuOpen} />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onLoggedOut={() => router.replace("/auth/login")}
+      />
     </div>
   );
 }
