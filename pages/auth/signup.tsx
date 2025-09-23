@@ -66,6 +66,25 @@ export default function SignupPage() {
     setLoading(false);
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setPassword(v);
+    setPasswordError(
+      v.length > 0 && v.length < 8
+        ? "Password must be at least 8 characters"
+        : null
+    );
+
+    // パスワード変更時は確認一致も再評価
+    setConfirmError(confirm && v !== confirm ? "Passwords do not match" : null);
+  };
+
+  const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setConfirm(v);
+    setConfirmError(v && v !== password ? "Passwords do not match" : null);
+  };
+
   return (
     <div className="w-[70vw] max-w-[40rem] mx-auto mt-[12rem]">
       <h1 className="text-font-primary font-semibold mb-[5.6rem] text-[1.8rem] text-center">
@@ -91,19 +110,7 @@ export default function SignupPage() {
               type={showPassword ? "text" : "password"}
               placeholder="8 characters or more"
               value={password}
-              onChange={(e) => {
-                const v = e.target.value;
-                setPassword(v);
-                setPasswordError(
-                  v.length > 0 && v.length < 8
-                    ? "Password must be at least 8 characters"
-                    : null
-                );
-                // パスワード変更時は確認一致も再評価
-                setConfirmError(
-                  confirm && v !== confirm ? "Passwords do not match" : null
-                );
-              }}
+              onChange={handlePasswordChange}
               aria-invalid={Boolean(passwordError)}
               required
             />
@@ -130,13 +137,7 @@ export default function SignupPage() {
               id="signup-confirm"
               type={showConfirm ? "text" : "password"}
               value={confirm}
-              onChange={(e) => {
-                const v = e.target.value;
-                setConfirm(v);
-                setConfirmError(
-                  v && v !== password ? "Passwords do not match" : null
-                );
-              }}
+              onChange={handleConfirmChange}
               aria-invalid={Boolean(confirmError)}
               required
             />
@@ -166,13 +167,16 @@ export default function SignupPage() {
         </div>
       </form>
 
+      {/* Login Link */}
       <div className="mt-[3.2rem] text-center">
         <Link href="/login" className="underline">
           Already have an account?
         </Link>
       </div>
 
-      {message && <div className="mt-3 text-muted-foreground">{message}</div>}
+      {message && (
+        <div className="mt-[3.2rem] text-muted-foreground">{message}</div>
+      )}
     </div>
   );
 }
