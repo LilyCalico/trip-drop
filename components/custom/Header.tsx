@@ -106,6 +106,7 @@ const Menu = ({
 export default function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const handleMenuClick = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -114,30 +115,34 @@ export default function Header() {
   return (
     <div className="h-[6.4rem] flex justify-between items-center px-[1.6rem]">
       <h1 className="text-[1.4rem] font-bold">Trip Drop</h1>
-      <div
-        onClick={handleMenuClick}
-        className="text-[2.4rem] font-bold flex items-center gap-[1.2rem] cursor-pointer"
-      >
-        <Image
-          src="/dummy-user.png"
-          alt="logo"
-          width={28}
-          height={28}
-          className="rounded-full border border-gray-300"
-        />
-        <AiOutlineMenu />
-      </div>
-      {isMenuOpen && (
+      {isAuthenticated && (
+        <div
+          onClick={handleMenuClick}
+          className="text-[2.4rem] font-bold flex items-center gap-[1.2rem] cursor-pointer"
+        >
+          <Image
+            src="/dummy-user.png"
+            alt="logo"
+            width={28}
+            height={28}
+            className="rounded-full border border-gray-300"
+          />
+          <AiOutlineMenu />
+        </div>
+      )}
+      {isAuthenticated && isMenuOpen && (
         <div
           className="fixed inset-0 bg-black/20 z-10"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
-      <Menu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onLoggedOut={() => router.replace("/auth/login")}
-      />
+      {isAuthenticated && (
+        <Menu
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          onLoggedOut={() => router.replace("/auth/login")}
+        />
+      )}
     </div>
   );
 }
