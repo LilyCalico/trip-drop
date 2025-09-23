@@ -36,25 +36,37 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/`
-            : undefined
-      }
-    });
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/welcome`
+        }
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
-    } else {
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // navigate("/");
+
       setMessage(
-        "A confirmation email has been sent. Please check your email and click the link to verify your account."
+        "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered."
       );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+      setError(null);
+      setPasswordError(null);
+      setConfirmError(null);
+      setShowPassword(false);
+      setShowConfirm(false);
+      setEmail("");
+      setPassword("");
+      setConfirm("");
     }
-    setLoading(false);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,7 +161,10 @@ export default function SignupPage() {
         </div>
         {error && <ErrorMessage message={error} />}
         <div className="flex justify-center">
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            disabled={loading || !email || !password || !confirm}
+          >
             {loading ? "Loading..." : "Signup"}
           </Button>
         </div>
@@ -163,7 +178,9 @@ export default function SignupPage() {
       </div>
 
       {message && (
-        <div className="mt-[3.2rem] text-muted-foreground">{message}</div>
+        <div className="mt-[3.2rem] text-muted-foreground text-red-500">
+          {message}
+        </div>
       )}
     </AuthWrapper>
   );
