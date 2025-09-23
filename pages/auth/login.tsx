@@ -1,16 +1,28 @@
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import AuthWrapper from "@/components/custom/auth/AuthWrapper";
 import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
+import Spinner from "@/components/custom/Spinner";
+import { useAuthStore } from "@/lib/auth/useAuthStore";
 import supabase from "@/lib/supabaseClient";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLoading = useAuthStore((s) => s.loading);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace("/");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const signInWithPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +47,10 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || isAuthenticated) {
+    return <Spinner />;
+  }
 
   return (
     <AuthWrapper title="Sign in">

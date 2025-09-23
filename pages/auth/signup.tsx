@@ -1,14 +1,19 @@
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import AuthWrapper from "@/components/custom/auth/AuthWrapper";
 import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
+import { useAuthStore } from "@/lib/auth/useAuthStore";
 import supabase from "@/lib/supabaseClient";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLoading = useAuthStore((s) => s.loading);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -19,6 +24,12 @@ export default function SignupPage() {
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace("/");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +98,14 @@ export default function SignupPage() {
     setConfirm(v);
     setConfirmError(v && v !== password ? "Passwords do not match" : null);
   };
+
+  if (authLoading || isAuthenticated) {
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+      </div>
+    );
+  }
 
   return (
     <AuthWrapper title="Sign up">
