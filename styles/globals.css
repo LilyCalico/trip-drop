@@ -1,12 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@theme {
+  --color-font-primary: #262626;
+  --color-black: #262626;
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  --color-gray-light: #f3f3f3;
+  --font-size-title: 1.8rem;
+}
+
+@utility text-title {
+  font-size: var(--font-size-title);
 }
 
 html {
@@ -14,20 +19,14 @@ html {
   font-size: 62.5%;
 }
 
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body {
+  background: var(--background);
+  color: #262626;
+  font-size: 1.2rem;
+  font-family: "Noto Sans JP", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
-
+/* 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -142,4 +141,4 @@ html {
   body {
     @apply bg-background text-foreground;
   }
-}
+} */
