@@ -131,7 +131,7 @@ export default function SignupPage() {
           {passwordError && <ErrorMessage message={passwordError} />}
         </div>
         <div>
-          <Label id="signup-confirm" text="Confirm Password" />
+          <Label id="signup-confirm" text="Password(Confirm)" />
           <div className="relative">
             <Input
               id="signup-confirm"
