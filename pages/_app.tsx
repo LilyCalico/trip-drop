@@ -2,8 +2,8 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 import Header from "@/components/custom/Header";
-import { useAuthStore } from "@/lib/auth/useAuthStore";
 import supabase from "@/lib/supabaseClient";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function App({ Component, pageProps }: AppProps) {
   const setSession = useAuthStore((s) => s.setSession);

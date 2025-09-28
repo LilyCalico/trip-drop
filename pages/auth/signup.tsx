@@ -7,8 +7,8 @@ import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
-import { useAuthStore } from "@/lib/auth/useAuthStore";
-import supabase from "@/lib/supabaseClient";
+import { useSignup } from "@/hooks/auth/useSignup";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,13 +17,14 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [validateError, setValidateError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const { signup, loading: signupLoading, error: signupError } = useSignup();
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -31,52 +32,37 @@ export default function SignupPage() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const handleOnSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setValidateError(null);
     setMessage(null);
 
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setValidateError("Passwords do not match");
       return;
     }
     if (password.length < 8) {
-      setError("Password must be 8 characters or more");
+      setValidateError("Password must be 8 characters or more");
       return;
     }
 
-    setLoading(true);
-
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/welcome`
-        }
-      });
+      const result = await signup({ email, password });
 
-      if (error) {
-        throw new Error(error.message);
+      if (result) {
+        setMessage(
+          "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered."
+        );
+        setPasswordError(null);
+        setConfirmError(null);
+        setShowPassword(false);
+        setShowConfirm(false);
+        setEmail("");
+        setPassword("");
+        setConfirm("");
       }
-
-      // navigate("/");
-
-      setMessage(
-        "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered."
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-      setError(null);
-      setPasswordError(null);
-      setConfirmError(null);
-      setShowPassword(false);
-      setShowConfirm(false);
-      setEmail("");
-      setPassword("");
-      setConfirm("");
+    } catch {
+      console.error(signupError);
     }
   };
 
@@ -109,7 +95,7 @@ export default function SignupPage() {
 
   return (
     <AuthWrapper title="Sign up">
-      <form onSubmit={onSubmit} className="space-y-[3.2rem]">
+      <form onSubmit={handleOnSubmit} className="space-y-[3.2rem]">
         <div>
           <Label id="signup-email" text="Email" />
           <Input
@@ -178,13 +164,15 @@ export default function SignupPage() {
           </div>
           {confirmError && <ErrorMessage message={confirmError} />}
         </div>
-        {error && <ErrorMessage message={error} />}
+        {(signupError || validateError) && (
+          <ErrorMessage message={signupError || validateError || ""} />
+        )}
         <div className="flex justify-center">
           <Button
             type="submit"
-            disabled={loading || !email || !password || !confirm}
+            disabled={signupLoading || !email || !password || !confirm}
           >
-            {loading ? "Loading..." : "Signup"}
+            {signupLoading ? "Loading..." : "Signup"}
           </Button>
         </div>
       </form>
