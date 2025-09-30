@@ -6,7 +6,7 @@ import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
 import Spinner from "@/components/custom/Spinner";
-import supabase from "@/lib/supabaseClient";
+import { useSignin } from "@/hooks/auth/useSignin";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function LoginPage() {
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { signIn, loading: signingIn, error: signInError } = useSignin();
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -30,17 +31,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const res = await signIn(email, password);
 
-      if (signInError) {
-        setError(signInError.message);
+      if (!res) {
+        setError(signInError ?? "Failed to sign in");
         return;
       }
-
-      alert("Login successful");
+      router.replace("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -53,7 +50,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthWrapper title="Sign in">
+    <AuthWrapper title="Log in">
       <form onSubmit={signInWithPassword} className="space-y-[3.2rem]">
         <div>
           <Label id="login-email" text="Email" />
@@ -82,8 +79,8 @@ export default function LoginPage() {
         {error && <ErrorMessage message={error} className="text-center" />}
 
         <div className="flex justify-center">
-          <Button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Sign in"}
+          <Button type="submit" disabled={loading || signingIn}>
+            {loading || signingIn ? "Loading..." : "Log in"}
           </Button>
         </div>
       </form>
