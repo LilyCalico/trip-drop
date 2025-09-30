@@ -1,43 +1,32 @@
 import axios from "axios";
 import { useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
 
-interface SignupData {
-  email: string;
-  password: string;
+interface CheckProfileResponse {
+  isProfileExists: boolean;
+  isNameNull: boolean;
 }
 
-interface SignupResponse {
-  success: boolean;
-  user?: {
-    id: string;
-    email?: string;
-  };
-  session?: {
-    access_token: string;
-    refresh_token: string;
-  };
-}
-
-export const useSignup = () => {
+export const useCheckProfile = () => {
+  const session = useAuthStore((s) => s.session);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const signup = async (data: SignupData): Promise<SignupResponse | null> => {
+  const checkProfile = async () => {
     setLoading(true);
     setError(null);
+
+    if (!session?.user.id) {
+      setError("User not found");
+      return;
+    }
 
     try {
       const baseURL =
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
-      const response = await axios.post<SignupResponse>(
-        `${baseURL}/auth/signup`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
+      const response = await axios.get<CheckProfileResponse>(
+        `${baseURL}/profile/check?userId=${session.user.id}`
       );
 
       return response.data;
@@ -51,14 +40,14 @@ export const useSignup = () => {
       }
 
       setError(errorMessage);
-      return null;
+      console.error("Error checking profile:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return {
-    signup,
+    checkProfile,
     loading,
     error
   };
