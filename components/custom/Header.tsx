@@ -5,8 +5,8 @@ import { useState } from "react";
 import { AiFillHome, AiOutlineMenu } from "react-icons/ai";
 import { FaBed, FaCalendar, FaPlane } from "react-icons/fa";
 import Button from "@/components/custom/Button";
-import { useAuthStore } from "@/lib/auth/useAuthStore";
 import supabase from "@/lib/supabaseClient";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const MenuItems = [
   {
@@ -70,9 +70,12 @@ const Menu = ({
   return (
     <div
       className={
-        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] absolute top-0 right-0 z-20 transform transition-transform duration-300 ease-out bg-white " +
-        (isOpen ? "translate-x-0" : "translate-x-full")
+        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 z-20 transform transition-transform duration-300 ease-out bg-white " +
+        (isOpen
+          ? "translate-x-0 pointer-events-auto"
+          : "translate-x-full pointer-events-none invisible")
       }
+      aria-hidden={!isOpen}
     >
       <div>
         <h1 className="text-center font-bold mb-[4rem]">Sample Trip Title</h1>
