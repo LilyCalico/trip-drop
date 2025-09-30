@@ -6,8 +6,8 @@ import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
 import Spinner from "@/components/custom/Spinner";
-import { useAuthStore } from "@/lib/auth/useAuthStore";
 import supabase from "@/lib/supabaseClient";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function LoginPage() {
   const router = useRouter();

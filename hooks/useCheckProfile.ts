@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface CheckProfileResponse {
@@ -12,13 +12,12 @@ export const useCheckProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const checkProfile = async () => {
+  const checkProfile = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     if (!session?.user.id) {
-      setError("User not found");
-      return;
+      return null;
     }
 
     try {
@@ -44,7 +43,7 @@ export const useCheckProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user.id]);
 
   return {
     checkProfile,
