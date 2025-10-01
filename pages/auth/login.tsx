@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import AuthWrapper from "@/components/custom/auth/AuthWrapper";
@@ -80,11 +81,21 @@ export default function LoginPage() {
         {error && <ErrorMessage message={error} className="text-center" />}
 
         <div className="flex justify-center">
-          <Button type="submit" disabled={loading || signingIn}>
+          <Button
+            type="submit"
+            disabled={loading || signingIn || !email || !password}
+          >
             {loading || signingIn ? "Loading..." : "Log in"}
           </Button>
         </div>
       </form>
+
+      {/* Login Link */}
+      <div className="mt-[3.2rem] text-center">
+        <Link href="/auth/signup" className="underline">
+          Create an account?
+        </Link>
+      </div>
     </AuthWrapper>
   );
 }
