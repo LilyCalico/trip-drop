@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
 import Spinner from "@/components/custom/Spinner";
+import TripCard, { DUMMY_USERS } from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -73,8 +74,28 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Hello World</h1>
-      <p>ここに旅程一覧を表示</p>
+      <div className="p-[2.4rem]">
+        <h1 className="text-pagetitle mb-[3.2rem]">Your Trips</h1>
+
+        <div className="bg-lightPink flex flex-col items-center justify-center w-full">
+          <TripCard
+            date="May 1 - May 12 20025"
+            title="Stockholm / Londooon"
+            users={DUMMY_USERS}
+          />
+        </div>
+
+        <div className="flex justify-center">
+          <Button
+            onClick={() => {
+              alert("Create a new trip!");
+            }}
+            className="mt-[3.2rem] w-full max-w-[34.5rem]"
+          >
+            New Trip
+          </Button>
+        </div>
+      </div>
 
       {/* 名前入力モーダル */}
       {showNameModal && (
