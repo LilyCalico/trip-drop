@@ -79,6 +79,7 @@ export default function Home() {
 
         <div className="bg-lightPink flex flex-col items-center justify-center w-full">
           <TripCard
+            tripId="sampleid"
             date="May 1 - May 12 20025"
             title="Stockholm / Londooon"
             users={DUMMY_USERS}

@@ -1,14 +1,15 @@
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { cn } from "@/lib/utils";
-
 export const DUMMY_USERS = [
   { id: 1, name: "Kiki", avatarUrl: "/dummy-user.png" },
   { id: 2, name: "Shizuku", avatarUrl: "" }
 ];
 
 interface TripCardProps {
+  tripId: string;
   date: string;
   title: string;
   users: { id: number; name: string; avatarUrl: string }[];
@@ -27,15 +28,21 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function TripCard({ date, title, users }: TripCardProps) {
+function TripCard({ tripId, date, title, users }: TripCardProps) {
+  const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<number | null>(null);
 
   return (
     <div
-      onClick={() => setActiveUserId(null)}
+      onClick={() => {
+        setActiveUserId(null);
+      }}
       className={cn("w-full max-w-[34.5rem]")}
     >
       <div
+        onClick={() => {
+          router.push(`/trips/${tripId}`);
+        }}
         className={cn(
           "mx-auto bg-gray-50 rounded-lg",
           "pt-[2.4rem] px-[2.4rem] pb-[3.6rem]",
