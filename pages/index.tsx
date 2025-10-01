@@ -12,6 +12,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authLoading = useAuthStore((s) => s.loading);
@@ -41,7 +42,12 @@ export default function Home() {
 
   const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !session?.user) return;
+    const trimmed = name.trim();
+    if (!trimmed || trimmed.length > 20 || !session?.user) {
+      if (trimmed.length > 20)
+        setNameError("Please enter a name within 20 characters.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -85,20 +91,33 @@ export default function Home() {
               Welcome to Trip Drop!
             </h1>
             <form onSubmit={handleNameSubmit}>
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">How do you call yourself?</label>
               <Input
                 id="username"
                 type="text"
                 placeholder="username"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setName(v);
+                  if (v.trim().length <= 20) {
+                    setNameError(null);
+                  } else {
+                    setNameError("Please enter a name within 20 characters.");
+                  }
+                }}
                 required
                 className="mb-4"
               />
+              {nameError && (
+                <p className="text-red-500 text-sm mt-[-0.5rem] mb-[0.8rem]">
+                  {nameError}
+                </p>
+              )}
               <div className="flex gap-2 mt-[2.4rem]">
                 <Button
                   type="submit"
-                  disabled={loading || !name.trim()}
+                  disabled={loading || !name.trim() || name.trim().length > 20}
                   className="flex-1"
                 >
                   {loading ? "loading..." : "Save"}
