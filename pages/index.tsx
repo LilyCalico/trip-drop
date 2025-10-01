@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
+import Spinner from "@/components/custom/Spinner";
 import { useCheckProfile } from "@/hooks/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -12,8 +13,17 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const session = useAuthStore((s) => s.session);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLoading = useAuthStore((s) => s.loading);
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -49,6 +59,11 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // 認証が確定するまで、または未認証の場合は中身を描画しない
+  if (authLoading || !isAuthenticated) {
+    return <Spinner />;
+  }
 
   return (
     <div>
