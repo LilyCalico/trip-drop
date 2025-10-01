@@ -30,9 +30,13 @@ export default async function handler(
     });
 
     if (error || !data.session) {
+      // return res
+      //   .status(401)
+      //   .json({ error: error?.message ?? "Invalid credentials" });
+
       return res
         .status(401)
-        .json({ error: error?.message ?? "Invalid credentials" });
+        .json({ error: "Email address or password is incorrect." });
     }
 
     const { access_token, refresh_token } = data.session;

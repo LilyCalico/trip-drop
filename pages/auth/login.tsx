@@ -40,6 +40,7 @@ export default function LoginPage() {
       router.replace("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
+      return;
     } finally {
       setLoading(false);
     }

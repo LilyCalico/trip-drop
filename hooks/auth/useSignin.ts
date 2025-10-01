@@ -12,7 +12,7 @@ export const useSignin = () => {
   const [error, setError] = useState<string | null>(null);
 
   const signIn = useCallback(
-    async (email: string, password: string): Promise<SignInResponse | null> => {
+    async (email: string, password: string): Promise<SignInResponse> => {
       setLoading(true);
       setError(null);
 
@@ -33,21 +33,21 @@ export const useSignin = () => {
 
         if (setSessionError) {
           setError(setSessionError.message);
-          return null;
+          throw new Error(setSessionError.message);
         }
 
         return data;
       } catch (err) {
         let errorMessage = "An unexpected error occurred";
         if (axios.isAxiosError(err)) {
-          errorMessage = err.response?.data?.error || err.message;
+          errorMessage =
+            (err.response?.data as { error?: string } | undefined)?.error ||
+            err.message;
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
         setError(errorMessage);
-        // eslint-disable-next-line no-console
-        console.error("Error signing in:", err);
-        return null;
+        throw new Error(errorMessage);
       } finally {
         setLoading(false);
       }
