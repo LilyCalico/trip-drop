@@ -80,8 +80,9 @@ export default function Home() {
         <div className="bg-lightPink flex flex-col items-center justify-center w-full">
           <TripCard
             tripId="sampleid"
-            date="May 1 - May 12 20025"
-            title="Stockholm / Londooon"
+            startAt="2025-05-01"
+            endAt="2025-05-20"
+            title="Stockholm / London"
             users={DUMMY_USERS}
           />
         </div>
@@ -89,7 +90,7 @@ export default function Home() {
         <div className="flex justify-center">
           <Button
             onClick={() => {
-              alert("Create a new trip!");
+              router.push("/trips/new");
             }}
             className="mt-[3.2rem] w-full max-w-[34.5rem]"
           >

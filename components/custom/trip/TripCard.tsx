@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
+import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
 export const DUMMY_USERS = [
   { id: 1, name: "Kiki", avatarUrl: "/dummy-user.png" },
@@ -10,7 +11,8 @@ export const DUMMY_USERS = [
 
 interface TripCardProps {
   tripId: string;
-  date: string;
+  startAt: string;
+  endAt: string;
   title: string;
   users: { id: number; name: string; avatarUrl: string }[];
 }
@@ -28,7 +30,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function TripCard({ tripId, date, title, users }: TripCardProps) {
+function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<number | null>(null);
 
@@ -49,7 +51,9 @@ function TripCard({ tripId, date, title, users }: TripCardProps) {
           "cursor-pointer hover:bg-gray-100 transition-colors duration-150"
         )}
       >
-        <p className="text-[0.8rem] mb-[0.8rem]">{date}</p>
+        <p className="text-[0.8rem] mb-[0.8rem]">
+          {formatDateRange(startAt, endAt)}
+        </p>
         <p className="text-[1.4rem] font-bold">{title}</p>
       </div>
       <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
