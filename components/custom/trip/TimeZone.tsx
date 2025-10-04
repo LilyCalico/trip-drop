@@ -1,0 +1,39 @@
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { timezones } from "@/lib/timezones";
+
+export default function TimeZone({
+  timezone,
+  setTimezone
+}: {
+  timezone: string;
+  setTimezone: (timezone: string) => void;
+}) {
+  return (
+    <div className="">
+      <Label htmlFor="timezone">Timezone *</Label>
+      <Select value={timezone} onValueChange={setTimezone}>
+        <SelectTrigger className="input-custom !h-[3.4rem]">
+          <SelectValue placeholder="Select timezone" />
+        </SelectTrigger>
+        <SelectContent className="input-custom">
+          {timezones.map((tz) => (
+            <SelectItem
+              key={tz.value}
+              value={tz.value}
+              className="hover:bg-gray-100 text-[1.2rem]"
+            >
+              {tz.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}

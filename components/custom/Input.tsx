@@ -8,9 +8,8 @@ export function Input({ className, ...props }: Props) {
     <BaseInput
       className={cn(
         // 背景・余白・フォントサイズを移植
-        "bg-white pl-[1.2rem] py-[1.6rem] text-[1.4rem] mt-[0.4rem]",
-        // 枠色をカスタムトークン gray-light に（Tailwind v4 カスタム）
-        "border-[var(--color-gray-light)] shadow-none",
+        "py-[1.6rem] text-[1.4rem] mt-[0.4rem]",
+        "input-custom",
         className
       )}
       {...props}

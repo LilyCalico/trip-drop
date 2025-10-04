@@ -6,6 +6,7 @@
   --color-font-primary: #262626;
   --color-black: #262626;
 
+  --color-white: #ffffff;
   --color-gray-light: #f3f3f3;
   --font-size-title: 1.8rem;
 }
@@ -20,13 +21,19 @@
   text-align: center;
 }
 
+@layer components {
+  .input-custom {
+    @apply bg-white !text-[1.4rem] mt-[0.4rem] px-[1rem] border-gray-light !shadow-none;
+  }
+}
+
 html {
   box-sizing: border-box;
   font-size: 62.5%;
 }
 
 body {
-  background: var(--background);
+  /* background: var(--background); */
   color: #262626;
   font-size: 1.2rem;
   font-family: "Noto Sans JP", sans-serif;
