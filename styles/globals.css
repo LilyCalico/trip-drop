@@ -23,7 +23,7 @@
 
 @layer components {
   .input-custom {
-    @apply bg-white !text-[1.4rem] mt-[0.4rem] px-[1rem] border-gray-light !shadow-none;
+    @apply bg-white mt-[0.4rem] px-[1rem] border-gray-light !shadow-none text-[1.2rem];
   }
 }
 

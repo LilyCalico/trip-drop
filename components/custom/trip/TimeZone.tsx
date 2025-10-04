@@ -20,7 +20,7 @@ export default function TimeZone({
       <Label htmlFor="timezone">Timezone *</Label>
       <Select value={timezone} onValueChange={setTimezone}>
         <SelectTrigger className="input-custom !h-[3.4rem]">
-          <SelectValue placeholder="Select timezone" />
+          <SelectValue placeholder="Select timezone" className="!text-[1rem]" />
         </SelectTrigger>
         <SelectContent className="input-custom">
           {timezones.map((tz) => (
