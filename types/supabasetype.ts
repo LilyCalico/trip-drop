@@ -177,7 +177,6 @@ export type Database = {
           location: unknown | null
           name: string
           notes: string | null
-          photos: string[] | null
           trip_day_id: string | null
           updated_at: string | null
           visit_time: string | null
@@ -193,7 +192,6 @@ export type Database = {
           location?: unknown | null
           name: string
           notes?: string | null
-          photos?: string[] | null
           trip_day_id?: string | null
           updated_at?: string | null
           visit_time?: string | null
@@ -209,7 +207,6 @@ export type Database = {
           location?: unknown | null
           name?: string
           notes?: string | null
-          photos?: string[] | null
           trip_day_id?: string | null
           updated_at?: string | null
           visit_time?: string | null
@@ -273,7 +270,6 @@ export type Database = {
           arrival_location: string | null
           arrival_point: unknown | null
           arrival_time: string | null
-          booking_data: Json | null
           booking_reference: string | null
           created_at: string | null
           created_by: string | null
@@ -291,7 +287,6 @@ export type Database = {
           arrival_location?: string | null
           arrival_point?: unknown | null
           arrival_time?: string | null
-          booking_data?: Json | null
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -309,7 +304,6 @@ export type Database = {
           arrival_location?: string | null
           arrival_point?: unknown | null
           arrival_time?: string | null
-          booking_data?: Json | null
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -443,11 +437,12 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           description: string | null
-          end_date: string
+          end_at: string
           id: string
+          number_of_members: number | null
           share_password: string
-          share_url: string
-          start_date: string
+          start_at: string
+          timezone: string
           title: string
           updated_at: string | null
         }
@@ -455,11 +450,12 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
-          end_date: string
+          end_at: string
           id?: string
+          number_of_members?: number | null
           share_password: string
-          share_url: string
-          start_date: string
+          start_at: string
+          timezone?: string
           title: string
           updated_at?: string | null
         }
@@ -467,11 +463,12 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           description?: string | null
-          end_date?: string
+          end_at?: string
           id?: string
+          number_of_members?: number | null
           share_password?: string
-          share_url?: string
-          start_date?: string
+          start_at?: string
+          timezone?: string
           title?: string
           updated_at?: string | null
         }
