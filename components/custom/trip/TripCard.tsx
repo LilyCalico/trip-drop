@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { FaUserCircle } from "react-icons/fa";
+import { FaTrash, FaUserCircle } from "react-icons/fa";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
 export const DUMMY_USERS = [
@@ -41,20 +41,32 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
       }}
       className={cn("w-full max-w-[34.5rem]")}
     >
-      <div
-        onClick={() => {
-          router.push(`/trips/${tripId}`);
-        }}
-        className={cn(
-          "mx-auto bg-gray-50 rounded-lg",
-          "pt-[2.4rem] px-[2.4rem] pb-[3.6rem]",
-          "cursor-pointer hover:bg-gray-100 transition-colors duration-150"
-        )}
-      >
-        <p className="text-[0.8rem] mb-[0.8rem]">
-          {formatDateRange(startAt, endAt)}
-        </p>
-        <p className="text-[1.4rem] font-bold">{title}</p>
+      <div className="flex items-center justify-between">
+        <div
+          onClick={() => {
+            router.push(`/trips/${tripId}`);
+          }}
+          className={cn(
+            "flex-1 bg-gray-50 rounded-lg",
+            "pt-[2.4rem] px-[2.4rem] pb-[3.6rem]",
+            "cursor-pointer hover:bg-gray-100 transition-colors duration-150"
+          )}
+        >
+          <p className="text-[0.8rem] mb-[0.8rem]">
+            {formatDateRange(startAt, endAt)}
+          </p>
+          <p className="text-[1.4rem] font-bold">{title}</p>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            console.log(tripId);
+          }}
+          className="ml-4 p-2 hover:bg-warning/50 rounded-full transition-colors duration-150"
+        >
+          <FaTrash className="w-[1.4rem] h-[1.4rem] text-black/75" />
+        </button>
       </div>
       <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
         {users.map((user) => (
