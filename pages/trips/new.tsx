@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DateCustom from "@/components/custom/DateCustom";
 import { Input } from "@/components/custom/Input";
 import InputPassword from "@/components/custom/InputPassword";
@@ -7,14 +7,18 @@ import PageWrapper from "@/components/custom/PageWrapper";
 import TimeZone from "@/components/custom/trip/TimeZone";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function NewTripPage() {
   const router = useRouter();
+  const session = useAuthStore((s) => s.session);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLoading = useAuthStore((s) => s.loading);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-  const [numPeople, setNumPeople] = useState("");
+  const [numOfPeople, setnumOfPeople] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -29,56 +33,58 @@ export default function NewTripPage() {
     password &&
     password === confirmPassword;
 
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
     setLoading(true);
     try {
-      console.log(
-        "title: ",
-        title,
-        "description: ",
-        description,
-        "startDate: ",
-        startDate,
-        "endDate: ",
-        endDate,
-        "timezone: ",
-        timezone,
-        "numPeople: ",
-        numPeople,
-        "password: ",
-        password
-      );
-      // const response = await fetch("/api/trip", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify({
-      //     title: title.trim(),
-      //     description: description.trim(),
-      //     startAt: startDate?.toISOString(),
-      //     endAt: endDate?.toISOString(),
-      //     timezone,
-      //     numPeople: numPeople ? parseInt(numPeople) : undefined,
-      //     password: password.trim() || undefined
-      //   })
-      // });
+      if (!session?.access_token) {
+        console.error("No access token found");
+        return;
+      }
 
-      // if (response.ok) {
-      //   const data = await response.json();
-      //   router.push(`/trips/${data.tripId}`);
-      // } else {
-      //   console.error("Failed to create trip");
-      // }
+      const requestBody = {
+        title: title.trim(),
+        description: description.trim(),
+        startAt: startDate?.toISOString(),
+        endAt: endDate?.toISOString(),
+        timezone,
+        numOfPeople: numOfPeople ? parseInt(numOfPeople) : null,
+        password: password.trim()
+      };
+
+      const response = await fetch("/api/trip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (response.ok) {
+        const tripId = await response.json();
+        console.log("tripId", tripId);
+        // router.push(`/trips/${data.tripId}`);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to create trip:", errorData);
+      }
     } catch (error) {
       console.error("Error creating trip:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  if (authLoading || !isAuthenticated) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <PageWrapper>
@@ -133,8 +139,8 @@ export default function NewTripPage() {
             id="num-people"
             type="number"
             min="1"
-            value={numPeople}
-            onChange={(e) => setNumPeople(e.target.value)}
+            value={numOfPeople}
+            onChange={(e) => setnumOfPeople(e.target.value)}
             placeholder="Enter number of people"
           />
         </div>
@@ -147,6 +153,7 @@ export default function NewTripPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
+            autoComplete="new-password"
           />
         </div>
 
@@ -166,6 +173,7 @@ export default function NewTripPage() {
             }}
             placeholder="Confirm password"
             aria-invalid={Boolean(passwordError)}
+            autoComplete="new-password"
           />
           {passwordError && (
             <p className="text-red-500 text-sm mt-1">{passwordError}</p>

@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
+import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
 import TripCard, { DUMMY_USERS } from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/useCheckProfile";
@@ -73,8 +74,8 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <div className="p-[2.4rem]">
+    <PageWrapper>
+      <div>
         <h1 className="text-pagetitle mb-[3.2rem]">Your Trips</h1>
 
         <div className="bg-lightPink flex flex-col items-center justify-center w-full">
@@ -157,6 +158,6 @@ export default function Home() {
           </div>
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

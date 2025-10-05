@@ -12,6 +12,7 @@ interface InputPasswordProps {
   required?: boolean;
   "aria-invalid"?: boolean;
   "aria-label"?: string;
+  autoComplete?: string;
 }
 
 export default function InputPassword({
@@ -22,7 +23,8 @@ export default function InputPassword({
   className,
   required = false,
   "aria-invalid": ariaInvalid,
-  "aria-label": ariaLabel
+  "aria-label": ariaLabel,
+  autoComplete
 }: InputPasswordProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,6 +40,7 @@ export default function InputPassword({
         required={required}
         aria-invalid={ariaInvalid}
         aria-label={ariaLabel}
+        autoComplete={autoComplete}
       />
       <button
         type="button"
