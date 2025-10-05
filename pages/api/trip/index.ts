@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { hashPassword } from "@/lib/passwordUtils";
 import { timezones } from "@/lib/timezones";
 
 type ErrorBody = { error: string };
@@ -52,9 +53,9 @@ export default async function handler(
       typeof body.title === "string" ? body.title.trim() : undefined;
     const description: string | null =
       typeof body.description === "string" ? body.description.trim() : null;
-    const startAt: string | undefined =
+    let startAt: string | undefined =
       typeof body.startAt === "string" ? body.startAt.trim() : undefined;
-    const endAt: string | undefined =
+    let endAt: string | undefined =
       typeof body.endAt === "string" ? body.endAt.trim() : undefined;
     const timezone: string | undefined =
       typeof body.timezone === "string" ? body.timezone.trim() : undefined;
@@ -67,12 +68,19 @@ export default async function handler(
         ? body.numOfPeople
         : 1;
 
-    if (!title || !startAt || !endAt || !timezone || !password) {
+    if (
+      !title ||
+      !startAt ||
+      !endAt ||
+      !timezone ||
+      !password ||
+      !numOfPeople
+    ) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     // 文字列長制限とパターン検証
-    if (title.length > 100) {
+    if (title.length > 50) {
       return res
         .status(400)
         .json({ error: "Title must be 100 characters or less" });
@@ -97,10 +105,12 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid date format" });
     }
 
-    if (startDate >= endDate) {
-      return res
-        .status(400)
-        .json({ error: "Start date must be before end date" });
+    // startAtがendAtより遅い場合は値を入れ替える
+    if (startDate > endDate) {
+      const temp = startAt;
+      startAt = endAt;
+      endAt = temp;
+      console.log("🤩Swapped dates:", { startAt, endAt });
     }
 
     // タイムゾーンの検証（許可された値のみ）
@@ -111,6 +121,9 @@ export default async function handler(
 
     const createdBy = userRes.user.id;
     const tripId = randomUUID();
+
+    // パスワードをハッシュ化（ソルト付き）
+    const hashedPassword = hashPassword(password);
 
     // 1) trips へ挿入（自前ID採番）。RLSは created_by チェックのみなので通る
     const { error: insertTripError } = await supabase
@@ -124,7 +137,7 @@ export default async function handler(
           end_at: endAt,
           timezone,
           number_of_members: numOfPeople,
-          share_password: password,
+          share_password: hashedPassword,
           created_by: createdBy
         }
       ])
@@ -138,7 +151,7 @@ export default async function handler(
     }
 
     // 2) 自動的にオーナーとしてメンバー登録（これでSELECTポリシーも通る）
-    const { error: addMemberError } = await supabase
+    const { data: memberData, error: addMemberError } = await supabase
       .from("trip_members")
       .insert([
         {
@@ -148,16 +161,17 @@ export default async function handler(
           permissions: { can_edit: true, can_invite: true }
         }
       ])
-      .single();
+      .select();
+
+    console.log("Member insert result:", { memberData, addMemberError });
 
     if (addMemberError) {
+      console.error("Add member error:", addMemberError);
       return res
         .status(400)
         .json({ error: `add member error: ${addMemberError.message}` });
     }
 
-    // 3) トリップ作成成功 - 取得はスキップ（RLSの問題を回避）
-    console.log("Trip created successfully with ID:", tripId);
     return res.status(201).json({ tripId });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error";

@@ -24,6 +24,7 @@ export default function NewTripPage() {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const [timezone, setTimezone] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const isFormValid =
     title.trim() &&
@@ -42,9 +43,11 @@ export default function NewTripPage() {
     if (!isFormValid) return;
 
     setLoading(true);
+    setSubmitError(""); // エラーをクリア
     try {
       if (!session?.access_token) {
         console.error("No access token found");
+        setSubmitError("Authentication error. Please try again.");
         return;
       }
 
@@ -68,15 +71,19 @@ export default function NewTripPage() {
       });
 
       if (response.ok) {
-        const tripId = await response.json();
-        console.log("tripId", tripId);
+        const data = await response.json();
         // router.push(`/trips/${data.tripId}`);
       } else {
         const errorData = await response.json();
-        console.error("Failed to create trip:", errorData);
+        setSubmitError(
+          errorData.error || "Failed to create trip. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error creating trip:", error);
+      setSubmitError(
+        "Network error. Please check your connection and try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -147,7 +154,7 @@ export default function NewTripPage() {
 
         {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="password">Password *</Label>
+          <Label htmlFor="password">Password * (8 - 30 characters)</Label>
           <InputPassword
             id="password"
             value={password}
@@ -180,10 +187,17 @@ export default function NewTripPage() {
           )}
         </div>
 
+        {/* Error Message */}
+        {submitError && (
+          <div className="mt-4">
+            <p className="text-red-500 text-sm">{submitError}</p>
+          </div>
+        )}
+
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={!isFormValid || loading}
+          disabled={!isFormValid || loading || passwordError !== ""}
           className="bg-black text-white w-full mt-[3.2rem] text-[1.2rem] py-[1.6rem] hover:bg-black/80 cursor-pointer"
         >
           {loading ? "Creating..." : "Create Trip"}
