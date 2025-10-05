@@ -61,7 +61,10 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            console.log(tripId);
+            if (confirm("Are you sure you want to delete this trip?")) {
+              console.log("Deleting trip:", tripId);
+              // TODO: Implement actual deletion logic
+            }
           }}
           className="ml-4 p-2 hover:bg-warning/50 rounded-full transition-colors duration-150"
         >
