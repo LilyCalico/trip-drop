@@ -1,0 +1,82 @@
+import axios, { isAxiosError } from "axios";
+import { useCallback, useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import type { TripType } from "@/types/fronttype";
+
+interface TripsIdsResponse {
+  tripIds: string[];
+}
+
+interface TripsResponse {
+  trips: TripType[];
+}
+
+interface UseGetTripsResult {
+  loading: boolean;
+  error: string | null;
+  fetchTrips: () => Promise<TripType[] | undefined>;
+}
+
+const useGetTrips = (): UseGetTripsResult => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const session = useAuthStore((s) => s.session);
+
+  const fetchTrips = useCallback(async () => {
+    if (!session?.access_token) {
+      setError("No access token found");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      };
+
+      // 1. IDs を取得
+      const idsRes = await axios.get<TripsIdsResponse>("/api/trips/ids", {
+        headers,
+      });
+
+      const tripIds = idsRes.data.tripIds ?? [];
+
+      if (tripIds.length === 0) {
+        return undefined;
+      }
+
+      // 2. 詳細を一括取得
+      const tripsRes = await axios.get<TripsResponse>("/api/trips", {
+        headers,
+        params: { ids: tripIds.join(",") },
+      });
+
+      return tripsRes.data.trips ?? [];
+    } catch (err) {
+      if (isAxiosError(err)) {
+        const apiMessage =
+          typeof err.response?.data === "object" &&
+          err.response?.data !== null &&
+          "error" in (err.response?.data as Record<string, unknown>)
+            ? String((err.response?.data as { error: string }).error)
+            : err.message;
+        setError(apiMessage);
+      } else {
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+        setError(errorMessage);
+      }
+
+      console.error("Error fetching trips:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.access_token]);
+
+  return { loading, error, fetchTrips };
+};
+
+export default useGetTrips;

@@ -8,6 +8,7 @@ import TripCard, { DUMMY_USERS } from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTripsStore } from "@/store/useTripsStore";
 
 export default function Home() {
   const router = useRouter();
@@ -16,18 +17,12 @@ export default function Home() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const authLoading = useAuthStore((s) => s.loading);
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
+  const tripsLoading = useTripsStore((s) => s.loading);
+  const trips = useTripsStore((s) => s.tripsState);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      router.replace("/auth/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
-
+  // プロフィールに名前の設定がなかったらモーダルを表示
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -44,6 +39,7 @@ export default function Home() {
 
   const handleNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const trimmed = name.trim();
     if (!trimmed || trimmed.length > 20 || !session?.user) {
       if (trimmed.length > 20)
@@ -68,8 +64,8 @@ export default function Home() {
     }
   };
 
-  // 認証が確定するまで、または未認証の場合は中身を描画しない
-  if (authLoading || !isAuthenticated) {
+  // 旅情報のGET中はローディングスピナーを表示する
+  if (tripsLoading) {
     return <Spinner />;
   }
 
@@ -79,13 +75,24 @@ export default function Home() {
         <h1 className="text-pagetitle mb-[3.2rem]">Your Trips</h1>
 
         <div className="bg-lightPink flex flex-col items-center justify-center w-full">
-          <TripCard
+          {trips?.map((trip) => (
+            <TripCard
+              key={trip.id}
+              tripId={trip.id}
+              startAt={trip.startAt}
+              endAt={trip.endAt}
+              title={trip.title}
+              users={DUMMY_USERS}
+            />
+          ))}
+
+          {/* <TripCard
             tripId="sampleid"
             startAt="2025-05-01"
             endAt="2025-05-20"
             title="Stockholm / London"
             users={DUMMY_USERS}
-          />
+          /> */}
         </div>
 
         <div className="flex justify-center">

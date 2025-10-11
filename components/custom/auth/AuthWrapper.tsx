@@ -1,6 +1,6 @@
 export default function AuthWrapper({
   children,
-  title
+  title,
 }: {
   children: React.ReactNode;
   title: string;
