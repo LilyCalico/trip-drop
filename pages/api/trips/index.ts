@@ -13,6 +13,7 @@ interface MemberDto {
   role: string | null;
   joinedAt: string | null;
   permissions: Json | null;
+  name: string | null;
 }
 
 interface TripDto {
@@ -80,7 +81,7 @@ export default async function handler(
       .from("trips")
       .select(`
         id, title, description, start_at, end_at, timezone, number_of_members, created_by, created_at,
-        trip_members!inner(
+        trip_members(
           id, user_id, trip_id, role, joined_at, permissions
         )
       `)
@@ -90,29 +91,41 @@ export default async function handler(
       return res.status(400).json({ error: "Failed to fetch trips" });
     }
 
-    interface TripWithMembers extends Tables<"trips"> {
+    interface TripWithMembers {
+      id: string;
+      title: string;
+      description: string | null;
+      start_at: string;
+      end_at: string;
+      timezone: string;
+      number_of_members: number | null;
+      created_by: string | null;
+      created_at: string | null;
       trip_members: Tables<"trip_members">[];
     }
 
-    const trips: TripDto[] = ((data as TripWithMembers[]) ?? []).map((row) => ({
-      id: row.id,
-      title: row.title,
-      description: row.description ?? null,
-      startAt: row.start_at,
-      endAt: row.end_at,
-      timeZone: row.timezone,
-      numberOfMembers: row.number_of_members,
-      createdBy: row.created_by,
-      createdAt: row.created_at,
-      members: row.trip_members.map((member) => ({
-        id: member.id,
-        userId: member.user_id,
-        tripId: member.trip_id,
-        role: member.role,
-        joinedAt: member.joined_at,
-        permissions: member.permissions,
-      })),
-    }));
+    const trips: TripDto[] = ((data as unknown as TripWithMembers[]) ?? []).map(
+      (row) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description ?? null,
+        startAt: row.start_at,
+        endAt: row.end_at,
+        timeZone: row.timezone,
+        numberOfMembers: row.number_of_members,
+        createdBy: row.created_by,
+        createdAt: row.created_at,
+        members: row.trip_members.map((member) => ({
+          id: member.id,
+          userId: member.user_id,
+          tripId: member.trip_id,
+          role: member.role,
+          joinedAt: member.joined_at,
+          permissions: member.permissions,
+          name: null, // 一時的にnullに設定
+        })),
+      }),
+    );
 
     return res.status(200).json({ trips });
   } catch (e) {

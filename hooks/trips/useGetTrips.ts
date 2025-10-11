@@ -11,6 +11,10 @@ interface TripsResponse {
   trips: TripType[];
 }
 
+interface MembersResponse {
+  members: TripType["members"];
+}
+
 interface UseGetTripsResult {
   loading: boolean;
   error: string | null;
@@ -48,13 +52,27 @@ const useGetTrips = (): UseGetTripsResult => {
         return undefined;
       }
 
-      // 2. 詳細を一括取得
+      // 2. trips詳細を一括取得
       const tripsRes = await axios.get<TripsResponse>("/api/trips", {
         headers,
         params: { ids: tripIds.join(",") },
       });
 
-      return tripsRes.data.trips ?? [];
+      // 3. members詳細を一括取得
+      const membersRes = await axios.get<MembersResponse>("/api/members", {
+        headers,
+        params: { tripIds: tripIds.join(",") },
+      });
+
+      // 4. tripsとmembersを統合
+      const tripsWithMembers = tripsRes.data.trips.map((trip) => ({
+        ...trip,
+        members: membersRes.data.members.filter(
+          (member) => member.tripId === trip.id,
+        ),
+      }));
+
+      return tripsWithMembers;
     } catch (err) {
       if (isAxiosError(err)) {
         const apiMessage =

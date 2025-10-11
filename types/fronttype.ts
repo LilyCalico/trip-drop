@@ -5,6 +5,7 @@ export interface MemberType {
   role: string | null;
   joinedAt: string | null;
   permissions: any | null;
+  name: string | null;
 }
 
 export interface TripType {
