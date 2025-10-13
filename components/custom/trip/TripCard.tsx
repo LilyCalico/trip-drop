@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaTrash, FaUserCircle } from "react-icons/fa";
+import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
 export const DUMMY_USERS = [
@@ -33,6 +34,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
 function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const { deleteTrip } = useDeleteTrip();
 
   return (
     <div
@@ -62,8 +64,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             if (confirm("Are you sure you want to delete this trip?")) {
-              console.log("Deleting trip:", tripId);
-              // TODO: Implement actual deletion logic
+              deleteTrip(tripId);
             }
           }}
           className="ml-4 p-2 hover:bg-warning/50 rounded-full transition-colors duration-150"
