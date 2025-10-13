@@ -6,7 +6,7 @@ import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
 export const DUMMY_USERS = [
   { id: 1, name: "Kiki", avatarUrl: "/dummy-user.png" },
-  { id: 2, name: "Shizuku", avatarUrl: "" }
+  { id: 2, name: "Shizuku", avatarUrl: "" },
 ];
 
 interface TripCardProps {
@@ -14,7 +14,7 @@ interface TripCardProps {
   startAt: string;
   endAt: string;
   title: string;
-  users: { id: number; name: string; avatarUrl: string }[];
+  users: { id: string; name: string | null; avatarUrl: string | null }[];
 }
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -22,7 +22,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
     <div
       className={cn(
         "relative w-[2.4rem] h-[2.4rem] block",
-        "rounded-full border-2 border-gray-300 overflow-hidden"
+        "rounded-full border-2 border-gray-300 overflow-hidden",
       )}
     >
       {children}
@@ -32,7 +32,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
 
 function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
   const router = useRouter();
-  const [activeUserId, setActiveUserId] = useState<number | null>(null);
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
 
   return (
     <div
@@ -49,7 +49,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
           className={cn(
             "flex-1 bg-gray-50 rounded-lg",
             "pt-[2.4rem] px-[2.4rem] pb-[3.6rem]",
-            "cursor-pointer hover:bg-gray-100 transition-colors duration-150"
+            "cursor-pointer hover:bg-gray-100 transition-colors duration-150",
           )}
         >
           <p className="text-[0.8rem] mb-[0.8rem]">
@@ -77,7 +77,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
             key={user.id}
             className={cn(
               "relative inline-block group",
-              "mr-[-0.8rem] last:mr-0"
+              "mr-[-0.8rem] last:mr-0",
             )}
             onClick={(e) => {
               e.stopPropagation();
@@ -88,7 +88,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
               <IconWrapper>
                 <Image
                   src={user.avatarUrl}
-                  alt={user.name}
+                  alt={user.name ?? "Unknown"}
                   className="object-cover"
                   width={24}
                   height={24}
@@ -106,7 +106,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
                 "transition-opacity duration-150",
                 activeUserId === user.id
                   ? "opacity-100"
-                  : "opacity-0 group-hover:opacity-100"
+                  : "opacity-0 group-hover:opacity-100",
               )}
             >
               {user.name}

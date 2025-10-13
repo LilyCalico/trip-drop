@@ -1,11 +1,12 @@
 export interface MemberType {
   id: string;
-  userId: string | null;
-  tripId: string | null;
-  role: string | null;
+  userId: string;
+  tripId: string;
+  role: string;
   joinedAt: string | null;
   permissions: any | null;
   name: string | null;
+  avatarUrl: string | null;
 }
 
 export interface TripType {

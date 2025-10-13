@@ -4,7 +4,7 @@ import Button from "@/components/custom/Button";
 import Input from "@/components/custom/Input";
 import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
-import TripCard, { DUMMY_USERS } from "@/components/custom/trip/TripCard";
+import TripCard from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -64,8 +64,12 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    console.log("trips", trips);
+  }, [trips]);
+
   // 旅情報のGET中はローディングスピナーを表示する
-  if (tripsLoading) {
+  if (!trips && tripsLoading) {
     return <Spinner />;
   }
 
@@ -82,17 +86,15 @@ export default function Home() {
               startAt={trip.startAt}
               endAt={trip.endAt}
               title={trip.title}
-              users={DUMMY_USERS}
+              users={trip.members.map((member) => {
+                return {
+                  id: member.userId,
+                  name: member.name,
+                  avatarUrl: member.avatarUrl,
+                };
+              })}
             />
           ))}
-
-          {/* <TripCard
-            tripId="sampleid"
-            startAt="2025-05-01"
-            endAt="2025-05-20"
-            title="Stockholm / London"
-            users={DUMMY_USERS}
-          /> */}
         </div>
 
         <div className="flex justify-center">

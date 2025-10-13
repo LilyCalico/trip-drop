@@ -10,7 +10,7 @@ interface TripsIdsResponse {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TripsIdsResponse | ErrorBody>
+  res: NextApiResponse<TripsIdsResponse | ErrorBody>,
 ) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -36,7 +36,7 @@ export default async function handler(
     // Anon Key + ユーザー認証でRLSを正しく適用
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      auth: { persistSession: false, autoRefreshToken: false }
+      auth: { persistSession: false, autoRefreshToken: false },
     });
 
     // ユーザー情報を取得
@@ -54,7 +54,10 @@ export default async function handler(
       .eq("user_id", userId);
 
     if (error) {
-      return res.status(400).json({ error: "Failed to fetch trip ids" });
+      console.error("trip_members select error:", error);
+      return res
+        .status(400)
+        .json({ error: `Failed to fetch trip ids: ${error.message}` });
     }
 
     const tripIds = (data ?? []).map((row) => row.trip_id as string);
