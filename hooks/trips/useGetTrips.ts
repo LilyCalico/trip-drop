@@ -1,6 +1,7 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTripsStore } from "@/store/useTripsStore";
 import type { TripType } from "@/types/fronttype";
 
 interface TripsIdsResponse {
@@ -25,6 +26,7 @@ const useGetTrips = (): UseGetTripsResult => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
+  const setTripsLoading = useTripsStore((s) => s.setLoading);
 
   const fetchTrips = useCallback(async () => {
     if (!session?.access_token) {
@@ -33,6 +35,7 @@ const useGetTrips = (): UseGetTripsResult => {
     }
 
     setLoading(true);
+    setTripsLoading(true);
     setError(null);
 
     try {
@@ -91,8 +94,9 @@ const useGetTrips = (): UseGetTripsResult => {
       console.error("Error fetching trips:", err);
     } finally {
       setLoading(false);
+      setTripsLoading(false);
     }
-  }, [session?.access_token]);
+  }, [session?.access_token, setTripsLoading]);
 
   return { loading, error, fetchTrips };
 };
