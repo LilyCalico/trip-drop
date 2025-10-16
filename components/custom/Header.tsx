@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiFillHome, AiOutlineMenu } from "react-icons/ai";
 import { FaBed, FaCalendar, FaPlane } from "react-icons/fa";
-import Button from "@/components/custom/Button";
+import Button from "@/components/custom/button/Button";
 import supabase from "@/lib/supabaseClient";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -12,29 +12,29 @@ const MenuItems = [
   {
     label: "Top",
     icon: <AiFillHome />,
-    href: "/"
+    href: "/",
   },
   {
     label: "Schedule",
     icon: <FaCalendar />,
-    href: "/schedule"
+    href: "/schedule",
   },
   {
     label: "Transport",
     icon: <FaPlane />,
-    href: "/transport"
+    href: "/transport",
   },
   {
     label: "Hotel",
     icon: <FaBed />,
-    href: "/hotel"
-  }
+    href: "/hotel",
+  },
 ];
 
 const MenuLabel = ({
   icon,
   label,
-  href
+  href,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -54,7 +54,7 @@ const MenuLabel = ({
 const Menu = ({
   isOpen,
   onClose,
-  onLoggedOut
+  onLoggedOut,
 }: {
   isOpen: boolean;
   onClose: () => void;
