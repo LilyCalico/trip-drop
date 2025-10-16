@@ -20,7 +20,7 @@ export default function TripDetailPage() {
         <TripDetail
           tripId={trip.id}
           title={trip.title}
-          description={trip.description ?? ""}
+          description={trip.description}
           startAt={trip.startAt}
           endAt={trip.endAt}
           numberOfMembers={trip.numberOfMembers ?? 1}

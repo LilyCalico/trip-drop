@@ -6,7 +6,7 @@ import Button from "@/components/custom/Button";
 interface TripDetailProps {
   tripId: string;
   title: string;
-  description: string;
+  description: string | null;
   startAt: string;
   endAt: string;
   numberOfMembers: number;
@@ -40,7 +40,7 @@ export default function TripDetail({
     <div className="p-[3.2rem] bg-section flex flex-col gap-[4rem]">
       <div className="text-center">
         <p className="font-bold text-[1.6rem] mb-[1rem]">{title}</p>
-        <p>{description}</p>
+        {description && <p>{description}</p>}
       </div>
 
       <div className="px-[3.65rem]">
