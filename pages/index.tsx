@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Button from "@/components/custom/Button";
+import Button from "@/components/custom/button/Button";
 import Input from "@/components/custom/Input";
 import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
@@ -20,7 +20,7 @@ export default function Home() {
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
   const tripsLoading = useTripsStore((s) => s.loading);
-  const trips = useTripsStore((s) => s.tripsState);
+  const trips = useTripsStore((s) => s.trips);
 
   // プロフィールに名前の設定がなかったらモーダルを表示
   useEffect(() => {

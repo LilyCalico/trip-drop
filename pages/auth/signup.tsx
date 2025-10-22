@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import AuthWrapper from "@/components/custom/auth/AuthWrapper";
 import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
-import Button from "@/components/custom/Button";
+import Button from "@/components/custom/button/Button";
 import Input from "@/components/custom/Input";
 import { useSignup } from "@/hooks/auth/useSignup";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -51,7 +51,7 @@ export default function SignupPage() {
 
       if (result) {
         setMessage(
-          "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered."
+          "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered.",
         );
         setPasswordError(null);
         setConfirmError(null);
@@ -72,7 +72,7 @@ export default function SignupPage() {
     setPasswordError(
       v.length > 0 && v.length < 8
         ? "Password must be at least 8 characters"
-        : null
+        : null,
     );
 
     // パスワード変更時は確認一致も再評価

@@ -1,7 +1,7 @@
 import { format, parseISO } from "date-fns";
 import { Copy } from "lucide-react";
 import { AiOutlineCalendar, AiOutlineUser } from "react-icons/ai";
-import Button from "@/components/custom/Button";
+import Button from "@/components/custom/button/Button";
 
 interface TripDetailProps {
   tripId: string;
@@ -43,7 +43,7 @@ export default function TripDetail({
         {description && <p>{description}</p>}
       </div>
 
-      <div className="px-[3.65rem]">
+      {/* <div className="px-[3.65rem]">
         <div className="flex items-center gap-[1.2rem] mb-[1.2rem]">
           <AiOutlineCalendar className="text-[1.6rem]" />
           <p className="font-bold">
@@ -54,7 +54,7 @@ export default function TripDetail({
           <AiOutlineUser className="text-[1.6rem]" />
           <p className="font-bold">{numberOfMembers}</p>
         </div>
-      </div>
+      </div> */}
 
       <Button
         onClick={handleCopyShareLink}
