@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 import Header from "@/components/custom/Header";
 import Spinner from "@/components/custom/Spinner";
 import useGetTrips from "@/hooks/trips/useGetTrips";
@@ -72,6 +73,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Header />
       <Component {...pageProps} />
+      <Toaster />
     </>
   );
 }
