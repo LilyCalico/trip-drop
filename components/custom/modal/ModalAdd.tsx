@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaBed, FaMapPin, FaPlane } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import { useTripsStore } from "@/store/useTripsStore";
-import ModalAddSpot from "./ModalAddSpot";
+import ModalAddSpot from "../ModalAddSpot";
 
 interface ModalAddProps {
   isOpen: boolean;

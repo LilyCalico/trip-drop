@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import ButtonAdd from "@/components/custom/button/ButtonAdd";
 import ButtonSchedule from "@/components/custom/button/ButtonSchedule";
-import ModalAdd from "@/components/custom/ModalAdd";
+import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
 import TripDetail from "@/components/custom/trip/TripDetail";
 import { useCurrentTrip } from "@/hooks/useCurrentTrip";
