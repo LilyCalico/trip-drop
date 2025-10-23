@@ -1,18 +1,11 @@
-import { eachDayOfInterval, format, parseISO } from "date-fns";
-import { Calendar, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
+import DatePulldown from "@/components/custom/datetime/DatePulldown";
 import Input from "@/components/custom/Input";
 import { Input as BaseInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   type GooglePlaceCandidate,
   useGooglePlacesPredictions,
@@ -84,18 +77,6 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
     setShowPredictions(false);
   };
 
-  // 旅程の日付範囲を取得（UTCで生成）
-  const tripDates = trip
-    ? eachDayOfInterval({
-        start: parseISO(trip.startAt),
-        end: parseISO(trip.endAt),
-      }).map((date) => {
-        // 各日付をUTCの00:00:00に設定
-        const utcDate = new Date(date);
-        utcDate.setUTCHours(0, 0, 0, 0);
-        return utcDate;
-      })
-    : [];
 
   // フォーム送信
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,34 +172,15 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
         {/* DateTime */}
         <div className="flex gap-[0.8rem]">
           {/* Date */}
-          <div>
-            <Label htmlFor="visit-date" className="text-[1.2rem] mb-[0.4rem]">
-              Visit Date
-            </Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Select value={selectedDate} onValueChange={setSelectedDate}>
-                <SelectTrigger className="py-[1.6rem] pl-9 pr-[1.2rem] border-gray-light shadow-none input-custom">
-                  <SelectValue>
-                    {selectedDate
-                      ? format(parseISO(selectedDate), "yyyy/MM/dd EEE")
-                      : "Select date"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-light">
-                  {tripDates.map((date) => (
-                    <SelectItem
-                      key={date.toISOString()}
-                      value={date.toISOString()}
-                      className="bg-white hover:bg-gray-50"
-                    >
-                      {format(date, "yyyy/MM/dd EEE")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <DatePulldown
+            label="Visit Date"
+            id="visit-date"
+            value={selectedDate}
+            onChange={setSelectedDate}
+            startDate={trip.startAt}
+            endDate={trip.endAt}
+            placeholder="Select date"
+          />
           <div>
             <Label htmlFor="time-picker" className="text-[1.2rem] mb-[0.4rem]">
               Time
