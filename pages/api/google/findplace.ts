@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 // GET /api/google/findplace?input=tokyo station&lat=35.68&lng=139.76&radius=50000
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -27,9 +27,9 @@ export default async function handler(
   const params = new URLSearchParams({
     input,
     inputtype: "textquery",
-    key: apiKey
+    key: apiKey,
   });
-  const language = String(req.query.language);
+  const language = req.query.language ? String(req.query.language) : "en";
   params.set("language", language);
 
   // 位置バイアス（任意）
@@ -43,8 +43,12 @@ export default async function handler(
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${params.toString()}`;
 
   try {
+    console.log("Requesting URL:", url);
     const r = await fetch(url);
     const text = await r.text();
+    console.log("Response status:", r.status);
+    console.log("Response body:", text);
+
     if (!r.ok) {
       return res
         .status(r.status)
@@ -53,14 +57,40 @@ export default async function handler(
     const data = JSON.parse(text);
     if (data.status && data.status !== "OK") {
       // Google Places APIは200でもstatusがOK以外を返す
+      console.log("Google API error:", data.status, data.error_message);
+
+      // 開発用: 請求未有効化時のモックデータ
+      if (
+        data.status === "REQUEST_DENIED" &&
+        data.error_message?.includes("Billing")
+      ) {
+        console.log("Using mock data for development");
+        return res.status(200).json({
+          candidates: [
+            {
+              place_id: "mock_place_id_1",
+              name: `${input} (Mock Location)`,
+              formatted_address: "Mock Address, Mock City, Mock Country",
+              geometry: {
+                location: {
+                  lat: 35.6762,
+                  lng: 139.6503,
+                },
+              },
+            },
+          ],
+        });
+      }
+
       return res.status(400).json({
         status: data.status,
         error_message: data.error_message,
-        candidates: data.candidates ?? []
+        candidates: data.candidates ?? [],
       });
     }
     return res.status(200).json(data);
   } catch (err) {
+    console.error("Fetch error:", err);
     const message = err instanceof Error ? err.message : "fetch failed";
     return res.status(500).json({ error: message });
   }

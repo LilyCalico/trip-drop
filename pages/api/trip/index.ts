@@ -1,5 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { randomUUID } from "crypto";
+import { eachDayOfInterval, parseISO } from "date-fns";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/passwordUtils";
 import { timezones } from "@/lib/timezones";
@@ -8,7 +9,7 @@ type ErrorBody = { error: string };
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Record<string, unknown> | ErrorBody>
+  res: NextApiResponse<Record<string, unknown> | ErrorBody>,
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -37,7 +38,7 @@ export default async function handler(
     // Anon Key + ユーザー認証でRLSを正しく適用
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      auth: { persistSession: false, autoRefreshToken: false }
+      auth: { persistSession: false, autoRefreshToken: false },
     });
 
     // ユーザー情報を取得
@@ -99,14 +100,17 @@ export default async function handler(
     }
 
     // 日付形式の検証
-    const startDate = new Date(startAt);
-    const endDate = new Date(endAt);
-    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    const startDateObj = new Date(startAt);
+    const endDateObj = new Date(endAt);
+    if (
+      Number.isNaN(startDateObj.getTime()) ||
+      Number.isNaN(endDateObj.getTime())
+    ) {
       return res.status(400).json({ error: "Invalid date format" });
     }
 
     // startAtがendAtより遅い場合は値を入れ替える
-    if (startDate > endDate) {
+    if (startDateObj > endDateObj) {
       const temp = startAt;
       startAt = endAt;
       endAt = temp;
@@ -138,8 +142,8 @@ export default async function handler(
           timezone,
           number_of_members: numOfPeople,
           share_password: hashedPassword,
-          created_by: createdBy
-        }
+          created_by: createdBy,
+        },
       ])
       .single();
 
@@ -158,8 +162,8 @@ export default async function handler(
           trip_id: tripId,
           user_id: createdBy,
           role: "owner",
-          permissions: { can_edit: true, can_invite: true }
-        }
+          permissions: { can_edit: true, can_invite: true },
+        },
       ])
       .select();
 
@@ -171,6 +175,30 @@ export default async function handler(
         .status(400)
         .json({ error: `add member error: ${addMemberError.message}` });
     }
+
+    // 3) trip_daysを自動作成（開始日から終了日までの各日付）
+    const startDate = parseISO(startAt);
+    const endDate = parseISO(endAt);
+    const tripDays = eachDayOfInterval({ start: startDate, end: endDate });
+
+    const tripDaysData = tripDays.map((date) => ({
+      trip_id: tripId,
+      date: date.toISOString().split("T")[0], // YYYY-MM-DD形式
+      title: null,
+    }));
+
+    const { error: insertTripDaysError } = await supabase
+      .from("trip_days")
+      .insert(tripDaysData);
+
+    if (insertTripDaysError) {
+      console.error("Insert trip days error:", insertTripDaysError);
+      return res.status(400).json({
+        error: `insert trip days error: ${insertTripDaysError.message}`,
+      });
+    }
+
+    console.log(`Created ${tripDays.length} trip days for trip ${tripId}`);
 
     return res.status(201).json({ tripId });
   } catch (e) {

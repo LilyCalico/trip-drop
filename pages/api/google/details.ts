@@ -1,51 +1,62 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-// GET /api/google/details?place_id=...
+interface GooglePlaceDetailsResponse {
+  result: {
+    place_id: string;
+    name: string;
+    formatted_address: string;
+    geometry: {
+      location: {
+        lat: number;
+        lng: number;
+      };
+    };
+  };
+}
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<GooglePlaceDetailsResponse | { error: string }>,
 ) {
   if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "Missing GOOGLE_MAPS_API_KEY" });
+  const { place_id } = req.query;
+
+  if (!place_id || typeof place_id !== "string") {
+    return res.status(400).json({ error: "place_id parameter is required" });
   }
-
-  const placeId = String(req.query.place_id || "");
-  if (!placeId) {
-    return res.status(400).json({ error: "place_id is required" });
-  }
-
-  const params = new URLSearchParams({ place_id: placeId, key: apiKey });
-  const language = String(req.query.language || "ja");
-  params.set("language", language);
-  params.set("fields", "place_id,name,formatted_address,geometry,types");
-
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?${params.toString()}`;
 
   try {
-    const r = await fetch(url);
-    const text = await r.text();
-    if (!r.ok) {
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
       return res
-        .status(r.status)
-        .json({ error: "upstream not ok", body: text });
+        .status(500)
+        .json({ error: "Google Places API key not configured" });
     }
-    const data = JSON.parse(text);
-    if (data.status && data.status !== "OK") {
-      return res.status(400).json({
-        status: data.status,
-        error_message: data.error_message,
-        result: data.result ?? null
-      });
+
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=place_id,name,formatted_address,geometry&key=${apiKey}`,
+    );
+
+    if (!response.ok) {
+      throw new Error(`Google API error: ${response.status}`);
     }
-    return res.status(200).json(data);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "fetch failed";
-    return res.status(500).json({ error: message });
+
+    const data = await response.json();
+
+    if (data.status !== "OK") {
+      throw new Error(`Google API error: ${data.status}`);
+    }
+
+    return res.status(200).json({
+      result: data.result,
+    });
+  } catch (error) {
+    console.error("Google Place Details API error:", error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 }
