@@ -1,5 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
-import supabase from "@/lib/supabaseClient";
 import type { Database } from "@/types/supabasetype";
 
 export default async function handler(
@@ -22,6 +22,10 @@ export default async function handler(
       .status(400)
       .json({ error: "Name must be less than 20 characters" });
   }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
   try {
     const updateData: Database["public"]["Tables"]["profiles"]["Update"] = {
