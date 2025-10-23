@@ -1,10 +1,9 @@
-import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
+import Time from "@/components/custom/datetime/Time";
 import Input from "@/components/custom/Input";
-import { Input as BaseInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   type GooglePlaceCandidate,
@@ -12,7 +11,6 @@ import {
 } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateSpot } from "@/hooks/spots/useCreateSpot";
 import { useCurrentTrip } from "@/hooks/useCurrentTrip";
-import { cn } from "@/lib/utils";
 
 interface SpotFormData {
   name: string;
@@ -181,25 +179,12 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
             endDate={trip.endAt}
             placeholder="Select date"
           />
-          <div>
-            <Label htmlFor="time-picker" className="text-[1.2rem] mb-[0.4rem]">
-              Time
-            </Label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <BaseInput
-                type="time"
-                id="time-picker"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className={cn(
-                  "h-[3.2rem] pl-9",
-                  "border-gray-light shadow-none",
-                  "appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none",
-                )}
-              />
-            </div>
-          </div>
+          <Time
+            label="Time"
+            id="time-picker"
+            value={time}
+            onChange={setTime}
+          />
         </div>
 
         {/* Notes */}
