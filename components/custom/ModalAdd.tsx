@@ -111,7 +111,7 @@ export default function ModalAdd({
 
         {/* Text Input */}
         <div>
-          {category === "spot" && <ModalAddSpot />}
+          {category === "spot" && <ModalAddSpot onClose={onClose} />}
           {/* {category === "hotel" && <ModalAddHotel />}
           {category === "transport" && <ModalAddTransport />} */}
         </div>

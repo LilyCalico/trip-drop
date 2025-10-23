@@ -13,7 +13,7 @@ const useDeleteTrip = (): UseDeleteTripResult => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
-  const trips = useTripsStore((s) => s.tripsState);
+  const trips = useTripsStore((s) => s.trips);
   const setTrips = useTripsStore((s) => s.setTrips);
 
   const deleteTrip = useCallback(
@@ -26,7 +26,9 @@ const useDeleteTrip = (): UseDeleteTripResult => {
       setDeleting(true);
       setError(null);
       try {
-        await axios.delete(`/api/trips/${tripId}`, {
+        const baseURL =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+        await axios.delete(`${baseURL}/trips/${tripId}`, {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },

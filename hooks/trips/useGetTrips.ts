@@ -44,8 +44,11 @@ const useGetTrips = (): UseGetTripsResult => {
         Authorization: `Bearer ${session.access_token}`,
       };
 
+      const baseURL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+
       // 1. IDs を取得
-      const idsRes = await axios.get<TripsIdsResponse>("/api/trips/ids", {
+      const idsRes = await axios.get<TripsIdsResponse>(`${baseURL}/trips/ids`, {
         headers,
       });
 

@@ -1,6 +1,7 @@
 import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { Calendar, Clock } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import Input from "@/components/custom/Input";
 import { Input as BaseInput } from "@/components/ui/input";
@@ -12,22 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  type GooglePlaceCandidate,
+  useGooglePlacesPredictions,
+} from "@/hooks/google/useGooglePlacesPredictions";
+import { useCreateSpot } from "@/hooks/spots/useCreateSpot";
 import { useCurrentTrip } from "@/hooks/useCurrentTrip";
-import { createVisitDateTime } from "@/lib/createVisitDateTime";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/store/useAuthStore";
-
-interface GooglePlaceCandidate {
-  place_id: string;
-  name: string;
-  formatted_address: string;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-}
 
 interface SpotFormData {
   name: string;
@@ -39,9 +31,16 @@ interface SpotFormData {
   googleData: any | null; // Google Places APIの全データ
 }
 
-export default function ModalAddSpot() {
+interface ModalAddSpotProps {
+  onClose: () => void;
+}
+
+export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
   const trip = useCurrentTrip();
-  const session = useAuthStore((s) => s.session);
+  const { candidates, showPredictions, setShowPredictions, handleInputChange } =
+    useGooglePlacesPredictions();
+  const { createSpot, isSubmitting } = useCreateSpot();
+
   const [formData, setFormData] = useState<SpotFormData>({
     name: "",
     address: "",
@@ -51,11 +50,8 @@ export default function ModalAddSpot() {
     location: null,
     googleData: null,
   });
-
-  const [candidates, setCandidates] = useState<GooglePlaceCandidate[]>([]);
-  const [showPredictions, setShowPredictions] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [time, setTime] = useState<string>("00:00");
 
   // 初期値設定: 初日の00:00
   useEffect(() => {
@@ -66,38 +62,10 @@ export default function ModalAddSpot() {
     }
   }, [trip, formData.visitDateTime]);
 
-  // Google Places Find Place API
-  const fetchCandidates = async (input: string) => {
-    if (input.length < 2) {
-      setCandidates([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `/api/google/findplace?input=${encodeURIComponent(input)}&language=en`,
-      );
-      const data = await response.json();
-      setCandidates(data.candidates || []);
-    } catch (error) {
-      console.error("Error fetching candidates:", error);
-      setCandidates([]);
-    }
-  };
-
   // Name入力時の予測変換
   const handleNameChange = (value: string) => {
     setFormData((prev) => ({ ...prev, name: value }));
-
-    // デバウンス処理
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
-      fetchCandidates(value);
-      setShowPredictions(true);
-    }, 300);
+    handleInputChange(value);
   };
 
   // 候補選択時
@@ -132,68 +100,32 @@ export default function ModalAddSpot() {
   // フォーム送信
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    if (!selectedDate || !time || !trip?.timeZone) {
+    if (!trip) {
+      console.warn("Trip not found");
       return;
     }
 
-    // 選択された日付を取得（ISO文字列から日付部分のみ）
-    const visitDate = selectedDate.split("T")[0];
-
-    // tripのタイムゾーンでのISO文字列を作成
-    const visitDateTimeWithTimezone = createVisitDateTime(
-      visitDate,
-      time,
-      trip.timeZone,
-    );
-
-    console.log("visitDateTimeWithTimezone", visitDateTimeWithTimezone);
-
-    if (!visitDateTimeWithTimezone) {
-      console.warn("Failed to create visit date time");
-      return;
-    }
-
-    const submitData = {
+    const result = await createSpot({
       name: formData.name,
       address: formData.address,
-      visitDateTime: visitDateTimeWithTimezone,
-      timezone: trip?.timeZone,
       notes: formData.notes,
       googlePlaceId: formData.googlePlaceId,
       location: formData.location,
-      googleData: formData.googleData, // Google Places APIの全データを送信
-      tripId: trip?.id || "",
+      googleData: formData.googleData,
+      tripId: trip.id,
       selectedDate: selectedDate,
-    };
-
-    // API呼び出し
-    if (!session?.access_token) {
-      console.error("No access token found");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const response = await fetch("/api/spots", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify(submitData),
+      time: time,
+      timezone: trip.timeZone,
     });
 
-    if (!response.ok) {
-      setIsSubmitting(false);
-      return;
+    if (result) {
+      toast.success("Spot added successfully!");
+      onClose();
+    } else {
+      toast.error("Failed to add spot. Please try again.");
     }
-
-    setIsSubmitting(false);
   };
-
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [time, setTime] = useState<string>("00:00");
 
   // 初期値設定: 旅程の初日
   useEffect(() => {
