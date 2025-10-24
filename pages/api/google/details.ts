@@ -5,6 +5,7 @@ interface GooglePlaceDetailsResponse {
     place_id: string;
     name: string;
     formatted_address: string;
+    formatted_phone_number?: string;
     geometry: {
       location: {
         lat: number;
@@ -29,15 +30,23 @@ export default async function handler(
   }
 
   try {
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       return res
         .status(500)
-        .json({ error: "Google Places API key not configured" });
+        .json({ error: "Google Maps API key not configured" });
     }
 
+    const fields = [
+      "place_id",
+      "name",
+      "formatted_address",
+      "formatted_phone_number",
+      "geometry",
+    ].join(",");
+
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=place_id,name,formatted_address,geometry&key=${apiKey}`,
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(place_id)}&fields=${fields}&key=${apiKey}`,
     );
 
     if (!response.ok) {
