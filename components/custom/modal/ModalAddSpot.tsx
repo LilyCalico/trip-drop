@@ -160,9 +160,15 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
           <Input
             id="address"
             value={formData.address}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, address: e.target.value }))
-            }
+            onChange={(e) => {
+              setFormData((prev) => ({
+                ...prev,
+                address: e.target.value,
+                googlePlaceId: null,
+                location: null,
+                googleData: null,
+              }));
+            }}
             placeholder="Enter address"
           />
         </div>
