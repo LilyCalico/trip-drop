@@ -5,7 +5,7 @@
  * @param timezone - タイムゾーン（例: "Europe/Stockholm"）
  * @returns タイムゾーン情報付きのISO文字列（例: "2025-10-09T03:00:00+02:00"）
  */
-export const createVisitDateTime = (
+export const toZonedIsoString = (
   visitDate: string,
   time: string,
   timezone: string,
@@ -41,7 +41,7 @@ export const createVisitDateTime = (
 
     return visitDateTimeWithTimezone;
   } catch (error) {
-    console.error("Error creating visit date time:", error);
+    console.error("Error creating zoned ISO string:", error);
     return null;
   }
 };

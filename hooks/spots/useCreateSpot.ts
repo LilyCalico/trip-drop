@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { createVisitDateTime } from "@/lib/createVisitDateTime";
+import { toZonedIsoString } from "@/lib/toZonedIsoString";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface CreateSpotParams {
@@ -33,7 +33,7 @@ export const useCreateSpot = () => {
       const visitDate = params.selectedDate.split("T")[0];
 
       // tripのタイムゾーンでのISO文字列を作成
-      const visitDateTimeWithTimezone = createVisitDateTime(
+      const visitDateTimeWithTimezone = toZonedIsoString(
         visitDate,
         params.time,
         params.timezone,
