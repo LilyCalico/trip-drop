@@ -1,6 +1,6 @@
 import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ButtonAdd from "@/components/custom/button/ButtonAdd";
 import ButtonSchedule from "@/components/custom/button/ButtonSchedule";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
@@ -70,7 +70,7 @@ export default function TripDetailPage() {
           numberOfMembers={trip.numberOfMembers ?? 1}
         />
 
-        {/* ADD */}
+        {/* ADD BUTTONS */}
         <Wrapper>
           <Title title="ADD" />
           <div className="flex gap-[1.2rem] justify-center my-[2.4rem]">
@@ -83,7 +83,7 @@ export default function TripDetailPage() {
           </div>
         </Wrapper>
 
-        {/* SCHEDULE */}
+        {/* SCHEDULE DATE LIST */}
         <Wrapper className="bg-section px-[2.4rem]">
           <Title title="SCHEDULE" />
           <div className="py-[2.4rem] flex gap-[0.4rem] w-full overflow-x-scroll">
@@ -100,7 +100,7 @@ export default function TripDetailPage() {
           </div>
         </Wrapper>
 
-        {/* Modal for ADD */}
+        {/* Modal to add spot, hotel, or transport */}
         <ModalAdd
           isOpen={modalOpen}
           onClose={closeModal}
