@@ -75,7 +75,6 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
     setShowPredictions(false);
   };
 
-
   // フォーム送信
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,8 +93,8 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
       googleData: formData.googleData,
       tripId: trip.id,
       selectedDate: selectedDate,
-      time: time,
-      timezone: trip.timeZone,
+      selectedTime: time,
+      selectedTimezone: trip.timeZone,
     });
 
     if (result) {
@@ -185,12 +184,7 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
             endDate={trip.endAt}
             placeholder="Select date"
           />
-          <Time
-            label="Time"
-            id="time-picker"
-            value={time}
-            onChange={setTime}
-          />
+          <Time label="Time" id="time-picker" value={time} onChange={setTime} />
         </div>
 
         {/* Notes */}

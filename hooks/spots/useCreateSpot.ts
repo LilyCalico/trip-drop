@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState } from "react";
-import { toZonedIsoString } from "@/lib/toZonedIsoString";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface CreateSpotParams {
@@ -12,8 +11,8 @@ interface CreateSpotParams {
   googleData?: any | null;
   tripId: string;
   selectedDate: string;
-  time: string;
-  timezone: string;
+  selectedTime: string;
+  selectedTimezone: string;
 }
 
 export const useCreateSpot = () => {
@@ -24,39 +23,26 @@ export const useCreateSpot = () => {
     setIsSubmitting(true);
 
     try {
-      if (!params.selectedDate || !params.time || !params.timezone) {
+      if (
+        !params.selectedDate ||
+        !params.selectedTime ||
+        !params.selectedTimezone
+      ) {
         console.warn("Missing required date/time parameters");
         return null;
       }
 
-      // 選択された日付を取得（ISO文字列から日付部分のみ）
-      const visitDate = params.selectedDate.split("T")[0];
-
-      // tripのタイムゾーンでのISO文字列を作成
-      const visitDateTimeWithTimezone = toZonedIsoString(
-        visitDate,
-        params.time,
-        params.timezone,
-      );
-
-      if (!visitDateTimeWithTimezone) {
-        console.warn("Failed to create visit date time");
-        return null;
-      }
-
-      console.log("LOCATION", params.location);
-
       const submitData = {
         name: params.name,
         address: params.address,
-        visitDateTime: visitDateTimeWithTimezone,
-        timezone: params.timezone,
         notes: params.notes,
         googlePlaceId: params.googlePlaceId,
         location: params.location,
         googleData: params.googleData,
         tripId: params.tripId,
         selectedDate: params.selectedDate,
+        selectedTime: params.selectedTime,
+        selectedTimezone: params.selectedTimezone,
       };
 
       // API呼び出し
