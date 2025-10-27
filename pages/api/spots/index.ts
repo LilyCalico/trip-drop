@@ -1,37 +1,46 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { createUtcDateTimeForDB } from "@/lib/functions/createUtcDateTime";
 import type { Database } from "@/types/supabasetype";
 
 interface SpotRequestBody {
   name: string;
   address?: string;
-  visitDateTime?: string; // ISO string from frontend
-  timezone?: string;
   notes?: string;
   googlePlaceId?: string;
   location?: {
     lat: number;
     lng: number;
   };
-  googleData?: any; // Google Places APIの全データ
+  googleData?: any; // Google Places API data
   tripId: string;
-  selectedDate: string;
+  selectedDate: string; // YYYY-MM-DD
+  selectedTime: string; // HH:MM
+  selectedTimezone: string; // timezone(Europe/Stockholm etc.)
 }
 
 type ErrorBody = { error: string; details?: string; code?: string };
 
+interface GetTripDayIdParams {
+  supabase: ReturnType<typeof createClient<Database>>;
+  tripId: string;
+  date: string;
+}
+
 // trip_day_idを取得する関数（存在しない場合は自動作成）
-async function getOrCreateTripDay(
-  supabase: ReturnType<typeof createClient<Database>>,
-  tripId: string,
-  date: string,
-): Promise<string> {
+async function getTripDayId({
+  supabase,
+  tripId,
+  date,
+}: GetTripDayIdParams): Promise<string> {
+  const tripIdDayDate = new Date(date).toISOString().split("T")[0];
+
   // 1. 既存のtrip_dayを検索
   const { data: existingTripDay, error: selectError } = await supabase
     .from("trip_days")
     .select("id")
     .eq("trip_id", tripId)
-    .eq("date", date)
+    .eq("date", tripIdDayDate) // Date形式で比較
     .single();
 
   if (existingTripDay) {
@@ -40,29 +49,7 @@ async function getOrCreateTripDay(
 
   // 2. 存在しない場合は作成
   if (selectError && selectError.code === "PGRST116") {
-    // 行が見つからないエラーの場合のみ作成を試行
-    const { data: newTripDay, error: insertError } = await supabase
-      .from("trip_days")
-      .insert({
-        trip_id: tripId,
-        date: date,
-        title: null,
-      })
-      .select("id")
-      .single();
-
-    if (insertError) {
-      console.error("Error creating trip_day:", insertError);
-      throw new Error(`Failed to create trip_day: ${insertError.message}`);
-    }
-
-    if (!newTripDay) {
-      throw new Error(
-        `Failed to create trip_day for trip ${tripId} on date ${date}`,
-      );
-    }
-
-    return newTripDay.id;
+    throw new Error(`Trip day not found for tripId=${tripId} date=${date}`);
   }
 
   // 3. その他のエラーの場合
@@ -116,13 +103,14 @@ export default async function handler(
     const {
       name,
       address,
-      visitDateTime,
       notes,
       googlePlaceId,
       location,
       googleData,
       tripId,
       selectedDate,
+      selectedTime,
+      selectedTimezone,
     }: SpotRequestBody = req.body;
 
     // バリデーション
@@ -130,16 +118,42 @@ export default async function handler(
       return res.status(400).json({ error: "Name is required" });
     }
 
-    if (!tripId || !selectedDate) {
+    if (!tripId) {
       return res
         .status(400)
-        .json({ error: "TripId and selectedDate are required" });
+        .json({ error: "TripId and visitDateTime are required" });
+    }
+
+    if (!selectedDate || !selectedTime || !selectedTimezone) {
+      return res
+        .status(400)
+        .json({ error: "Selected date, time, and timezone are required" });
     }
 
     // trip_day_idを取得（存在しない場合は自動作成）
-    const tripDayId = await getOrCreateTripDay(supabase, tripId, selectedDate);
+    const tripDayId = await getTripDayId({
+      supabase,
+      tripId: tripId,
+      date: selectedDate,
+    });
+
+    // ISO文字列をYYYY-MM-DD形式に変換
+    const dateOnly = new Date(selectedDate).toISOString().split("T")[0];
+
+    const visitDateTime = createUtcDateTimeForDB({
+      selectedDate: dateOnly,
+      selectedTime: selectedTime,
+      selectedTimezone: selectedTimezone,
+    });
 
     console.log("visitDateTime", visitDateTime);
+
+    if (!visitDateTime) {
+      return res.status(400).json({
+        error: "Failed to create visit datetime",
+        details: "Invalid date/time/timezone combination",
+      });
+    }
 
     // Supabaseに保存するデータを準備
     const spotData: Database["public"]["Tables"]["spots"]["Insert"] = {
@@ -151,7 +165,7 @@ export default async function handler(
       location: location ? `POINT(${location.lng} ${location.lat})` : null,
       created_by: userId,
       trip_day_id: tripDayId,
-      google_data: googleData || null, // Google Places APIの全データを保存
+      google_data: googleData || null,
       description: null,
     };
 
@@ -174,7 +188,6 @@ export default async function handler(
 
     console.log("New spot created:", data);
 
-    // 成功レスポンス
     res.status(201).json(data);
   } catch (error) {
     console.error("Error creating spot:", error);
