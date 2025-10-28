@@ -7,6 +7,11 @@ import { createDateRange } from "@/lib/functions/createDateRange";
 
 type ErrorBody = { error: string; details?: string; code?: string };
 
+type CreateHotelStayResponse = {
+  stay: Database["public"]["Tables"]["hotel_stays"]["Row"];
+  stayDays: Database["public"]["Tables"]["hotel_stay_days"]["Row"][];
+};
+
 interface HotelRequestBody {
   name: string;
   address?: string | null;
@@ -22,9 +27,7 @@ interface HotelRequestBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<
-    Database["public"]["Tables"]["hotels"]["Row"][] | ErrorBody
-  >,
+  res: NextApiResponse<CreateHotelStayResponse | ErrorBody>,
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -76,6 +79,11 @@ export default async function handler(
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return res.status(400).json({ error: "Hotel name is required" });
+    }
+
     // DBからtripIdを使用してtimezoneを取得
     const { data: trip, error: tripError } = await supabase
       .from("trips")
@@ -90,17 +98,19 @@ export default async function handler(
     const [startDate, startTimeArray] = checkin.split("T");
     const [endDate, endTimeArray] = checkout.split("T");
 
-    console.log("startDate", startDate);
-    console.log("startTimeArray", startTimeArray);
-    console.log("endDate", endDate);
-    console.log("endTimeArray", endTimeArray);
+    if (!startDate || !startTimeArray || !endDate || !endTimeArray) {
+      return res.status(400).json({ error: "Invalid datetime format" });
+    }
 
-    // HH:MMにする
-    const startTimeHHMM = `${startTimeArray.split(":")[0]}:${startTimeArray.split(":")[1]}`;
-    const endTimeHHMM = `${endTimeArray.split(":")[0]}:${endTimeArray.split(":")[1]}`;
+    const [startHour, startMinute] = startTimeArray.split(":");
+    const [endHour, endMinute] = endTimeArray.split(":");
 
-    console.log(checkin);
-    console.log(checkout);
+    if (!startHour || !startMinute || !endHour || !endMinute) {
+      return res.status(400).json({ error: "Invalid time format" });
+    }
+
+    const startTimeHHMM = `${startHour}:${startMinute}`;
+    const endTimeHHMM = `${endHour}:${endMinute}`;
 
     const checkinUTC = createUtcDateTimeForDB({
       selectedDate: startDate,
@@ -113,16 +123,11 @@ export default async function handler(
       selectedTimezone: timezone,
     });
 
-    console.log("checkinUTC", checkinUTC);
-    console.log("checkoutUTC", checkoutUTC);
-
     if (!checkinUTC || !checkoutUTC) {
       return res.status(400).json({ error: "Invalid date conversion" });
     }
 
     const dateList = createDateRange(startDate, endDate);
-
-    console.log("dateList", dateList);
 
     let tripDayIds: string[];
     try {
@@ -159,49 +164,73 @@ export default async function handler(
       pointWkt = null;
     }
 
-    // 挿入データ作成（単一レコード）
-    const baseData = {
-      name: name.trim(),
-      address: address?.trim() ?? null,
-      notes: notes?.trim() ?? null,
-      booking_reference: bookingReference ?? null,
-      google_place_id: googlePlaceId ?? null,
+    const toTrimmedOrNull = (value?: string | null) => {
+      if (typeof value !== "string") {
+        return null;
+      }
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    };
+
+    const hotelStayInsert: Database["public"]["Tables"]["hotel_stays"]["Insert"] = {
+      name: trimmedName,
+      address: toTrimmedOrNull(address),
+      notes: toTrimmedOrNull(notes),
+      booking_reference: toTrimmedOrNull(bookingReference),
+      google_place_id: toTrimmedOrNull(googlePlaceId),
       google_data: (googleData ??
-        null) as Database["public"]["Tables"]["hotels"]["Insert"]["google_data"],
+        null) as Database["public"]["Tables"]["hotel_stays"]["Insert"]["google_data"],
       location: pointWkt,
       created_by: userId,
-    } satisfies Partial<Database["public"]["Tables"]["hotels"]["Insert"]>;
+      phone: toTrimmedOrNull(phone),
+      trip_id: tripId,
+      check_in_at: checkinUTC,
+      check_out_at: checkoutUTC,
+      timezone,
+    };
 
-    const rows: Database["public"]["Tables"]["hotels"]["Insert"][] = tripDayIds.map((tripDayId, index) => {
-      const isFirstDay = index === 0;
-      const isLastDay = index === tripDayIds.length - 1;
+    const { data: stay, error: stayError } = await supabase
+      .from("hotel_stays")
+      .insert(hotelStayInsert)
+      .select()
+      .single();
 
-      const checkInDatetime = isFirstDay ? checkin : null;
-      const checkOutDatetime = isLastDay ? checkout : null;
-
-      return {
-        ...baseData,
-        phone: phone ?? null,
-        trip_day_id: tripDayId,
-        check_in_datetime: checkInDatetime,
-        check_out_datetime: checkOutDatetime,
-      } satisfies Database["public"]["Tables"]["hotels"]["Insert"];
-    });
-
-    const { data, error } = await supabase
-      .from("hotels")
-      .insert(rows)
-      .select();
-
-    if (error) {
+    if (stayError || !stay) {
       return res.status(400).json({
-        error: "Failed to create hotels",
-        details: error.message,
-        code: error.code,
+        error: "Failed to create hotel stay",
+        details: stayError?.message,
+        code: stayError?.code,
       });
     }
 
-    return res.status(201).json(data);
+    const stayDayInsertPayload: Database["public"]["Tables"]["hotel_stay_days"]["Insert"][] = tripDayIds.map(
+      (tripDayId, index) => ({
+        stay_id: stay.id,
+        trip_day_id: tripDayId,
+        stay_date: dateList[index] ?? startDate,
+      }),
+    );
+
+    let stayDays: Database["public"]["Tables"]["hotel_stay_days"]["Row"][] = [];
+
+    if (stayDayInsertPayload.length > 0) {
+      const { data: insertedStayDays, error: stayDaysError } = await supabase
+        .from("hotel_stay_days")
+        .insert(stayDayInsertPayload)
+        .select();
+
+      if (stayDaysError) {
+        return res.status(400).json({
+          error: "Failed to link hotel stay days",
+          details: stayDaysError.message,
+          code: stayDaysError.code,
+        });
+      }
+
+      stayDays = insertedStayDays ?? [];
+    }
+
+    return res.status(201).json({ stay, stayDays });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Internal server error";
     return res.status(500).json({ error: message });
