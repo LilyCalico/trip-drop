@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { FaBed, FaMapPin, FaPlane } from "react-icons/fa";
+import ModalAddHotel from "@/components/custom/modal/ModalAddHotel";
+import ModalAddSpot from "@/components/custom/modal/ModalAddSpot";
+import ModalAddTransport from "@/components/custom/modal/ModalAddTransport";
 import { cn } from "@/lib/utils";
 import { useTripsStore } from "@/store/useTripsStore";
-import ModalAddSpot from "@/components/custom/modal/ModalAddSpot";
 
 interface ModalAddProps {
   isOpen: boolean;
@@ -83,7 +85,7 @@ export default function ModalAdd({
       role="dialog"
     >
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative z-10 w-[90%] max-w-[52rem] rounded-[1.2rem] bg-white p-[2.4rem] shadow-xl">
+      <div className="relative z-10 w-[90%] max-w-[52rem] max-h-[90vh] overflow-y-auto rounded-[1.2rem] bg-white p-[2.4rem] shadow-xl">
         <button
           type="button"
           onClick={onClose}
@@ -112,8 +114,8 @@ export default function ModalAdd({
         {/* Text Input */}
         <div>
           {category === "spot" && <ModalAddSpot onClose={onClose} />}
-          {/* {category === "hotel" && <ModalAddHotel />}
-          {category === "transport" && <ModalAddTransport />} */}
+          {category === "hotel" && <ModalAddHotel onClose={onClose} />}
+          {category === "transport" && <ModalAddTransport onClose={onClose} />}
         </div>
       </div>
     </div>
