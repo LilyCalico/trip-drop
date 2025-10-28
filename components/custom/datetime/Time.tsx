@@ -19,6 +19,7 @@ export default function Time({
   value,
   onChange,
   placeholder,
+  required = false,
   className = "",
 }: TimeProps) {
   return (
@@ -26,7 +27,6 @@ export default function Time({
       {label && (
         <Label htmlFor={id} className="text-[1.2rem] mb-[0.4rem]">
           {label}
-         
         </Label>
       )}
       <div className="relative">
@@ -37,7 +37,7 @@ export default function Time({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          required={false}
+          required={required}
           className={cn(
             "h-[3.2rem] pl-9",
             "border-gray-light shadow-none",
@@ -48,4 +48,3 @@ export default function Time({
     </div>
   );
 }
-
