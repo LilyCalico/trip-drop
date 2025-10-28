@@ -14,12 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
+      hotel_stay_days: {
+        Row: {
+          stay_date: string
+          stay_id: string
+          trip_day_id: string
+        }
+        Insert: {
+          stay_date: string
+          stay_id: string
+          trip_day_id: string
+        }
+        Update: {
+          stay_date?: string
+          stay_id?: string
+          trip_day_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_stay_days_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["stay_id"]
+          },
+          {
+            foreignKeyName: "hotel_stay_days_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stays"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_stay_days_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
+          {
+            foreignKeyName: "hotel_stay_days_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotel_stays: {
+        Row: {
+          address: string | null
+          booking_reference: string | null
+          check_in_at: string
+          check_out_at: string
+          created_at: string
+          created_by: string
+          google_data: Json | null
+          google_place_id: string | null
+          id: string
+          location: unknown
+          name: string
+          notes: string | null
+          phone: string | null
+          timezone: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          booking_reference?: string | null
+          check_in_at: string
+          check_out_at: string
+          created_at?: string
+          created_by: string
+          google_data?: Json | null
+          google_place_id?: string | null
+          id?: string
+          location?: unknown
+          name: string
+          notes?: string | null
+          phone?: string | null
+          timezone: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          booking_reference?: string | null
+          check_in_at?: string
+          check_out_at?: string
+          created_at?: string
+          created_by?: string
+          google_data?: Json | null
+          google_place_id?: string | null
+          id?: string
+          location?: unknown
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          timezone?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_stays_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_stays_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotels: {
         Row: {
           address: string | null
           booking_reference: string | null
           check_in_datetime: string | null
           check_out_datetime: string | null
+          checkin_trip_day_id: string | null
+          checkout_trip_day_id: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -38,6 +159,8 @@ export type Database = {
           booking_reference?: string | null
           check_in_datetime?: string | null
           check_out_datetime?: string | null
+          checkin_trip_day_id?: string | null
+          checkout_trip_day_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -56,6 +179,8 @@ export type Database = {
           booking_reference?: string | null
           check_in_datetime?: string | null
           check_out_datetime?: string | null
+          checkin_trip_day_id?: string | null
+          checkout_trip_day_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -70,6 +195,41 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "hotels_checkin_trip_day_id_fkey"
+            columns: ["checkin_trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
+          {
+            foreignKeyName: "hotels_checkin_trip_day_id_fkey"
+            columns: ["checkin_trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_checkout_trip_day_id_fkey"
+            columns: ["checkout_trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
+          {
+            foreignKeyName: "hotels_checkout_trip_day_id_fkey"
+            columns: ["checkout_trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
           {
             foreignKeyName: "hotels_trip_day_id_fkey"
             columns: ["trip_day_id"]
@@ -108,6 +268,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "memos_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
           {
             foreignKeyName: "memos_trip_day_id_fkey"
             columns: ["trip_day_id"]
@@ -216,6 +383,13 @@ export type Database = {
             foreignKeyName: "spots_trip_day_id_fkey"
             columns: ["trip_day_id"]
             isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
+          {
+            foreignKeyName: "spots_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
             referencedRelation: "trip_days"
             referencedColumns: ["id"]
           },
@@ -256,6 +430,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "todos_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
           {
             foreignKeyName: "todos_trip_day_id_fkey"
             columns: ["trip_day_id"]
@@ -322,6 +503,13 @@ export type Database = {
             foreignKeyName: "transports_trip_day_id_fkey"
             columns: ["trip_day_id"]
             isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
+          {
+            foreignKeyName: "transports_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
             referencedRelation: "trip_days"
             referencedColumns: ["id"]
           },
@@ -353,6 +541,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "trip_day_notes_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_stay_day_v"
+            referencedColumns: ["trip_day_id"]
+          },
           {
             foreignKeyName: "trip_day_notes_trip_day_id_fkey"
             columns: ["trip_day_id"]
@@ -517,6 +712,26 @@ export type Database = {
           type?: string | null
         }
         Relationships: []
+      }
+      hotel_stay_day_v: {
+        Row: {
+          check_in_at: string | null
+          check_out_at: string | null
+          stay_date: string | null
+          stay_id: string | null
+          timezone: string | null
+          trip_day_id: string | null
+          trip_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_stays_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
