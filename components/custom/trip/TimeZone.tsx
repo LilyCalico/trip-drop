@@ -4,20 +4,35 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { timezones } from "@/lib/timezones";
+
+interface TimeZoneProps {
+  timezone: string;
+  setTimezone: (timezone: string) => void;
+  required?: boolean;
+  label?: string;
+  labelClassName?: string;
+}
 
 export default function TimeZone({
   timezone,
-  setTimezone
-}: {
-  timezone: string;
-  setTimezone: (timezone: string) => void;
-}) {
+  setTimezone,
+  required = true,
+  label = "Timezone",
+  labelClassName,
+}: TimeZoneProps) {
   return (
     <div className="">
-      <Label htmlFor="timezone">Timezone *</Label>
+      <Label
+        htmlFor="timezone"
+        className={cn("text-[1.2rem]", labelClassName)}
+      >
+        {label}
+        {required ? " *" : ""}
+      </Label>
       <Select value={timezone} onValueChange={setTimezone}>
         <SelectTrigger className="input-custom !h-[3.4rem]">
           <SelectValue placeholder="Select timezone" className="!text-[1rem]" />
