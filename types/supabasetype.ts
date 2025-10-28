@@ -448,69 +448,68 @@ export type Database = {
       }
       transports: {
         Row: {
+          arrival_datetime: string | null
           arrival_location: string | null
+          arrival_memo: string | null
           arrival_point: unknown
-          arrival_time: string | null
           booking_reference: string | null
           created_at: string | null
           created_by: string | null
+          departure_datetime: string | null
           departure_location: string | null
+          departure_memo: string | null
           departure_point: unknown
-          departure_time: string | null
           description: string | null
           id: string
           name: string
           notes: string | null
-          trip_day_id: string | null
+          trip_id: string
           updated_at: string | null
         }
         Insert: {
+          arrival_datetime?: string | null
           arrival_location?: string | null
+          arrival_memo?: string | null
           arrival_point?: unknown
-          arrival_time?: string | null
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
+          departure_datetime?: string | null
           departure_location?: string | null
+          departure_memo?: string | null
           departure_point?: unknown
-          departure_time?: string | null
           description?: string | null
           id?: string
           name: string
           notes?: string | null
-          trip_day_id?: string | null
+          trip_id: string
           updated_at?: string | null
         }
         Update: {
+          arrival_datetime?: string | null
           arrival_location?: string | null
+          arrival_memo?: string | null
           arrival_point?: unknown
-          arrival_time?: string | null
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
+          departure_datetime?: string | null
           departure_location?: string | null
+          departure_memo?: string | null
           departure_point?: unknown
-          departure_time?: string | null
           description?: string | null
           id?: string
           name?: string
           notes?: string | null
-          trip_day_id?: string | null
+          trip_id?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "transports_trip_day_id_fkey"
-            columns: ["trip_day_id"]
+            foreignKeyName: "transports_trip_id_fkey"
+            columns: ["trip_id"]
             isOneToOne: false
-            referencedRelation: "hotel_stay_day_v"
-            referencedColumns: ["trip_day_id"]
-          },
-          {
-            foreignKeyName: "transports_trip_day_id_fkey"
-            columns: ["trip_day_id"]
-            isOneToOne: false
-            referencedRelation: "trip_days"
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]
