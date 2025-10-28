@@ -109,8 +109,6 @@ export default async function handler(
       selectedTimezone: selectedTimezone,
     });
 
-    console.log("visitDateTime", visitDateTime);
-
     if (!visitDateTime) {
       return res.status(400).json({
         error: "Failed to create visit datetime",
