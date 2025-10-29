@@ -452,6 +452,7 @@ export type Database = {
           arrival_location: string | null
           arrival_memo: string | null
           arrival_point: unknown
+          arrival_timezone: string
           booking_reference: string | null
           created_at: string | null
           created_by: string | null
@@ -459,6 +460,7 @@ export type Database = {
           departure_location: string | null
           departure_memo: string | null
           departure_point: unknown
+          departure_timezone: string
           description: string | null
           id: string
           name: string
@@ -471,6 +473,7 @@ export type Database = {
           arrival_location?: string | null
           arrival_memo?: string | null
           arrival_point?: unknown
+          arrival_timezone: string
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -478,6 +481,7 @@ export type Database = {
           departure_location?: string | null
           departure_memo?: string | null
           departure_point?: unknown
+          departure_timezone: string
           description?: string | null
           id?: string
           name: string
@@ -490,6 +494,7 @@ export type Database = {
           arrival_location?: string | null
           arrival_memo?: string | null
           arrival_point?: unknown
+          arrival_timezone?: string
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -497,6 +502,7 @@ export type Database = {
           departure_location?: string | null
           departure_memo?: string | null
           departure_point?: unknown
+          departure_timezone?: string
           description?: string | null
           id?: string
           name?: string
