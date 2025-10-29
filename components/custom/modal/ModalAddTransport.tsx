@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
 import Time from "@/components/custom/datetime/Time";
 import Input from "@/components/custom/Input";
+import InputGooglePlaces from "@/components/custom/InputGooglePlaces";
 import TimeZone from "@/components/custom/trip/TimeZone";
 import { Label } from "@/components/ui/label";
+import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
+import {
+  type CreateTransportPayload,
+  useCreateTransport,
+} from "@/hooks/transports/useCreateTransport";
 import { useCurrentTrip } from "@/hooks/useCurrentTrip";
 
 interface ModalAddTransportProps {
@@ -18,10 +25,18 @@ interface TransportFormData {
   arrivalLocation: string;
   arrivalMemo: string;
   bookingReference: string;
+  departureGooglePlaceId: string | null;
+  departureGoogleData: GooglePlaceCandidate | null;
+  arrivalGooglePlaceId: string | null;
+  arrivalGoogleData: GooglePlaceCandidate | null;
 }
+
+const toDateOnly = (value: string) =>
+  value.length >= 10 ? value.slice(0, 10) : value;
 
 export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
   const trip = useCurrentTrip();
+  const { createTransport, isSubmitting, error } = useCreateTransport();
   const [formData, setFormData] = useState<TransportFormData>({
     carrierName: "",
     departureLocation: "",
@@ -29,6 +44,10 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
     arrivalLocation: "",
     arrivalMemo: "",
     bookingReference: "",
+    departureGooglePlaceId: null,
+    departureGoogleData: null,
+    arrivalGooglePlaceId: null,
+    arrivalGoogleData: null,
   });
   const [departureDate, setDepartureDate] = useState<string>("");
   const [departureTime, setDepartureTime] = useState<string>("00:00");
@@ -36,6 +55,12 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
   const [arrivalTime, setArrivalTime] = useState<string>("00:00");
   const [departureTimezone, setDepartureTimezone] = useState<string>("");
   const [arrivalTimezone, setArrivalTimezone] = useState<string>("");
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   useEffect(() => {
     if (!trip) return;
@@ -56,6 +81,8 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
   const isValid = useMemo(() => {
     return (
       formData.carrierName.trim().length > 0 &&
+      formData.departureLocation.trim().length > 0 &&
+      formData.arrivalLocation.trim().length > 0 &&
       departureDate &&
       departureTime &&
       arrivalDate &&
@@ -63,31 +90,79 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
     );
   }, [
     formData.carrierName,
+    formData.departureLocation,
+    formData.arrivalLocation,
     departureDate,
     departureTime,
     arrivalDate,
     arrivalTime,
   ]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleDepartureLocationChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      departureLocation: value,
+      departureGooglePlaceId: null,
+      departureGoogleData: null,
+    }));
+  };
+
+  const handleDepartureCandidateSelect = (candidate: GooglePlaceCandidate) => {
+    setFormData((prev) => ({
+      ...prev,
+      departureLocation: candidate.name,
+      departureGooglePlaceId: candidate.place_id,
+      departureGoogleData: candidate,
+    }));
+  };
+
+  const handleArrivalLocationChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      arrivalLocation: value,
+      arrivalGooglePlaceId: null,
+      arrivalGoogleData: null,
+    }));
+  };
+
+  const handleArrivalCandidateSelect = (candidate: GooglePlaceCandidate) => {
+    setFormData((prev) => ({
+      ...prev,
+      arrivalLocation: candidate.name,
+      arrivalGooglePlaceId: candidate.place_id,
+      arrivalGoogleData: candidate,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!trip) return;
     const payload = {
-      ...formData,
       tripId: trip.id,
-      departureDateTime: `${departureDate}T${departureTime}`,
-      arrivalDateTime: `${arrivalDate}T${arrivalTime}`,
-      ...(departureTimezone && departureTimezone !== trip.timeZone
-        ? { departureTimezone }
-        : {}),
-      ...(arrivalTimezone && arrivalTimezone !== trip.timeZone
-        ? { arrivalTimezone }
-        : {}),
-    };
-    // TODO: connect with transport creation hook/API
-    // eslint-disable-next-line no-console
-    console.log("ModalAddTransport payload", payload);
-    // onClose();
+      carrierName: formData.carrierName,
+      departureLocation: formData.departureLocation,
+      arrivalLocation: formData.arrivalLocation,
+      departureMemo: formData.departureMemo,
+      arrivalMemo: formData.arrivalMemo,
+      bookingReference: formData.bookingReference,
+      departureTimezone: departureTimezone || null,
+      arrivalTimezone: arrivalTimezone || null,
+      departureDate: toDateOnly(departureDate),
+      departureTime,
+      arrivalDate: toDateOnly(arrivalDate),
+      arrivalTime,
+      departureGooglePlaceId: formData.departureGooglePlaceId,
+      departureGoogleData: formData.departureGoogleData,
+      arrivalGooglePlaceId: formData.arrivalGooglePlaceId,
+      arrivalGoogleData: formData.arrivalGoogleData,
+    } as CreateTransportPayload;
+
+    const transport = await createTransport(payload);
+
+    if (transport) {
+      toast.success("Transport saved");
+      onClose();
+    }
   };
 
   if (!trip) {
@@ -111,25 +186,14 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
             required
           />
         </div>
-        <div>
-          <Label
-            htmlFor="transport-departure-location"
-            className="text-[1.2rem]"
-          >
-            Departure Location
-          </Label>
-          <Input
-            id="transport-departure-location"
-            value={formData.departureLocation}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                departureLocation: e.target.value,
-              }))
-            }
-            placeholder=""
-          />
-        </div>
+        <InputGooglePlaces
+          id="transport-departure-location"
+          label="Departure Location"
+          value={formData.departureLocation}
+          onValueChange={handleDepartureLocationChange}
+          onCandidateSelect={handleDepartureCandidateSelect}
+          required
+        />
         <div>
           <Label htmlFor="transport-departure-memo" className="text-[1.2rem]">
             Departure Memo
@@ -171,22 +235,14 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
           setTimezone={setDepartureTimezone}
           required={false}
         />
-        <div>
-          <Label htmlFor="transport-arrival-location" className="text-[1.2rem]">
-            Arrival Location
-          </Label>
-          <Input
-            id="transport-arrival-location"
-            value={formData.arrivalLocation}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                arrivalLocation: e.target.value,
-              }))
-            }
-            placeholder=""
-          />
-        </div>
+        <InputGooglePlaces
+          id="transport-arrival-location"
+          label="Arrival Location"
+          value={formData.arrivalLocation}
+          onValueChange={handleArrivalLocationChange}
+          onCandidateSelect={handleArrivalCandidateSelect}
+          required
+        />
         <div>
           <Label htmlFor="transport-arrival-memo" className="text-[1.2rem]">
             Arrival Memo
@@ -247,9 +303,9 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
         <Button
           type="submit"
           className="w-full mt-[1.6rem]"
-          disabled={!isValid}
+          disabled={!isValid || isSubmitting}
         >
-          Add Transport
+          {isSubmitting ? "Saving..." : "Add Transport"}
         </Button>
       </form>
     </div>
