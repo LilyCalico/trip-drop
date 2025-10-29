@@ -449,17 +449,19 @@ export type Database = {
       transports: {
         Row: {
           arrival_datetime: string | null
+          arrival_google_data: Json | null
+          arrival_google_place_id: string | null
           arrival_location: string | null
           arrival_memo: string | null
-          arrival_point: unknown
           arrival_timezone: string
           booking_reference: string | null
           created_at: string | null
           created_by: string | null
           departure_datetime: string | null
+          departure_google_data: Json | null
+          departure_google_place_id: string | null
           departure_location: string | null
           departure_memo: string | null
-          departure_point: unknown
           departure_timezone: string
           description: string | null
           id: string
@@ -470,17 +472,19 @@ export type Database = {
         }
         Insert: {
           arrival_datetime?: string | null
+          arrival_google_data?: Json | null
+          arrival_google_place_id?: string | null
           arrival_location?: string | null
           arrival_memo?: string | null
-          arrival_point?: unknown
           arrival_timezone: string
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
           departure_datetime?: string | null
+          departure_google_data?: Json | null
+          departure_google_place_id?: string | null
           departure_location?: string | null
           departure_memo?: string | null
-          departure_point?: unknown
           departure_timezone: string
           description?: string | null
           id?: string
@@ -491,17 +495,19 @@ export type Database = {
         }
         Update: {
           arrival_datetime?: string | null
+          arrival_google_data?: Json | null
+          arrival_google_place_id?: string | null
           arrival_location?: string | null
           arrival_memo?: string | null
-          arrival_point?: unknown
           arrival_timezone?: string
           booking_reference?: string | null
           created_at?: string | null
           created_by?: string | null
           departure_datetime?: string | null
+          departure_google_data?: Json | null
+          departure_google_place_id?: string | null
           departure_location?: string | null
           departure_memo?: string | null
-          departure_point?: unknown
           departure_timezone?: string
           description?: string | null
           id?: string
