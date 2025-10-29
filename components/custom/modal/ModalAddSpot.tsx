@@ -4,11 +4,9 @@ import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
 import Time from "@/components/custom/datetime/Time";
 import Input from "@/components/custom/Input";
+import InputGooglePlaces from "@/components/custom/InputGooglePlaces";
 import { Label } from "@/components/ui/label";
-import {
-  type GooglePlaceCandidate,
-  useGooglePlacesPredictions,
-} from "@/hooks/google/useGooglePlacesPredictions";
+import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateSpot } from "@/hooks/spots/useCreateSpot";
 import { useCurrentTrip } from "@/hooks/useCurrentTrip";
 
@@ -19,7 +17,7 @@ interface SpotFormData {
   notes: string;
   googlePlaceId: string | null;
   location: { lat: number; lng: number } | null;
-  googleData: any | null; // Google Places APIの全データ
+  googleData: GooglePlaceCandidate | null;
 }
 
 interface ModalAddSpotProps {
@@ -28,8 +26,6 @@ interface ModalAddSpotProps {
 
 export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
   const trip = useCurrentTrip();
-  const { candidates, showPredictions, setShowPredictions, handleInputChange } =
-    useGooglePlacesPredictions();
   const { createSpot, isSubmitting } = useCreateSpot();
 
   const [formData, setFormData] = useState<SpotFormData>({
@@ -53,10 +49,11 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
     }
   }, [trip, formData.visitDateTime]);
 
-  // Name入力時の予測変換
   const handleNameChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, name: value }));
-    handleInputChange(value);
+    setFormData((prev) => ({
+      ...prev,
+      name: value,
+    }));
   };
 
   // 候補選択時
@@ -72,7 +69,6 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
       },
       googleData: candidate, // Google Places APIの全データを保存
     }));
-    setShowPredictions(false);
   };
 
   // フォーム送信
@@ -119,39 +115,18 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-[1.6rem]">
-        {/* Name */}
-        <div className="">
-          <Label htmlFor="name" className="text-[1.2rem]">
-            Name *
-          </Label>
-          <div className="relative">
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Enter spot name"
-              required
-            />
-            {showPredictions && candidates.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                {candidates.map((candidate) => (
-                  <div
-                    key={candidate.place_id}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    onClick={() => handleCandidateSelect(candidate)}
-                  >
-                    <div className="font-medium">{candidate.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {candidate.formatted_address}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Name (Manual or Auto complete with Google Places API) */}
+        <InputGooglePlaces
+          id="name"
+          label="Name"
+          required
+          value={formData.name}
+          onValueChange={handleNameChange}
+          onCandidateSelect={handleCandidateSelect}
+          placeholder=""
+        />
 
-        {/* Address */}
+        {/* Address (Manual or Auto complete with Google Places API) */}
         <div>
           <Label htmlFor="address" className="text-[1.2rem]">
             Address
