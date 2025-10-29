@@ -8,7 +8,7 @@ import InputGooglePlaces from "@/components/custom/InputGooglePlaces";
 import { Label } from "@/components/ui/label";
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateSpot } from "@/hooks/spots/useCreateSpot";
-import { useCurrentTrip } from "@/hooks/useCurrentTrip";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
 interface SpotFormData {
   name: string;

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useGooglePlaceDetails } from "@/hooks/google/useGooglePlaceDetails";
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateHotel } from "@/hooks/hotels/useCreateHotel";
-import { useCurrentTrip } from "@/hooks/useCurrentTrip";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 import { toZonedIsoString } from "@/lib/toZonedIsoString";
 
 interface ModalAddHotelProps {

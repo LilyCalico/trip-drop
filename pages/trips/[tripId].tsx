@@ -6,7 +6,7 @@ import ButtonSchedule from "@/components/custom/button/ButtonSchedule";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
 import TripDetail from "@/components/custom/trip/TripDetail";
-import { useCurrentTrip } from "@/hooks/useCurrentTrip";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 import { cn } from "@/lib/utils";
 import { useTripsStore } from "@/store/useTripsStore";
 

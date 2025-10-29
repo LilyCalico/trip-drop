@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import { useCurrentTrip } from "@/hooks/useCurrentTrip";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
 export default function TripSchedulePage() {
   const { query } = useRouter();

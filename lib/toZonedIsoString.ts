@@ -45,3 +45,18 @@ export const toZonedIsoString = (
     return null;
   }
 };
+
+export const offsetIsoStringToUtc = (isoString: string): string | null => {
+  try {
+    const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) {
+      console.warn("Invalid ISO string when converting to UTC:", isoString);
+      return null;
+    }
+
+    return date.toISOString();
+  } catch (error) {
+    console.error("Error converting ISO string to UTC:", error);
+    return null;
+  }
+};

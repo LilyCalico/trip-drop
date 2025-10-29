@@ -5,8 +5,8 @@ import Input from "@/components/custom/Input";
 import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
 import TripCard from "@/components/custom/trip/TripCard";
-import { useCheckProfile } from "@/hooks/useCheckProfile";
-import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useCheckProfile } from "@/hooks/profile/useCheckProfile";
+import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 

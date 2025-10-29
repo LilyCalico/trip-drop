@@ -12,7 +12,7 @@ import {
   type CreateTransportPayload,
   useCreateTransport,
 } from "@/hooks/transports/useCreateTransport";
-import { useCurrentTrip } from "@/hooks/useCurrentTrip";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
 interface ModalAddTransportProps {
   onClose: () => void;
