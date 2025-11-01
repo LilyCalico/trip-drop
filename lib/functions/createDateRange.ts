@@ -28,4 +28,3 @@ export function createDateRange(startIso: string, endIso: string): string[] {
 }
 
 export default createDateRange;
-

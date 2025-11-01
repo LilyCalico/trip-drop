@@ -14,7 +14,7 @@ export interface DateRangeFormatOptions {
 export function formatDateRange(
   startIso: string,
   endIso: string,
-  options?: DateRangeFormatOptions
+  options?: DateRangeFormatOptions,
 ): string {
   const start = parseISO(startIso);
   const end = parseISO(endIso);
@@ -28,7 +28,7 @@ export function formatDateRange(
   if (sameMonth) {
     const left = format(
       start,
-      options?.includeYearAlways ? "MMM d yyyy" : "MMM d"
+      options?.includeYearAlways ? "MMM d yyyy" : "MMM d",
     );
     return `${left} - ${right}`;
   }
@@ -36,7 +36,7 @@ export function formatDateRange(
   if (sameYear) {
     const left = format(
       start,
-      options?.includeYearAlways ? "MMM d yyyy" : "MMM d"
+      options?.includeYearAlways ? "MMM d yyyy" : "MMM d",
     );
     return `${left} - ${right}`;
   }
