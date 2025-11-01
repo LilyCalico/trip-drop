@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import ButtonDelete from "@/components/custom/button/ButtonDelete";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
+import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 
 interface CardHotelProps {
   id: string;
@@ -10,7 +11,8 @@ interface CardHotelProps {
   phone: string | null;
   notes: string | null;
   bookingReference: string | null;
-  time: string | null;
+  datetimeUtc: string | null;
+  timezone: string | null;
   googlePlaceId: string | null;
   check: "in" | "out" | "staying";
 }
@@ -22,7 +24,8 @@ const CardHotel = ({
   phone,
   notes,
   bookingReference,
-  time,
+  datetimeUtc,
+  timezone,
   googlePlaceId,
   check,
 }: CardHotelProps) => {
@@ -30,7 +33,11 @@ const CardHotel = ({
     console.log("TODO: delete hotel card", targetId);
   };
 
-  console.log(googlePlaceId);
+  const formattedTime =
+    datetimeUtc && timezone
+      ? formatLocalTimeFromUtc(datetimeUtc, timezone)
+      : null;
+
   return (
     <div className="relative w-[34.5rem]">
       <CardWrapper id={id}>
@@ -53,10 +60,12 @@ const CardHotel = ({
             {notes && <p className="mt-[0.8rem]">Notes: {notes}</p>}
           </div>
         </div>
-        <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
-          <AiOutlineClockCircle className="h-4 w-4" />
-          <p>{`${check}: ${time}`}</p>
-        </div>
+        {check !== "staying" && formattedTime && (
+          <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
+            <AiOutlineClockCircle className="h-4 w-4" />
+            <p>{`${check}: ${formattedTime}`}</p>
+          </div>
+        )}
       </CardWrapper>
       <div className="flex justify-end pr-[0.8rem] pt-[0.4rem]">
         <ButtonDelete id={id} handleConfirm={handleConfirm} />
