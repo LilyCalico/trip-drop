@@ -13,7 +13,7 @@ import {
 
 interface ButtonDeleteProps {
   id: string;
-  description: string;
+  description?: string;
   handleConfirm: (id: string) => void;
 }
 
@@ -23,6 +23,7 @@ export default function ButtonDelete({
   handleConfirm,
 }: ButtonDeleteProps) {
   const [open, setOpen] = useState(false);
+  const dialogDescription = description ?? "This action cannot be undone.";
 
   const handleCancel = () => {
     setOpen(false);
@@ -52,7 +53,7 @@ export default function ButtonDelete({
             Are you sure you want to delete this?
           </DialogTitle>
           <DialogDescription className="text-[1rem]">
-            {description}
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-row gap-[1rem] justify-center mt-[1.6rem]">
