@@ -744,6 +744,38 @@ export type Database = {
           },
         ]
       }
+      trip_day_schedule_v: {
+        Row: {
+          date: string | null
+          hotels: Json | null
+          spots: Json | null
+          transports: Json | null
+          trip_id: string | null
+        }
+        Insert: {
+          date?: string | null
+          hotels?: never
+          spots?: never
+          transports?: never
+          trip_id?: string | null
+        }
+        Update: {
+          date?: string | null
+          hotels?: never
+          spots?: never
+          transports?: never
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_days_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _postgis_deprecate: {
