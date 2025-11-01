@@ -4,6 +4,7 @@ import {
   type Camelize,
   convertKeysToCamelCase,
 } from "@/pages/api/lib/camelize";
+import { getDateInTimezone } from "@/pages/api/lib/getDateInTimezone";
 import type { Database, Json, Tables } from "@/types/supabasetype";
 
 type ErrorBody = { error: string };
@@ -11,6 +12,9 @@ type ErrorBody = { error: string };
 type SpotRow = Tables<"spots">;
 type TransportRow = Tables<"transports">;
 type HotelStayRow = Tables<"hotel_stays">;
+type HotelStayWithCheck = HotelStayRow & {
+  check: "in" | "out" | "staying";
+};
 
 interface TripDayScheduleRow {
   trip_id: string;
@@ -24,7 +28,7 @@ type TripDaySchedulePayload = {
   date: string;
   spots: SpotRow[];
   transports: TransportRow[];
-  hotels: HotelStayRow[];
+  hotels: HotelStayWithCheck[];
 };
 
 type TripDayScheduleResponse = Camelize<TripDaySchedulePayload>;
@@ -34,6 +38,25 @@ const parseJsonArray = <T>(value: Json | null): T[] => {
     return [];
   }
   return value as T[];
+};
+
+const deriveHotelCheckStatus = (
+  scheduleDate: string,
+  hotelStay: HotelStayRow,
+): HotelStayWithCheck["check"] => {
+  const timezone = hotelStay.timezone || "UTC";
+
+  const checkInDate = getDateInTimezone(hotelStay.check_in_at, timezone);
+  if (checkInDate === scheduleDate) {
+    return "in";
+  }
+
+  const checkOutDate = getDateInTimezone(hotelStay.check_out_at, timezone);
+  if (checkOutDate === scheduleDate) {
+    return "out";
+  }
+
+  return "staying";
 };
 
 const isValidIsoDate = (value: string): boolean =>
@@ -111,11 +134,18 @@ export default async function handler(
       return res.status(404).json({ error: "Trip day not found" });
     }
 
+    const scheduleDate = scheduleRow.date;
+
     const payload: TripDaySchedulePayload = {
-      date: scheduleRow.date,
+      date: scheduleDate,
       spots: parseJsonArray<SpotRow>(scheduleRow.spots),
       transports: parseJsonArray<TransportRow>(scheduleRow.transports),
-      hotels: parseJsonArray<HotelStayRow>(scheduleRow.hotels),
+      hotels: parseJsonArray<HotelStayRow>(scheduleRow.hotels).map(
+        (hotel): HotelStayWithCheck => ({
+          ...hotel,
+          check: deriveHotelCheckStatus(scheduleDate, hotel),
+        }),
+      ),
     };
 
     const response = convertKeysToCamelCase(payload);
