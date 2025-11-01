@@ -54,10 +54,12 @@ export default function CardTransport({
           />
         </div>
         <div>
-          <h1 className="font-bold text-[1.2rem] max-w-[20rem]">{name}</h1>
+          <h1 className="font-bold text-[1.2rem] max-w-[20rem] text-black/95">
+            {name}
+          </h1>
           {/* Departure */}
           <div className="flex gap-[1.6rem] mt-[1.2rem]">
-            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem]">
+            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
               {formattedDepartureDatetime}
             </p>
             <div>
@@ -70,7 +72,7 @@ export default function CardTransport({
           <p className="ml-[2.6rem] my-[0.6rem]">↓</p>
           {/* Arrival */}
           <div className="flex gap-[1.6rem]">
-            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem]">
+            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
               {formattedArrivalDatetime}
             </p>
             <div>
