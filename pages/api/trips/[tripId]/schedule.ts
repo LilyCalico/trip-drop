@@ -1,10 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  type Camelize,
-  convertKeysToCamelCase,
-} from "@/pages/api/lib/camelize";
 import { getDateInTimezone } from "@/pages/api/lib/getDateInTimezone";
+import { type Camelize, convertKeysToCamelCase } from "@/types/camelize";
 import type { Database, Json, Tables } from "@/types/supabasetype";
 
 type ErrorBody = { error: string };
