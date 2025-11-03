@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
-import Header from "@/components/custom/Header";
+import Header from "@/components/custom/layout/Header";
 import Spinner from "@/components/custom/Spinner";
 import useGetTrips from "@/hooks/trips/useGetTrips";
 import supabase from "@/lib/supabaseClient";
