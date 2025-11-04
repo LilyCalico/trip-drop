@@ -34,7 +34,7 @@ export default function ButtonAdd({
         "flex flex-col items-center justify-center",
         "w-[8.5rem] h-[7rem]",
         "gap-[0.8rem]",
-        "rounded-[0.8rem] bg-section",
+        "rounded-[0.8rem] bg-white",
         "cursor-pointer hover:bg-black/15 transition-all duration-300",
       )}
       onClick={onClick}
