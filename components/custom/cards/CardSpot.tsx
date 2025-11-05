@@ -25,8 +25,8 @@ export default function CardSpot({
   };
 
   return (
-    <div className="relative w-[34.5rem]">
-      <CardWrapper id={id}>
+    <div className="w-[34.5rem]">
+      <CardWrapper id={id} className="relative">
         <div className="self-center">
           <Image
             src="/img/icon/icon-spot.png"
@@ -47,10 +47,11 @@ export default function CardSpot({
           <AiOutlineClockCircle className="h-4 w-4" />
           <p>{visitDatetime}</p>
         </div>
+
+        <div className="absolute bottom-[0.5rem] right-[0.5rem]">
+          <ButtonDelete id={id} handleConfirm={handleConfirm} />
+        </div>
       </CardWrapper>
-      <div className="flex justify-end pr-[0.8rem] pt-[0.4rem]">
-        <ButtonDelete id={id} handleConfirm={handleConfirm} />
-      </div>
     </div>
   );
 }

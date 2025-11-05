@@ -81,10 +81,10 @@ export default function CardTransport({
             </div>
           </div>
         </div>
+        <div className="absolute bottom-[0.5rem] right-[0.5rem]">
+          <ButtonDelete id={id} handleConfirm={handleConfirm} />
+        </div>
       </CardWrapper>
-      <div className="flex justify-end pr-[0.8rem] pt-[0.4rem]">
-        <ButtonDelete id={""} handleConfirm={handleConfirm} />
-      </div>
     </div>
   );
 }
