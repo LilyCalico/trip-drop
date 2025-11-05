@@ -37,7 +37,7 @@ export default function TripDetail({
   // };
 
   return (
-    <div className="p-[3.2rem] bg-section flex flex-col gap-[4rem]">
+    <div className="p-[3.2rem] bg-white flex flex-col gap-[4rem]">
       <div className="text-center">
         <p className="font-bold text-[1.6rem] mb-[1rem]">{title}</p>
         {description && <p>{description}</p>}
