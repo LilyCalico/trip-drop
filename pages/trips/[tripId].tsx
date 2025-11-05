@@ -60,29 +60,6 @@ export default function TripDetailPage() {
 
     return (
       <div>
-        {/* Detail */}
-        <TripDetail
-          tripId={trip.id}
-          title={trip.title}
-          description={trip.description}
-          startAt={trip.startAt}
-          endAt={trip.endAt}
-          numberOfMembers={trip.numberOfMembers ?? 1}
-        />
-
-        {/* ADD BUTTONS */}
-        <Wrapper>
-          <Title title="ADD" />
-          <div className="flex gap-[1.2rem] justify-center my-[2.4rem]">
-            <ButtonAdd type="spot" onClick={() => openModal("spot")} />
-            <ButtonAdd type="hotel" onClick={() => openModal("hotel")} />
-            <ButtonAdd
-              type="transport"
-              onClick={() => openModal("transport")}
-            />
-          </div>
-        </Wrapper>
-
         {/* SCHEDULE DATE LIST */}
         <Wrapper className="bg-section px-[2.4rem]">
           <Title title="SCHEDULE" />
@@ -97,6 +74,31 @@ export default function TripDetailPage() {
                 }}
               />
             ))}
+          </div>
+        </Wrapper>
+
+        {/* Detail */}
+        <div className="my-[3.2rem]">
+          <TripDetail
+            tripId={trip.id}
+            title={trip.title}
+            description={trip.description}
+            startAt={trip.startAt}
+            endAt={trip.endAt}
+            numberOfMembers={trip.numberOfMembers ?? 1}
+          />
+        </div>
+
+        {/* ADD BUTTONS */}
+        <Wrapper className="bg-section">
+          <Title title="ADD" />
+          <div className="flex gap-[1.2rem] justify-center my-[2.4rem] pb-[3.2rem]">
+            <ButtonAdd type="spot" onClick={() => openModal("spot")} />
+            <ButtonAdd type="hotel" onClick={() => openModal("hotel")} />
+            <ButtonAdd
+              type="transport"
+              onClick={() => openModal("transport")}
+            />
           </div>
         </Wrapper>
 
