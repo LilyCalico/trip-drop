@@ -41,7 +41,7 @@ const CardHotel = ({
   return (
     <div className="w-[34.5rem]">
       <CardWrapper id={id} className="relative">
-        <div className="self-center">
+        <div className="self-center flex-shrink-0">
           <Image
             src="/img/icon/icon-hotel.png"
             alt="ホテルアイコン"

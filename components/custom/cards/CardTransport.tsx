@@ -45,7 +45,7 @@ export default function CardTransport({
   return (
     <div className="relative w-[34.5rem]">
       <CardWrapper id={id}>
-        <div className="self-center">
+        <div className="self-center flex-shrink-0">
           <Image
             src="/img/icon/icon-transport.png"
             alt="Transport Icon"
