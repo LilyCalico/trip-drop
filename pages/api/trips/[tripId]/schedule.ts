@@ -13,6 +13,21 @@ type HotelStayWithCheck = HotelStayRow & {
   check: "in" | "out" | "staying";
 };
 
+type TripDayScheduleItem =
+  | {
+      type: "spot";
+      spot: SpotRow;
+    }
+  | {
+      type: "transport";
+      transport: TransportRow;
+    }
+  | {
+      type: "hotel";
+      hotel: HotelStayWithCheck;
+      datetime_utc: string | null;
+    };
+
 interface TripDayScheduleRow {
   trip_id: string;
   date: string;
@@ -26,6 +41,7 @@ type TripDaySchedulePayload = {
   spots: SpotRow[];
   transports: TransportRow[];
   hotels: HotelStayWithCheck[];
+  items: TripDayScheduleItem[];
 };
 
 type TripDayScheduleResponse = Camelize<TripDaySchedulePayload>;
@@ -133,16 +149,141 @@ export default async function handler(
 
     const scheduleDate = scheduleRow.date;
 
+    const parseTimestamp = (value?: string | null): number | null => {
+      if (!value) {
+        return null;
+      }
+      const time = Date.parse(value);
+      return Number.isNaN(time) ? null : time;
+    };
+
+    const spots = parseJsonArray<SpotRow>(scheduleRow.spots);
+
+    const transports = parseJsonArray<TransportRow>(scheduleRow.transports);
+
+    const hotels = parseJsonArray<HotelStayRow>(scheduleRow.hotels).map(
+      (hotel): HotelStayWithCheck => ({
+        ...hotel,
+        check: deriveHotelCheckStatus(scheduleDate, hotel),
+      }),
+    );
+
+    type DecoratedItem =
+      | {
+          priority: number;
+          sortTime: number | null;
+          payload: Extract<TripDayScheduleItem, { type: "spot" }>;
+        }
+      | {
+          priority: number;
+          sortTime: number | null;
+          payload: Extract<TripDayScheduleItem, { type: "transport" }>;
+        }
+      | {
+          priority: number;
+          sortTime: number | null;
+          payload: Extract<TripDayScheduleItem, { type: "hotel" }>;
+        };
+
+    const decoratedItems: DecoratedItem[] = [];
+
+    spots.forEach((spot) => {
+      decoratedItems.push({
+        priority: 0,
+        sortTime: parseTimestamp(spot.visit_datetime),
+        payload: {
+          type: "spot",
+          spot,
+        },
+      });
+    });
+
+    transports.forEach((transport) => {
+      decoratedItems.push({
+        priority: 0,
+        sortTime:
+          parseTimestamp(transport.departure_datetime) ??
+          parseTimestamp(transport.arrival_datetime),
+        payload: {
+          type: "transport",
+          transport,
+        },
+      });
+    });
+
+    hotels.forEach((hotel) => {
+      const datetimeUtc =
+        hotel.check === "in"
+          ? hotel.check_in_at
+          : hotel.check === "out"
+            ? hotel.check_out_at
+            : null;
+
+      const fallbackTime =
+        parseTimestamp(datetimeUtc) ??
+        parseTimestamp(hotel.check_in_at) ??
+        parseTimestamp(hotel.check_out_at) ??
+        parseTimestamp(hotel.created_at);
+
+      decoratedItems.push({
+        priority: hotel.check === "staying" ? 1 : 0,
+        sortTime: fallbackTime,
+        payload: {
+          type: "hotel",
+          hotel,
+          datetime_utc: datetimeUtc,
+        },
+      });
+    });
+
+    decoratedItems.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+
+      if (a.sortTime === null && b.sortTime === null) {
+        return 0;
+      }
+      if (a.sortTime === null) {
+        return 1;
+      }
+      if (b.sortTime === null) {
+        return -1;
+      }
+
+      return a.sortTime - b.sortTime;
+    });
+
+    const items = decoratedItems.map((item) => item.payload);
+
+    const sortedSpots = items
+      .filter(
+        (item): item is Extract<TripDayScheduleItem, { type: "spot" }> => {
+          return item.type === "spot";
+        },
+      )
+      .map((item) => item.spot);
+
+    const sortedTransports = items
+      .filter(
+        (item): item is Extract<TripDayScheduleItem, { type: "transport" }> =>
+          item.type === "transport",
+      )
+      .map((item) => item.transport);
+
+    const sortedHotels = items
+      .filter(
+        (item): item is Extract<TripDayScheduleItem, { type: "hotel" }> =>
+          item.type === "hotel",
+      )
+      .map((item) => item.hotel);
+
     const payload: TripDaySchedulePayload = {
       date: scheduleDate,
-      spots: parseJsonArray<SpotRow>(scheduleRow.spots),
-      transports: parseJsonArray<TransportRow>(scheduleRow.transports),
-      hotels: parseJsonArray<HotelStayRow>(scheduleRow.hotels).map(
-        (hotel): HotelStayWithCheck => ({
-          ...hotel,
-          check: deriveHotelCheckStatus(scheduleDate, hotel),
-        }),
-      ),
+      spots: sortedSpots,
+      transports: sortedTransports,
+      hotels: sortedHotels,
+      items,
     };
 
     const response = convertKeysToCamelCase(payload);
