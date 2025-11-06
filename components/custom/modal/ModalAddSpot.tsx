@@ -107,7 +107,7 @@ export default function ModalAddSpot({
 
   // 初期値設定: 旅程の初日
   useEffect(() => {
-    if (defaultDate) {
+    if (defaultDate && selectedDate === "") {
       setSelectedDate(defaultDate);
     }
 

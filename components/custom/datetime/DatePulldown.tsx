@@ -1,4 +1,4 @@
-import { eachDayOfInterval, format, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Calendar } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import createDateRangeArray from "@/lib/functions/createDateRangeArray";
 
 interface DateProps {
   label?: string;
@@ -32,17 +33,7 @@ export default function DatePulldown({
   placeholder = "Select date",
   className = "",
 }: DateProps) {
-  // 日付範囲を取得（UTCで生成）
-  const dates = eachDayOfInterval({
-    start: parseISO(startDate),
-    end: parseISO(endDate),
-  });
-  const datesList = dates.map((date) => {
-    // 各日付をUTCの00:00:00に設定
-    const utcDate = new Date(date);
-    utcDate.setUTCHours(0, 0, 0, 0);
-    return utcDate;
-  });
+  const datesList = createDateRangeArray(startDate, endDate);
 
   return (
     <div className={className}>
@@ -62,8 +53,8 @@ export default function DatePulldown({
           <SelectContent className="bg-white border-gray-light">
             {datesList.map((date) => (
               <SelectItem
-                key={date.toISOString()}
-                value={date.toISOString()}
+                key={date}
+                value={date}
                 className="bg-white hover:bg-gray-50"
               >
                 {format(date, "yyyy/MM/dd EEE")}
@@ -75,4 +66,3 @@ export default function DatePulldown({
     </div>
   );
 }
-

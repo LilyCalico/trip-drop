@@ -68,10 +68,16 @@ export default function ModalAddTransport({
 
   useEffect(() => {
     if (!trip) return;
-    if (!departureDate) {
+    if (defaultDate && departureDate === "") {
+      setDepartureDate(defaultDate);
+    }
+    if (defaultDate && arrivalDate === "") {
+      setArrivalDate(defaultDate);
+    }
+    if (!departureDate && !defaultDate) {
       setDepartureDate(trip.startAt);
     }
-    if (!arrivalDate) {
+    if (!arrivalDate && !defaultDate) {
       setArrivalDate(trip.endAt);
     }
     if (!departureTimezone) {
@@ -80,7 +86,14 @@ export default function ModalAddTransport({
     if (!arrivalTimezone) {
       setArrivalTimezone(trip.timeZone);
     }
-  }, [trip, departureDate, arrivalDate, departureTimezone, arrivalTimezone]);
+  }, [
+    trip,
+    departureDate,
+    arrivalDate,
+    departureTimezone,
+    arrivalTimezone,
+    defaultDate,
+  ]);
 
   const isValid = useMemo(() => {
     return (
@@ -218,7 +231,7 @@ export default function ModalAddTransport({
           <DatePulldown
             label="Departure Date *"
             id="transport-departure-date"
-            value={defaultDate ?? departureDate}
+            value={departureDate}
             onChange={setDepartureDate}
             startDate={trip.startAt}
             endDate={trip.endAt}
@@ -264,7 +277,7 @@ export default function ModalAddTransport({
           <DatePulldown
             label="Arrival Date *"
             id="transport-arrival-date"
-            value={defaultDate ?? arrivalDate}
+            value={arrivalDate}
             onChange={setArrivalDate}
             startDate={trip.startAt}
             endDate={trip.endAt}
