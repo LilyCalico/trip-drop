@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
+import createDateRangeArray from "@/lib/functions/createDateRangeArray";
 import { createUtcDateTimeForDB } from "@/lib/functions/createUtcDateTime";
 import type { Database } from "@/types/supabasetype";
 import getTripDayId from "../lib/getTripDayId";
-import { createDateRange } from "@/lib/functions/createDateRange";
 
 type ErrorBody = { error: string; details?: string; code?: string };
 
@@ -127,7 +127,8 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid date conversion" });
     }
 
-    const dateList = createDateRange(startDate, endDate);
+    const dateList = createDateRangeArray(startDate, endDate);
+    console.log("dateList", dateList);
 
     let tripDayIds: string[];
     try {
@@ -172,22 +173,23 @@ export default async function handler(
       return trimmed.length > 0 ? trimmed : null;
     };
 
-    const hotelStayInsert: Database["public"]["Tables"]["hotel_stays"]["Insert"] = {
-      name: trimmedName,
-      address: toTrimmedOrNull(address),
-      notes: toTrimmedOrNull(notes),
-      booking_reference: toTrimmedOrNull(bookingReference),
-      google_place_id: toTrimmedOrNull(googlePlaceId),
-      google_data: (googleData ??
-        null) as Database["public"]["Tables"]["hotel_stays"]["Insert"]["google_data"],
-      location: pointWkt,
-      created_by: userId,
-      phone: toTrimmedOrNull(phone),
-      trip_id: tripId,
-      check_in_at: checkinUTC,
-      check_out_at: checkoutUTC,
-      timezone,
-    };
+    const hotelStayInsert: Database["public"]["Tables"]["hotel_stays"]["Insert"] =
+      {
+        name: trimmedName,
+        address: toTrimmedOrNull(address),
+        notes: toTrimmedOrNull(notes),
+        booking_reference: toTrimmedOrNull(bookingReference),
+        google_place_id: toTrimmedOrNull(googlePlaceId),
+        google_data: (googleData ??
+          null) as Database["public"]["Tables"]["hotel_stays"]["Insert"]["google_data"],
+        location: pointWkt,
+        created_by: userId,
+        phone: toTrimmedOrNull(phone),
+        trip_id: tripId,
+        check_in_at: checkinUTC,
+        check_out_at: checkoutUTC,
+        timezone,
+      };
 
     const { data: stay, error: stayError } = await supabase
       .from("hotel_stays")
@@ -203,13 +205,12 @@ export default async function handler(
       });
     }
 
-    const stayDayInsertPayload: Database["public"]["Tables"]["hotel_stay_days"]["Insert"][] = tripDayIds.map(
-      (tripDayId, index) => ({
+    const stayDayInsertPayload: Database["public"]["Tables"]["hotel_stay_days"]["Insert"][] =
+      tripDayIds.map((tripDayId, index) => ({
         stay_id: stay.id,
         trip_day_id: tripDayId,
         stay_date: dateList[index] ?? startDate,
-      }),
-    );
+      }));
 
     let stayDays: Database["public"]["Tables"]["hotel_stay_days"]["Row"][] = [];
 
