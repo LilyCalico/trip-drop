@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
@@ -16,7 +17,11 @@ export default function Header() {
 
   return (
     <div className="h-[6.4rem] flex justify-between items-center px-[1.6rem]">
-      <h1 className="text-[1.4rem] font-bold">Trip Drop</h1>
+      <h1>
+        <Link href="/" className="text-[1.4rem] font-bold">
+          Trip Drop
+        </Link>
+      </h1>
       {isAuthenticated && (
         <div
           onClick={handleMenuClick}
