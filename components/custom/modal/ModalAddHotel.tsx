@@ -14,6 +14,7 @@ import { toZonedIsoString } from "@/lib/toZonedIsoString";
 
 interface ModalAddHotelProps {
   onClose: () => void;
+  defaultDate?: string;
 }
 
 interface HotelFormData {
@@ -26,7 +27,10 @@ interface HotelFormData {
   bookingReference: string;
 }
 
-export default function ModalAddHotel({ onClose }: ModalAddHotelProps) {
+export default function ModalAddHotel({
+  onClose,
+  defaultDate,
+}: ModalAddHotelProps) {
   const trip = useCurrentTrip();
   const { getDetails } = useGooglePlaceDetails();
   const { createHotel, isSubmitting } = useCreateHotel();
@@ -54,7 +58,7 @@ export default function ModalAddHotel({ onClose }: ModalAddHotelProps) {
 
     if (!checkinDate) {
       const zonedCheckin = toZonedIsoString(
-        trip.startAt,
+        defaultDate ?? trip.startAt,
         "00:00",
         trip.timeZone,
       );
@@ -69,7 +73,7 @@ export default function ModalAddHotel({ onClose }: ModalAddHotelProps) {
       );
       setCheckoutDate(zonedCheckout ?? "");
     }
-  }, [trip, checkinDate, checkoutDate]);
+  }, [trip, checkinDate, checkoutDate, defaultDate]);
 
   // Name入力 (自動入力がされていればAddress/Phoneをクリア)
   const handleNameChange = (value: string) => {

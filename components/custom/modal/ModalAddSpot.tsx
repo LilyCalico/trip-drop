@@ -22,9 +22,13 @@ interface SpotFormData {
 
 interface ModalAddSpotProps {
   onClose: () => void;
+  defaultDate?: string;
 }
 
-export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
+export default function ModalAddSpot({
+  onClose,
+  defaultDate,
+}: ModalAddSpotProps) {
   const trip = useCurrentTrip();
   const { createSpot, isSubmitting } = useCreateSpot();
 
@@ -103,10 +107,14 @@ export default function ModalAddSpot({ onClose }: ModalAddSpotProps) {
 
   // 初期値設定: 旅程の初日
   useEffect(() => {
-    if (trip && !selectedDate) {
+    if (defaultDate) {
+      setSelectedDate(defaultDate);
+    }
+
+    if (trip && !selectedDate && !defaultDate) {
       setSelectedDate(trip.startAt);
     }
-  }, [trip, selectedDate]);
+  }, [trip, selectedDate, defaultDate]);
 
   if (!trip) {
     return <div>Loading...</div>;

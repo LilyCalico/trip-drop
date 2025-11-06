@@ -220,7 +220,7 @@ export default function TripSchedulePage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         type={"spot"}
-        tripId={trip.id}
+        defaultDate={date}
       />
     </>
   );

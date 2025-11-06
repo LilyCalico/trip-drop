@@ -4,13 +4,12 @@ import ModalAddHotel from "@/components/custom/modal/ModalAddHotel";
 import ModalAddSpot from "@/components/custom/modal/ModalAddSpot";
 import ModalAddTransport from "@/components/custom/modal/ModalAddTransport";
 import { cn } from "@/lib/utils";
-import { useTripsStore } from "@/store/useTripsStore";
 
 interface ModalAddProps {
   isOpen: boolean;
   onClose: () => void;
   type: "spot" | "hotel" | "transport";
-  tripId: string;
+  defaultDate?: string;
 }
 
 type Category = "spot" | "hotel" | "transport";
@@ -53,18 +52,12 @@ export default function ModalAdd({
   isOpen,
   onClose,
   type,
-  tripId,
+  defaultDate,
 }: ModalAddProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
   const category = selectedCategory ?? type;
-  const trips = useTripsStore((state) => state.trips);
-  const trip = trips?.find((trip) => trip.id === tripId) ?? null;
-
-  useEffect(() => {
-    console.log("trip", trip);
-  }, [trip]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -113,9 +106,15 @@ export default function ModalAdd({
 
         {/* Text Input */}
         <div>
-          {category === "spot" && <ModalAddSpot onClose={onClose} />}
-          {category === "hotel" && <ModalAddHotel onClose={onClose} />}
-          {category === "transport" && <ModalAddTransport onClose={onClose} />}
+          {category === "spot" && (
+            <ModalAddSpot onClose={onClose} defaultDate={defaultDate} />
+          )}
+          {category === "hotel" && (
+            <ModalAddHotel onClose={onClose} defaultDate={defaultDate} />
+          )}
+          {category === "transport" && (
+            <ModalAddTransport onClose={onClose} defaultDate={defaultDate} />
+          )}
         </div>
       </div>
     </div>

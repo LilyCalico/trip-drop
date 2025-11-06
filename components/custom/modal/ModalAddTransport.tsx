@@ -16,6 +16,7 @@ import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
 interface ModalAddTransportProps {
   onClose: () => void;
+  defaultDate?: string;
 }
 
 interface TransportFormData {
@@ -34,7 +35,10 @@ interface TransportFormData {
 const toDateOnly = (value: string) =>
   value.length >= 10 ? value.slice(0, 10) : value;
 
-export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
+export default function ModalAddTransport({
+  onClose,
+  defaultDate,
+}: ModalAddTransportProps) {
   const trip = useCurrentTrip();
   const { createTransport, isSubmitting, error } = useCreateTransport();
   const [formData, setFormData] = useState<TransportFormData>({
@@ -214,7 +218,7 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
           <DatePulldown
             label="Departure Date *"
             id="transport-departure-date"
-            value={departureDate}
+            value={defaultDate ?? departureDate}
             onChange={setDepartureDate}
             startDate={trip.startAt}
             endDate={trip.endAt}
@@ -260,7 +264,7 @@ export default function ModalAddTransport({ onClose }: ModalAddTransportProps) {
           <DatePulldown
             label="Arrival Date *"
             id="transport-arrival-date"
-            value={arrivalDate}
+            value={defaultDate ?? arrivalDate}
             onChange={setArrivalDate}
             startDate={trip.startAt}
             endDate={trip.endAt}
