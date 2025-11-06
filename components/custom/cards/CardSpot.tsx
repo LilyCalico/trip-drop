@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
+import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 import ButtonDelete from "../button/ButtonDelete";
 
 interface CardSpotProps {
@@ -9,6 +10,7 @@ interface CardSpotProps {
   address?: string;
   description?: string;
   visitDatetime: string;
+  timezone: string;
   googlePlaceId?: string;
 }
 
@@ -18,8 +20,10 @@ export default function CardSpot({
   address,
   description,
   visitDatetime,
+  timezone,
   googlePlaceId,
 }: CardSpotProps) {
+  const time = formatLocalTimeFromUtc(visitDatetime, timezone);
   const handleConfirm = (targetId: string) => {
     console.log("TODO: delete spot card", targetId);
   };
@@ -45,7 +49,7 @@ export default function CardSpot({
         </div>
         <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
           <AiOutlineClockCircle className="h-4 w-4" />
-          <p>{visitDatetime}</p>
+          <p>{time}</p>
         </div>
 
         <div className="absolute bottom-[0.5rem] right-[0.5rem]">
