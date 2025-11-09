@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DateCustom from "@/components/custom/DateCustom";
 import { Input } from "@/components/custom/Input";
 import InputPassword from "@/components/custom/InputPassword";
@@ -7,13 +7,14 @@ import PageWrapper from "@/components/custom/PageWrapper";
 import TimeZone from "@/components/custom/trip/TimeZone";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import useCreateTrip from "@/hooks/trips/useCreateTrip";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function NewTripPage() {
   const router = useRouter();
-  const session = useAuthStore((s) => s.session);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authLoading = useAuthStore((s) => s.loading);
+  const { createTrip, creating, error: createTripError } = useCreateTrip();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState<Date>();
@@ -22,70 +23,58 @@ export default function NewTripPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [timezone, setTimezone] = useState("");
   const [submitError, setSubmitError] = useState("");
 
   const isFormValid =
     title.trim() &&
-    startDate &&
-    endDate &&
+    Boolean(startDate) &&
+    Boolean(endDate) &&
     timezone &&
     password &&
     password === confirmPassword;
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
-    setLoading(true);
-    setSubmitError(""); // エラーをクリア
+    setSubmitError("");
+    const startAt = startDate?.toISOString();
+    const endAt = endDate?.toISOString();
+
+    if (!startAt || !endAt) {
+      setSubmitError("Start and end dates are required.");
+      return;
+    }
+
+    const requestBody = {
+      title: title.trim(),
+      description: description.trim(),
+      startAt,
+      endAt,
+      timezone,
+      numOfPeople: numOfPeople ? parseInt(numOfPeople, 10) : null,
+      password: password.trim(),
+    };
+
     try {
-      if (!session?.access_token) {
-        console.error("No access token found");
-        setSubmitError("Authentication error. Please try again.");
+      const result = await createTrip(requestBody);
+
+      if (result.success && result.tripId) {
+        router.push(`/trips/${result.tripId}`);
         return;
       }
 
-      const requestBody = {
-        title: title.trim(),
-        description: description.trim(),
-        startAt: startDate?.toISOString(),
-        endAt: endDate?.toISOString(),
-        timezone,
-        numOfPeople: numOfPeople ? parseInt(numOfPeople) : null,
-        password: password.trim()
-      };
-
-      const response = await fetch("/api/trip", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // router.push(`/trips/${data.tripId}`);
-      } else {
-        const errorData = await response.json();
-        setSubmitError(
-          errorData.error || "Failed to create trip. Please try again."
-        );
-      }
-    } catch (error) {
-      console.error("Error creating trip:", error);
+      const message =
+        result.message ??
+        createTripError ??
+        "Failed to create trip. Please try again.";
+      setSubmitError(message);
+    } catch (err) {
+      console.error("Unexpected error submitting trip:", err);
       setSubmitError(
-        "Network error. Please check your connection and try again."
+        err instanceof Error ? err.message : "Unknown error occurred.",
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -129,10 +118,16 @@ export default function NewTripPage() {
               label="From *"
               date={startDate}
               setDate={setStartDate}
+              htmlFor="startDate"
             />
 
             {/* End Date */}
-            <DateCustom label="Until *" date={endDate} setDate={setEndDate} />
+            <DateCustom
+              label="Until *"
+              date={endDate}
+              setDate={setEndDate}
+              htmlFor="endDate"
+            />
           </div>
         </div>
 
@@ -188,19 +183,21 @@ export default function NewTripPage() {
         </div>
 
         {/* Error Message */}
-        {submitError && (
+        {(submitError || createTripError) && (
           <div className="mt-4">
-            <p className="text-red-500 text-sm">{submitError}</p>
+            <p className="text-red-500 text-sm">
+              {submitError || createTripError}
+            </p>
           </div>
         )}
 
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={!isFormValid || loading || passwordError !== ""}
+          disabled={!isFormValid || creating || passwordError !== ""}
           className="bg-black text-white w-full mt-[3.2rem] text-[1.2rem] py-[1.6rem] hover:bg-black/80 cursor-pointer"
         >
-          {loading ? "Creating..." : "Create Trip"}
+          {creating ? "Creating..." : "Create Trip"}
         </Button>
       </form>
     </PageWrapper>
