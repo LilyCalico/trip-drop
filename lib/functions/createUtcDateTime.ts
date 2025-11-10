@@ -1,6 +1,6 @@
 interface CreateUtcDateTimeParams {
   selectedDate: string;
-  selectedTime: string;
+  selectedTime?: string;
   selectedTimezone: string;
 }
 
@@ -69,7 +69,7 @@ const parseTimeString = (value: string): TimeParts | null => {
  */
 export const createUtcDateTimeForDB = ({
   selectedDate,
-  selectedTime,
+  selectedTime = "00:00",
   selectedTimezone,
 }: CreateUtcDateTimeParams): string | null => {
   // 日付・時刻が存在するものかを確認
