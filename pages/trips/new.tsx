@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import DateCustom from "@/components/custom/DateCustom";
@@ -8,6 +9,7 @@ import TimeZone from "@/components/custom/trip/TimeZone";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import useCreateTrip from "@/hooks/trips/useCreateTrip";
+import { createUtcDateTimeForDB } from "@/lib/functions/createUtcDateTime";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function NewTripPage() {
@@ -41,8 +43,21 @@ export default function NewTripPage() {
     if (!isFormValid) return;
 
     setSubmitError("");
-    const startAt = startDate?.toISOString();
-    const endAt = endDate?.toISOString();
+    const startDateString = startDate ? format(startDate, "yyyy-MM-dd") : null;
+    const endDateString = endDate ? format(endDate, "yyyy-MM-dd") : null;
+
+    const startAt = startDateString
+      ? createUtcDateTimeForDB({
+          selectedDate: startDateString,
+          selectedTimezone: timezone,
+        })
+      : null;
+    const endAt = endDateString
+      ? createUtcDateTimeForDB({
+          selectedDate: endDateString,
+          selectedTimezone: timezone,
+        })
+      : null;
 
     if (!startAt || !endAt) {
       setSubmitError("Start and end dates are required.");
@@ -58,6 +73,8 @@ export default function NewTripPage() {
       numOfPeople: numOfPeople ? parseInt(numOfPeople, 10) : null,
       password: password.trim(),
     };
+
+    console.log("requestBody", requestBody);
 
     try {
       const result = await createTrip(requestBody);
