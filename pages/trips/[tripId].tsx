@@ -30,7 +30,6 @@ const Wrapper = ({
 
 export default function TripDetailPage() {
   const router = useRouter();
-  const { tripId } = router.query as { tripId: string };
   const trip = useCurrentTrip();
   const { loading } = useTripsStore();
 
@@ -51,6 +50,8 @@ export default function TripDetailPage() {
   if (loading) {
     return <Spinner />;
   }
+
+  console.log("trip", trip);
 
   if (!loading && trip) {
     const scheduleDates = eachDayOfInterval({
@@ -103,12 +104,7 @@ export default function TripDetailPage() {
         </Wrapper>
 
         {/* Modal to add spot, hotel, or transport */}
-        <ModalAdd
-          isOpen={modalOpen}
-          onClose={closeModal}
-          type={modalType}
-          tripId={tripId}
-        />
+        <ModalAdd isOpen={modalOpen} onClose={closeModal} type={modalType} />
       </div>
     );
   }
