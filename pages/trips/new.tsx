@@ -32,7 +32,9 @@ export default function NewTripPage() {
     Boolean(endDate) &&
     timezone &&
     password &&
-    password === confirmPassword;
+    password === confirmPassword &&
+    password.length >= 8 &&
+    password.length <= 30;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
