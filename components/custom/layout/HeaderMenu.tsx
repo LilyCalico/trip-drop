@@ -1,9 +1,11 @@
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaCalendar, FaPlane } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
+import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
 import supabase from "@/lib/supabaseClient";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
@@ -119,11 +121,24 @@ const Menu = ({
   const menuTitle =
     currentTripTitle?.title ?? nearestTrip?.title ?? "Trip Drop";
 
+  const activeTrip = currentTripTitle ?? nearestTrip;
+
+  const tripDates = useMemo(() => {
+    if (!activeTrip?.startAt || !activeTrip?.endAt) {
+      return [];
+    }
+    return createDateRangeArray(activeTrip.startAt, activeTrip.endAt);
+  }, [activeTrip]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     onClose();
     onLoggedOut();
   };
+
+  useEffect(() => {
+    console.log("tripDates", tripDates);
+  }, [tripDates]);
 
   return (
     <div
@@ -139,21 +154,41 @@ const Menu = ({
         <h1 className="text-center font-bold mb-[4rem]">{menuTitle}</h1>
 
         <div className="flex flex-col gap-[3.2rem]">
-          {MenuItems.map((item) => (
-            <MenuLabel
-              key={item.label}
-              icon={item.icon}
-              label={item.label}
-              href={
-                item.label !== "Top" && nearestTrip
-                  ? `/trips/${nearestTrip.id}/${item.href}`
-                  : `/`
-              }
-              onClick={() => {
-                onClose();
-              }}
-            />
-          ))}
+          {MenuItems.map((item) => {
+            const baseHref =
+              item.label !== "Top" && nearestTrip
+                ? `/trips/${nearestTrip.id}/${item.href}`
+                : `/`;
+
+            return (
+              <div key={item.label}>
+                <MenuLabel
+                  icon={item.icon}
+                  label={item.label}
+                  href={baseHref}
+                  onClick={() => {
+                    onClose();
+                  }}
+                />
+                {item.label === "Schedule" &&
+                  activeTrip &&
+                  tripDates.length > 0 && (
+                    <div className="ml-[3.6rem] mt-[1.2rem] flex flex-col gap-[0.8rem]">
+                      {tripDates.map((date) => (
+                        <Link
+                          key={date}
+                          href={`/trips/${activeTrip.id}/schedule?date=${date}`}
+                          onClick={onClose}
+                          className="text-[1rem] text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                        >
+                          {format(new Date(date), "MM/dd (E)")}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
