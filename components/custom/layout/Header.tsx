@@ -25,7 +25,7 @@ export default function Header() {
       {isAuthenticated && (
         <div
           onClick={handleMenuClick}
-          className="text-[2.4rem] font-bold flex items-center gap-[1.2rem] cursor-pointer"
+          className="text-[2.4rem] font-bold flex items-center gap-[1.2rem] cursor-pointer lg:hidden"
         >
           <Image
             src="/dummy-user.png"
@@ -39,7 +39,7 @@ export default function Header() {
       )}
       {isAuthenticated && isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-10"
+          className="fixed inset-0 bg-black/20 z-10 lg:hidden"
           onClick={() => setIsMenuOpen(false)}
         />
       )}

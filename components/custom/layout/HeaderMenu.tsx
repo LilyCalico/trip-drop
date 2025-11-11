@@ -143,10 +143,10 @@ const Menu = ({
   return (
     <div
       className={
-        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 z-20 transform transition-transform duration-300 ease-in-out bg-white " +
+        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 lg:left-0 lg:right-auto z-20 transform transition-transform duration-300 ease-in-out bg-white " +
         (isOpen
           ? "translate-x-0 pointer-events-auto"
-          : "translate-x-full pointer-events-none")
+          : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto")
       }
       aria-hidden={!isOpen}
     >

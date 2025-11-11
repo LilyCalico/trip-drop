@@ -69,10 +69,16 @@ export default function App({ Component, pageProps }: AppProps) {
     return <Spinner />;
   }
 
+  const isAuthPage = router.pathname.startsWith("/auth/");
+
   return (
     <>
-      <Header />
-      <Component {...pageProps} />
+      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[26rem]" : ""}>
+        <Header />
+      </div>
+      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[26rem]" : ""}>
+        <Component {...pageProps} />
+      </div>
       <Toaster />
     </>
   );
