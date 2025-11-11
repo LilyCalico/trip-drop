@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <div className="h-[6.4rem] flex justify-between items-center px-[1.6rem]">
-      <h1>
+      <h1 className="lg:hidden">
         <Link href="/" className="text-[1.4rem] font-bold">
           Trip Drop
         </Link>

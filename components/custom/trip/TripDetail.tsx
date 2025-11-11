@@ -1,6 +1,5 @@
 import { format, parseISO } from "date-fns";
 import { Copy } from "lucide-react";
-import { AiOutlineCalendar, AiOutlineUser } from "react-icons/ai";
 import Button from "@/components/custom/button/Button";
 
 interface TripDetailProps {
@@ -20,9 +19,6 @@ export default function TripDetail({
   endAt,
   numberOfMembers,
 }: TripDetailProps) {
-  const startAtDisplay = format(parseISO(startAt), "yyyy/MM/dd");
-  const endAtDisplay = format(parseISO(endAt), "yyyy/MM/dd");
-
   const handleCopyShareLink = () => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const url = `${baseUrl}/trips/${tripId}/join`;
@@ -58,7 +54,7 @@ export default function TripDetail({
 
       <Button
         onClick={handleCopyShareLink}
-        className="bg-white text-black border border-black flex items-center gap-2"
+        className="bg-white text-black border border-black flex items-center gap-2 w-full max-w-[32rem] mx-auto"
       >
         <Copy size={16} />
         Copy Share Link
