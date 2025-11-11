@@ -1,7 +1,7 @@
 export default function PageWrapper({
-  children
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="p-[2.4rem]">{children}</div>;
+  return <div className="p-[2.4rem] max-w-[50rem] mx-auto">{children}</div>;
 }
