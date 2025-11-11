@@ -1,10 +1,75 @@
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import Button from "@/components/custom/button/Button";
+import CardHotel from "@/components/custom/cards/CardHotel";
 import HeaderDate from "@/components/custom/layout/PageHeader";
+import ModalAdd from "@/components/custom/modal/ModalAdd";
+import Spinner from "@/components/custom/Spinner";
+import { useTripHotels } from "@/hooks/hotels/useTripHotels";
+import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
-export default function HotelsPage() {
+export default function HotelPage() {
+  const trip = useCurrentTrip();
+  const [modalOpen, setModalOpen] = useState(false);
+  const { hotels, isLoading, error } = useTripHotels({
+    tripId: trip?.id,
+  });
+
+  if (isLoading || !trip?.id) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  let content = null;
+
+  if (!hotels) {
+    content = (
+      <div className="text-center my-[2.4rem] font-bold">
+        <p>No Hotels Found</p>
+      </div>
+    );
+  } else {
+    content = hotels?.map((hotel) => (
+      <CardHotel
+        key={hotel.id}
+        id={hotel.id}
+        name={hotel.name}
+        address={hotel.address}
+        phone={hotel.phone}
+        notes={hotel.notes}
+        bookingReference={hotel.bookingReference}
+        datetimeUtc={hotel.checkInAt}
+        timezone={hotel.timezone}
+        googlePlaceId={hotel.googlePlaceId}
+        check="in"
+      />
+    ));
+  }
+
   return (
     <>
       <HeaderDate category="hotel" />
-      <div></div>
+      <div className="w-[34.5rem] pt-[3.2rem] mx-auto">
+        {content}
+        <Button
+          className="flex items-center gap-[0.8rem] w-full mt-[3.2rem]"
+          onClick={() => {
+            setModalOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Items
+        </Button>
+      </div>
+
+      <ModalAdd
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={"hotel"}
+      />
     </>
   );
 }
