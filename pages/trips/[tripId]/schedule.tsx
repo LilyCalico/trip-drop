@@ -57,24 +57,59 @@ export default function TripSchedulePage() {
     }
   }, [date, trip]);
 
-  const handleSpotDeleted = (deletedId: string) => {
-    void mutate((current) => {
-      if (!current) {
-        return current;
-      }
+  const handleItemDeleted = useCallback(
+    (deletedId: string, targetType: "spot" | "transport" | "hotel") => {
+      void mutate((current) => {
+        if (!current) {
+          return current;
+        }
 
-      return {
-        ...current,
-        spots: current.spots.filter((spot) => spot.id !== deletedId),
-        items: current.items.filter((item) => {
-          if (item.type !== "spot") {
-            return true;
-          }
-          return item.spot.id !== deletedId;
-        }),
-      };
-    }, true);
-  };
+        if (targetType === "spot") {
+          return {
+            ...current,
+            spots: current.spots.filter((spot) => spot.id !== deletedId),
+            items: current.items.filter((item) => {
+              if (item.type !== "spot") {
+                return true;
+              }
+              return item.spot.id !== deletedId;
+            }),
+          };
+        }
+
+        if (targetType === "transport") {
+          return {
+            ...current,
+            transports: current.transports.filter(
+              (transport) => transport.id !== deletedId,
+            ),
+            items: current.items.filter((item) => {
+              if (item.type !== "transport") {
+                return true;
+              }
+              return item.transport.id !== deletedId;
+            }),
+          };
+        }
+
+        if (targetType === "hotel") {
+          return {
+            ...current,
+            hotels: current.hotels.filter((hotel) => hotel.id !== deletedId),
+            items: current.items.filter((item) => {
+              if (item.type !== "hotel") {
+                return true;
+              }
+              return item.hotel.id !== deletedId;
+            }),
+          };
+        }
+
+        return current;
+      }, true);
+    },
+    [mutate],
+  );
 
   const navigateToDate = useCallback(
     (targetDate: string | null) => {
@@ -170,7 +205,7 @@ export default function TripSchedulePage() {
                     visitDatetime={spot.visitDatetime ?? ""}
                     timezone={trip.timeZone ?? "UTC"}
                     googlePlaceId={spot.googlePlaceId ?? undefined}
-                    onDeleted={handleSpotDeleted}
+                    onDeleted={handleItemDeleted}
                   />
                 );
               }
@@ -192,6 +227,7 @@ export default function TripSchedulePage() {
                     arrivalMemo={transport.arrivalMemo}
                     departureGooglePlaceId={transport.departureGooglePlaceId}
                     arrivalGooglePlaceId={transport.arrivalGooglePlaceId}
+                    onDeleted={handleItemDeleted}
                   />
                 );
               }

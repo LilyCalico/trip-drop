@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { useCallback } from "react";
+import { toast } from "sonner";
+import { useDeleteTransport } from "@/hooks/transports/useDeleteTransport";
 import { formatLocalDateTimeFromUtc } from "@/lib/functions/formatLocalDateTimeFromUtc";
 import ButtonDelete from "../button/ButtonDelete";
 import CardWrapper from "./CardWrapper";
@@ -16,6 +19,10 @@ interface CardTransportProps {
   arrivalMemo: string | null;
   departureGooglePlaceId: string | null;
   arrivalGooglePlaceId: string | null;
+  onDeleted?: (
+    targetId: string,
+    targetType: "spot" | "transport" | "hotel",
+  ) => void;
 }
 export default function CardTransport({
   id,
@@ -28,10 +35,24 @@ export default function CardTransport({
   departureTimezone,
   arrivalDatetime,
   arrivalTimezone,
+  onDeleted,
 }: CardTransportProps) {
-  const handleConfirm = (targetId: string) => {
-    console.log("TODO: delete transport card", targetId);
-  };
+  const { deleteTransport } = useDeleteTransport();
+
+  const handleConfirm = useCallback(
+    async (targetId: string) => {
+      const result = await deleteTransport(targetId);
+
+      if (result.success) {
+        toast.success("Transport deleted");
+        onDeleted?.(targetId, "transport");
+        return;
+      }
+
+      toast.error(result.message);
+    },
+    [deleteTransport, onDeleted],
+  );
 
   const formattedDepartureDatetime = formatLocalDateTimeFromUtc(
     departureDatetime,

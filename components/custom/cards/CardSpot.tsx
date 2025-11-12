@@ -15,7 +15,10 @@ interface CardSpotProps {
   visitDatetime: string;
   timezone: string;
   googlePlaceId?: string;
-  onDeleted?: (spotId: string) => void;
+  onDeleted?: (
+    targetId: string,
+    targetType: "spot" | "transport" | "hotel",
+  ) => void;
 }
 
 export default function CardSpot({
@@ -37,7 +40,7 @@ export default function CardSpot({
 
       if (result.success) {
         toast.success("Spot deleted");
-        onDeleted?.(targetId);
+        onDeleted?.(targetId, "spot");
         return;
       }
 
