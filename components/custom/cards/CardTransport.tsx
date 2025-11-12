@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useDeleteTransport } from "@/hooks/transports/useDeleteTransport";
 import { formatLocalDateTimeFromUtc } from "@/lib/functions/formatLocalDateTimeFromUtc";
 import ButtonDelete from "../button/ButtonDelete";
+import ModalAdd from "../modal/ModalAdd";
 import CardWrapper from "./CardWrapper";
 
 interface CardTransportProps {
@@ -38,6 +39,7 @@ export default function CardTransport({
   onDeleted,
 }: CardTransportProps) {
   const { deleteTransport } = useDeleteTransport();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleConfirm = useCallback(
     async (targetId: string) => {
@@ -64,48 +66,59 @@ export default function CardTransport({
   );
 
   return (
-    <div className="relative w-[34.5rem]">
-      <CardWrapper id={id}>
-        <div className="self-center flex-shrink-0">
-          <Image
-            src="/img/icon/icon-transport.png"
-            alt="Transport Icon"
-            width={28}
-            height={28}
-          />
-        </div>
-        <div>
-          <h1 className="font-bold text-[1.2rem] max-w-[20rem] text-black/95">
-            {name}
-          </h1>
-          {/* Departure */}
-          <div className="flex gap-[1.6rem] mt-[1.2rem]">
-            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
-              {formattedDepartureDatetime}
-            </p>
-            <div>
-              <p>{departureLocation}</p>
-              {departureMemo && (
-                <p className="text-[0.8rem]">{departureMemo}</p>
-              )}
+    <>
+      <div
+        className="w-[34.5rem] cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <CardWrapper id={id}>
+          <div className="self-center flex-shrink-0">
+            <Image
+              src="/img/icon/icon-transport.png"
+              alt="Transport Icon"
+              width={28}
+              height={28}
+            />
+          </div>
+          <div>
+            <h1 className="font-bold text-[1.2rem] max-w-[20rem] text-black/95">
+              {name}
+            </h1>
+            {/* Departure */}
+            <div className="flex gap-[1.6rem] mt-[1.2rem]">
+              <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
+                {formattedDepartureDatetime}
+              </p>
+              <div>
+                <p>{departureLocation}</p>
+                {departureMemo && (
+                  <p className="text-[0.8rem]">{departureMemo}</p>
+                )}
+              </div>
+            </div>
+            <p className="ml-[2.6rem] my-[0.6rem]">↓</p>
+            {/* Arrival */}
+            <div className="flex gap-[1.6rem]">
+              <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
+                {formattedArrivalDatetime}
+              </p>
+              <div>
+                <p>{arrivalLocation}</p>
+                {arrivalMemo && <p className="text-[0.8rem]">{arrivalMemo}</p>}
+              </div>
             </div>
           </div>
-          <p className="ml-[2.6rem] my-[0.6rem]">↓</p>
-          {/* Arrival */}
-          <div className="flex gap-[1.6rem]">
-            <p className="font-bold font-mono tabular-nums whitespace-nowrap w-[7rem] text-black/90">
-              {formattedArrivalDatetime}
-            </p>
-            <div>
-              <p>{arrivalLocation}</p>
-              {arrivalMemo && <p className="text-[0.8rem]">{arrivalMemo}</p>}
-            </div>
+          <div className="absolute bottom-[0.5rem] right-[0.5rem]">
+            <ButtonDelete id={id} handleConfirm={handleConfirm} />
           </div>
-        </div>
-        <div className="absolute bottom-[0.5rem] right-[0.5rem]">
-          <ButtonDelete id={id} handleConfirm={handleConfirm} />
-        </div>
-      </CardWrapper>
-    </div>
+        </CardWrapper>
+      </div>
+
+      <ModalAdd
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="transport"
+      />
+    </>
   );
 }

@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { toast } from "sonner";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
 import { useDeleteSpot } from "@/hooks/spots/useDeleteSpot";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 import ButtonDelete from "../button/ButtonDelete";
+import ModalAdd from "../modal/ModalAdd";
 
 interface CardSpotProps {
   id: string;
@@ -33,6 +34,7 @@ export default function CardSpot({
 }: CardSpotProps) {
   const time = formatLocalTimeFromUtc(visitDatetime, timezone);
   const { deleteSpot } = useDeleteSpot();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleConfirm = useCallback(
     async (targetId: string) => {
@@ -50,33 +52,45 @@ export default function CardSpot({
   );
 
   return (
-    <div className="w-[34.5rem]">
-      <CardWrapper id={id} className="relative">
-        <div className="self-center flex-shrink-0">
-          <Image
-            src="/img/icon/icon-spot.png"
-            alt="カメラアイコン"
-            width={28}
-            height={28}
-          />
-        </div>
-        <div>
-          <div className="font-bold">
-            <h1 className="text-[1.2rem] max-w-[21rem]">{name}</h1>
-            <p>{address}</p>
+    <>
+      <div
+        className="w-[34.5rem] cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+        data-google-place-id={googlePlaceId ?? undefined}
+      >
+        <CardWrapper id={id} className="relative">
+          <div className="self-center flex-shrink-0">
+            <Image
+              src="/img/icon/icon-spot.png"
+              alt="カメラアイコン"
+              width={28}
+              height={28}
+            />
+          </div>
+          <div>
+            <div className="font-bold">
+              <h1 className="text-[1.2rem] max-w-[21rem]">{name}</h1>
+              <p>{address}</p>
+            </div>
+
+            <p className="mt-[1.2rem]">{description}</p>
+          </div>
+          <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
+            <AiOutlineClockCircle className="h-4 w-4" />
+            <p>{time}</p>
           </div>
 
-          <p className="mt-[1.2rem]">{description}</p>
-        </div>
-        <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
-          <AiOutlineClockCircle className="h-4 w-4" />
-          <p>{time}</p>
-        </div>
+          <div className="absolute bottom-[0.5rem] right-[0.5rem]">
+            <ButtonDelete id={id} handleConfirm={handleConfirm} />
+          </div>
+        </CardWrapper>
+      </div>
 
-        <div className="absolute bottom-[0.5rem] right-[0.5rem]">
-          <ButtonDelete id={id} handleConfirm={handleConfirm} />
-        </div>
-      </CardWrapper>
-    </div>
+      <ModalAdd
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="spot"
+      />
+    </>
   );
 }

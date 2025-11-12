@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { toast } from "sonner";
 import ButtonDelete from "@/components/custom/button/ButtonDelete";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
+import ModalAdd from "@/components/custom/modal/ModalAdd";
 import { useDeleteHotel } from "@/hooks/hotels/useDeleteHotel";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 
@@ -33,11 +34,12 @@ const CardHotel = ({
   bookingReference,
   datetimeUtc,
   timezone,
-  googlePlaceId: _googlePlaceId,
+  googlePlaceId,
   check,
   onDeleted,
 }: CardHotelProps) => {
   const { deleteHotel } = useDeleteHotel();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleConfirm = useCallback(
     async (targetId: string) => {
@@ -60,38 +62,50 @@ const CardHotel = ({
       : null;
 
   return (
-    <div className="w-[34.5rem]">
-      <CardWrapper id={id} className="relative">
-        <div className="self-center flex-shrink-0">
-          <Image
-            src="/img/icon/icon-hotel.png"
-            alt="ホテルアイコン"
-            width={28}
-            height={28}
-          />
-        </div>
-        <div>
-          <div className="font-bold">
-            <h1 className="text-[1.2rem] max-w-[20rem]">{name}</h1>
-            <p>{address}</p>
+    <>
+      <div
+        className="w-[34.5rem] cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+        data-google-place-id={googlePlaceId ?? undefined}
+      >
+        <CardWrapper id={id} className="relative">
+          <div className="self-center flex-shrink-0">
+            <Image
+              src="/img/icon/icon-hotel.png"
+              alt="ホテルアイコン"
+              width={28}
+              height={28}
+            />
           </div>
-          <div className="mt-[1.2rem]">
-            <p>{phone}</p>
-            {bookingReference && <p>Reference: {bookingReference}</p>}
-            {notes && <p className="mt-[0.8rem]">Notes: {notes}</p>}
+          <div>
+            <div className="font-bold">
+              <h1 className="text-[1.2rem] max-w-[20rem]">{name}</h1>
+              <p>{address}</p>
+            </div>
+            <div className="mt-[1.2rem]">
+              <p>{phone}</p>
+              {bookingReference && <p>Reference: {bookingReference}</p>}
+              {notes && <p className="mt-[0.8rem]">Notes: {notes}</p>}
+            </div>
           </div>
-        </div>
-        {check !== "staying" && formattedTime && (
-          <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
-            <AiOutlineClockCircle className="h-4 w-4" />
-            <p>{`${check}: ${formattedTime}`}</p>
+          {check !== "staying" && formattedTime && (
+            <div className="absolute top-[1.6rem] right-[1.6rem] flex items-center gap-[0.4rem] text-gray-500">
+              <AiOutlineClockCircle className="h-4 w-4" />
+              <p>{`${check}: ${formattedTime}`}</p>
+            </div>
+          )}
+          <div className="absolute bottom-[0.5rem] right-[0.5rem]">
+            <ButtonDelete id={id} handleConfirm={handleConfirm} />
           </div>
-        )}
-        <div className="absolute bottom-[0.5rem] right-[0.5rem]">
-          <ButtonDelete id={id} handleConfirm={handleConfirm} />
-        </div>
-      </CardWrapper>
-    </div>
+        </CardWrapper>
+      </div>
+
+      <ModalAdd
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="hotel"
+      />
+    </>
   );
 };
 
