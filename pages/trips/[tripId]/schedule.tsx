@@ -204,7 +204,7 @@ export default function TripSchedulePage() {
 
         <div className="flex justify-center mb-[3.2rem]">
           <Button
-            className="flex items-center gap-[0.8rem] w-full"
+            className="flex items-center gap-[0.8rem] w-full max-w-[34.5rem]"
             onClick={() => {
               setModalOpen(true);
             }}
