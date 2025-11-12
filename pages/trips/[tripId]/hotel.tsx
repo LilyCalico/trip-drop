@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Button from "@/components/custom/button/Button";
 import CardHotel from "@/components/custom/cards/CardHotel";
 import HeaderDate from "@/components/custom/layout/PageHeader";
@@ -11,9 +11,22 @@ import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 export default function HotelPage() {
   const trip = useCurrentTrip();
   const [modalOpen, setModalOpen] = useState(false);
-  const { hotels, isLoading, error } = useTripHotels({
+  const { hotels, isLoading, error, mutate } = useTripHotels({
     tripId: trip?.id,
   });
+
+  const handleHotelDeleted = useCallback(
+    (deletedId: string) => {
+      void mutate((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return current.filter((hotel) => hotel.id !== deletedId);
+      }, true);
+    },
+    [mutate],
+  );
 
   if (isLoading || !trip?.id) {
     return <Spinner />;
@@ -45,6 +58,9 @@ export default function HotelPage() {
         timezone={hotel.timezone}
         googlePlaceId={hotel.googlePlaceId}
         check="in"
+        onDeleted={(targetId) => {
+          handleHotelDeleted(targetId);
+        }}
       />
     ));
   }

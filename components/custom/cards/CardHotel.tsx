@@ -1,7 +1,10 @@
 import Image from "next/image";
+import { useCallback } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
+import { toast } from "sonner";
 import ButtonDelete from "@/components/custom/button/ButtonDelete";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
+import { useDeleteHotel } from "@/hooks/hotels/useDeleteHotel";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 
 interface CardHotelProps {
@@ -15,6 +18,10 @@ interface CardHotelProps {
   timezone: string | null;
   googlePlaceId: string | null;
   check: "in" | "out" | "staying";
+  onDeleted?: (
+    targetId: string,
+    targetType: "spot" | "transport" | "hotel",
+  ) => void;
 }
 
 const CardHotel = ({
@@ -26,12 +33,26 @@ const CardHotel = ({
   bookingReference,
   datetimeUtc,
   timezone,
-  googlePlaceId,
+  googlePlaceId: _googlePlaceId,
   check,
+  onDeleted,
 }: CardHotelProps) => {
-  const handleConfirm = (targetId: string) => {
-    console.log("TODO: delete hotel card", targetId);
-  };
+  const { deleteHotel } = useDeleteHotel();
+
+  const handleConfirm = useCallback(
+    async (targetId: string) => {
+      const result = await deleteHotel(targetId);
+
+      if (result.success) {
+        toast.success("Hotel deleted");
+        onDeleted?.(targetId, "hotel");
+        return;
+      }
+
+      toast.error(result.message);
+    },
+    [deleteHotel, onDeleted],
+  );
 
   const formattedTime =
     datetimeUtc && timezone

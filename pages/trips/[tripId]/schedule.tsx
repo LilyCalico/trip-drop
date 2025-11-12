@@ -246,6 +246,7 @@ export default function TripSchedulePage() {
                   timezone={hotel.timezone}
                   googlePlaceId={hotel.googlePlaceId}
                   check={hotel.check}
+                  onDeleted={handleItemDeleted}
                 />
               );
             })}
