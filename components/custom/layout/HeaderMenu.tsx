@@ -67,19 +67,9 @@ const Menu = ({
   onLoggedOut: () => void;
 }) => {
   const router = useRouter();
-  const tripId =
-    typeof router.query.tripId === "string" ? router.query.tripId : null;
+  const tripId = router.query.tripId as string | undefined;
   const userEmail = useAuthStore((s) => s.user?.email ?? null);
   const trips = useTripsStore((s) => s.trips);
-
-  const currentTripTitle = useMemo(() => {
-    if (!tripId || !trips) {
-      return null;
-    }
-
-    const matchedTrip = trips.find((trip) => trip.id === tripId);
-    return matchedTrip ?? null;
-  }, [tripId, trips]);
 
   const nearestTrip = useMemo(() => {
     if (!trips || trips.length === 0) {
@@ -118,27 +108,23 @@ const Menu = ({
     )[0].trip;
   }, [trips]);
 
-  const menuTitle =
-    currentTripTitle?.title ?? nearestTrip?.title ?? "Trip Drop";
-
-  const activeTrip = currentTripTitle ?? nearestTrip;
+  const activeTripId = tripId ?? nearestTrip?.id ?? null;
+  const activeTrip = trips?.find((trip) => trip.id === activeTripId);
 
   const tripDates = useMemo(() => {
+    if (!trips) return [];
+    const activeTrip = trips.find((trip) => trip.id === activeTripId);
     if (!activeTrip?.startAt || !activeTrip?.endAt) {
       return [];
     }
     return createDateRangeArray(activeTrip.startAt, activeTrip.endAt);
-  }, [activeTrip]);
+  }, [activeTripId, trips]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     onClose();
     onLoggedOut();
   };
-
-  useEffect(() => {
-    console.log("tripDates", tripDates);
-  }, [tripDates]);
 
   return (
     <div
@@ -151,13 +137,13 @@ const Menu = ({
       aria-hidden={!isOpen}
     >
       <div>
-        <h1 className="text-center font-bold mb-[4rem]">{menuTitle}</h1>
+        <h1 className="text-center font-bold mb-[4rem]">{activeTrip?.title}</h1>
 
         <div className="flex flex-col gap-[3.2rem]">
           {MenuItems.map((item) => {
             const baseHref =
-              item.label !== "Top" && nearestTrip
-                ? `/trips/${nearestTrip.id}/${item.href}`
+              item.label !== "Top" && activeTripId
+                ? `/trips/${activeTripId}/${item.href}`
                 : `/`;
 
             return (
@@ -171,13 +157,13 @@ const Menu = ({
                   }}
                 />
                 {item.label === "Schedule" &&
-                  activeTrip &&
+                  activeTripId &&
                   tripDates.length > 0 && (
                     <div className="ml-[3.6rem] mt-[1.2rem] flex flex-col gap-[0.8rem]">
                       {tripDates.map((date) => (
                         <Link
                           key={date}
-                          href={`/trips/${activeTrip.id}/schedule?date=${date}`}
+                          href={`/trips/${activeTripId}/schedule?date=${date}`}
                           onClick={onClose}
                           className="text-[1rem] text-gray-600 hover:text-gray-900 transition-colors duration-200"
                         >
