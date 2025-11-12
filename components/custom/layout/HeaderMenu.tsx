@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { AiFillHome } from "react-icons/ai";
-import { FaBed, FaCalendar, FaPlane } from "react-icons/fa";
+import { FaBed, FaCalendar, FaPlane, FaPlus } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
 import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
 import supabase from "@/lib/supabaseClient";
@@ -12,11 +12,6 @@ import { useTripsStore } from "@/store/useTripsStore";
 import type { TripType } from "@/types/fronttype";
 
 const MenuItems = [
-  {
-    label: "Top",
-    icon: <AiFillHome />,
-    href: "",
-  },
   {
     label: "Schedule",
     icon: <FaCalendar />,
@@ -129,7 +124,7 @@ const Menu = ({
   return (
     <div
       className={
-        "flex flex-col justify-between pt-[6rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 lg:left-0 lg:right-auto z-20 transform transition-transform duration-300 ease-in-out bg-white " +
+        "flex flex-col justify-between pt-[6rem] lg:pt-[3.2rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 lg:left-0 lg:right-auto z-20 transform transition-transform duration-300 ease-in-out overflow-y-auto bg-white" +
         (isOpen
           ? "translate-x-0 pointer-events-auto"
           : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto")
@@ -137,48 +132,62 @@ const Menu = ({
       aria-hidden={!isOpen}
     >
       <div>
-        <h1 className="text-center font-bold mb-[4rem]">{activeTrip?.title}</h1>
+        {/* TOP */}
+        <div>
+          <h1 className="font-bold mb-[1.6rem] text-center">TRIP DROP</h1>
+          <div className="flex flex-col gap-[3.2rem] bg-section rounded-[1.6rem] p-[2.4rem]">
+            <MenuLabel icon={<AiFillHome />} label="Top" href="/" />
+            <MenuLabel icon={<FaPlus />} label="Add Trip" href="/trips/new" />
+          </div>
+        </div>
 
-        <div className="flex flex-col gap-[3.2rem]">
-          {MenuItems.map((item) => {
-            const baseHref =
-              item.label !== "Top" && activeTripId
-                ? `/trips/${activeTripId}/${item.href}`
-                : `/`;
+        {/* TRIP DETAILS */}
+        <div>
+          <h1 className="font-bold mt-[4rem] mb-[1.6rem] text-center">
+            {activeTrip?.title}
+          </h1>
 
-            return (
-              <div key={item.label}>
-                <MenuLabel
-                  icon={item.icon}
-                  label={item.label}
-                  href={baseHref}
-                  onClick={() => {
-                    onClose();
-                  }}
-                />
-                {item.label === "Schedule" &&
-                  activeTripId &&
-                  tripDates.length > 0 && (
-                    <div className="ml-[3.6rem] mt-[1.2rem] flex flex-col gap-[0.8rem]">
-                      {tripDates.map((date) => (
-                        <Link
-                          key={date}
-                          href={`/trips/${activeTripId}/schedule?date=${date}`}
-                          onClick={onClose}
-                          className="text-[1rem] text-gray-600 hover:text-gray-900 transition-colors duration-200"
-                        >
-                          {format(new Date(date), "MM/dd (E)")}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-              </div>
-            );
-          })}
+          <div className="flex flex-col gap-[3.2rem] bg-section rounded-[1.6rem] p-[2.4rem]">
+            {MenuItems.map((item) => {
+              const baseHref =
+                item.label !== "Top" && activeTripId
+                  ? `/trips/${activeTripId}/${item.href}`
+                  : `/`;
+
+              return (
+                <div key={item.label}>
+                  <MenuLabel
+                    icon={item.icon}
+                    label={item.label}
+                    href={baseHref}
+                    onClick={() => {
+                      onClose();
+                    }}
+                  />
+                  {item.label === "Schedule" &&
+                    activeTripId &&
+                    tripDates.length > 0 && (
+                      <div className="ml-[3.6rem] mt-[1.2rem] flex flex-col gap-[0.8rem]">
+                        {tripDates.map((date) => (
+                          <Link
+                            key={date}
+                            href={`/trips/${activeTripId}/schedule?date=${date}`}
+                            onClick={onClose}
+                            className="text-[1rem] text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                          >
+                            {format(new Date(date), "MM/dd (E)")}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col justify-center items-center gap-[0.8rem]">
+      <div className="flex flex-col justify-center items-center gap-[0.8rem] mt-[1.6rem]">
         {userEmail && <p>{userEmail}</p>}
         <Button
           type="button"
