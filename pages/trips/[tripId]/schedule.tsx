@@ -1,7 +1,7 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Button from "@/components/custom/button/Button";
 import CardHotel from "@/components/custom/cards/CardHotel";
 import CardSpot from "@/components/custom/cards/CardSpot";
@@ -40,17 +40,11 @@ export default function TripSchedulePage() {
           availableDates[currentIndex + 1],
         ].filter((value): value is string => Boolean(value));
 
-  const { schedule, isLoading, error } = useTripSchedule({
+  const { schedule, isLoading, error, mutate } = useTripSchedule({
     tripId: trip?.id,
     date: date || undefined,
     neighborDates,
   });
-
-  useEffect(() => {
-    if (schedule) {
-      console.log("schedule", schedule);
-    }
-  }, [schedule]);
 
   const dayLabel = useMemo(() => {
     if (!trip || !date) return "";
@@ -62,6 +56,25 @@ export default function TripSchedulePage() {
       return "";
     }
   }, [date, trip]);
+
+  const handleSpotDeleted = (deletedId: string) => {
+    void mutate((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        spots: current.spots.filter((spot) => spot.id !== deletedId),
+        items: current.items.filter((item) => {
+          if (item.type !== "spot") {
+            return true;
+          }
+          return item.spot.id !== deletedId;
+        }),
+      };
+    }, true);
+  };
 
   const navigateToDate = useCallback(
     (targetDate: string | null) => {
@@ -157,6 +170,7 @@ export default function TripSchedulePage() {
                     visitDatetime={spot.visitDatetime ?? ""}
                     timezone={trip.timeZone ?? "UTC"}
                     googlePlaceId={spot.googlePlaceId ?? undefined}
+                    onDeleted={handleSpotDeleted}
                   />
                 );
               }

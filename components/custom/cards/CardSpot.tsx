@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { useCallback } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
+import { toast } from "sonner";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
+import { useDeleteSpot } from "@/hooks/spots/useDeleteSpot";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
 import ButtonDelete from "../button/ButtonDelete";
 
@@ -12,6 +15,7 @@ interface CardSpotProps {
   visitDatetime: string;
   timezone: string;
   googlePlaceId?: string;
+  onDeleted?: (spotId: string) => void;
 }
 
 export default function CardSpot({
@@ -22,11 +26,25 @@ export default function CardSpot({
   visitDatetime,
   timezone,
   googlePlaceId,
+  onDeleted,
 }: CardSpotProps) {
   const time = formatLocalTimeFromUtc(visitDatetime, timezone);
-  const handleConfirm = (targetId: string) => {
-    console.log("TODO: delete spot card", targetId);
-  };
+  const { deleteSpot } = useDeleteSpot();
+
+  const handleConfirm = useCallback(
+    async (targetId: string) => {
+      const result = await deleteSpot(targetId);
+
+      if (result.success) {
+        toast.success("Spot deleted");
+        onDeleted?.(targetId);
+        return;
+      }
+
+      toast.error(result.message);
+    },
+    [deleteSpot, onDeleted],
+  );
 
   return (
     <div className="w-[34.5rem]">
