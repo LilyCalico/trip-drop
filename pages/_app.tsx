@@ -73,10 +73,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[26rem]" : ""}>
+      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[32rem]" : ""}>
         <Header />
       </div>
-      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[26rem]" : ""}>
+      <div className={isAuthenticated && !isAuthPage ? "lg:ml-[32rem]" : ""}>
         <Component {...pageProps} />
       </div>
       <Toaster />
