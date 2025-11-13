@@ -28,6 +28,10 @@ export default function HotelPage() {
     [mutate],
   );
 
+  const handleHotelUpdated = useCallback(() => {
+    void mutate();
+  }, [mutate]);
+
   if (isLoading || !trip?.id) {
     return <Spinner />;
   }
@@ -57,10 +61,13 @@ export default function HotelPage() {
         datetimeUtc={hotel.checkInAt}
         timezone={hotel.timezone}
         googlePlaceId={hotel.googlePlaceId}
+        checkInUtc={hotel.checkInAt}
+        checkOutUtc={hotel.checkOutAt}
         check="in"
         onDeleted={(targetId) => {
           handleHotelDeleted(targetId);
         }}
+        onUpdated={handleHotelUpdated}
       />
     ));
   }

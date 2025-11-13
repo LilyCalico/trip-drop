@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { FaBed, FaMapPin, FaPlane } from "react-icons/fa";
-import ModalAddHotel from "@/components/custom/modal/ModalAddHotel";
-import ModalAddSpot from "@/components/custom/modal/ModalAddSpot";
-import ModalAddTransport from "@/components/custom/modal/ModalAddTransport";
+import ModalAddHotel, {
+  type HotelInitialValues,
+} from "@/components/custom/modal/ModalAddHotel";
+import ModalAddSpot, {
+  type SpotInitialValues,
+} from "@/components/custom/modal/ModalAddSpot";
+import ModalAddTransport, {
+  type TransportInitialValues,
+} from "@/components/custom/modal/ModalAddTransport";
 import { cn } from "@/lib/utils";
 
 interface ModalAddProps {
@@ -10,6 +16,14 @@ interface ModalAddProps {
   onClose: () => void;
   type: "spot" | "hotel" | "transport";
   defaultDate?: string;
+  mode?: "create" | "edit";
+  targetId?: string;
+  initialValues?: {
+    spot?: SpotInitialValues;
+    hotel?: HotelInitialValues;
+    transport?: TransportInitialValues;
+  };
+  onSuccess?: (params: { type: Category; data: unknown }) => void;
 }
 
 type Category = "spot" | "hotel" | "transport";
@@ -53,6 +67,10 @@ export default function ModalAdd({
   onClose,
   type,
   defaultDate,
+  mode = "create",
+  targetId,
+  initialValues,
+  onSuccess,
 }: ModalAddProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
@@ -68,6 +86,13 @@ export default function ModalAdd({
     }
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedCategory(null);
+      return;
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -89,31 +114,54 @@ export default function ModalAdd({
         </button>
 
         {/* Category Buttons */}
-        <div className="flex gap-[1.2rem] justify-between mt-[3.2rem] mb-[2.4rem]">
-          {categories.map((category) => (
-            <ButtonCategory
-              key={category}
-              isSelected={
-                selectedCategory === null
-                  ? type === category
-                  : selectedCategory === category
-              }
-              category={category}
-              onClick={() => setSelectedCategory(category)}
-            />
-          ))}
-        </div>
+        {mode === "create" && (
+          <div className="flex gap-[1.2rem] justify-between mt-[3.2rem] mb-[2.4rem]">
+            {categories.map((category) => (
+              <ButtonCategory
+                key={category}
+                isSelected={
+                  selectedCategory === null
+                    ? type === category
+                    : selectedCategory === category
+                }
+                category={category}
+                onClick={() => setSelectedCategory(category)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Text Input */}
         <div>
           {category === "spot" && (
-            <ModalAddSpot onClose={onClose} defaultDate={defaultDate} />
+            <ModalAddSpot
+              onClose={onClose}
+              defaultDate={defaultDate}
+              mode={mode ?? "create"}
+              targetId={targetId}
+              initialValues={initialValues?.spot}
+              onSuccess={(data) => onSuccess?.({ type: "spot", data })}
+            />
           )}
           {category === "hotel" && (
-            <ModalAddHotel onClose={onClose} defaultDate={defaultDate} />
+            <ModalAddHotel
+              onClose={onClose}
+              defaultDate={defaultDate}
+              mode={mode ?? "create"}
+              targetId={targetId}
+              initialValues={initialValues?.hotel}
+              onSuccess={(data) => onSuccess?.({ type: "hotel", data })}
+            />
           )}
           {category === "transport" && (
-            <ModalAddTransport onClose={onClose} defaultDate={defaultDate} />
+            <ModalAddTransport
+              onClose={onClose}
+              defaultDate={defaultDate}
+              mode={mode ?? "create"}
+              targetId={targetId}
+              initialValues={initialValues?.transport}
+              onSuccess={(data) => onSuccess?.({ type: "transport", data })}
+            />
           )}
         </div>
       </div>

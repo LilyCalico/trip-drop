@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
@@ -9,12 +9,37 @@ import { Label } from "@/components/ui/label";
 import { useGooglePlaceDetails } from "@/hooks/google/useGooglePlaceDetails";
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateHotel } from "@/hooks/hotels/useCreateHotel";
+import { useUpdateHotel } from "@/hooks/hotels/useUpdateHotel";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
+import {
+  extractLocalDateTimeParts as convertUtcToLocalParts,
+  extractLocalDateTimeParts,
+} from "@/lib/functions/convertUtcToLocalParts";
 import { toZonedIsoString } from "@/lib/toZonedIsoString";
+import type { Tables } from "@/types/supabasetype";
+
+type HotelStayRow = Tables<"hotel_stays">;
+
+export interface HotelInitialValues {
+  name?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  notes?: string | null;
+  bookingReference?: string | null;
+  googlePlaceId?: string | null;
+  googleData?: GooglePlaceCandidate | null;
+  checkinUtc?: string | null;
+  checkoutUtc?: string | null;
+  timezone?: string | null;
+}
 
 interface ModalAddHotelProps {
   onClose: () => void;
   defaultDate?: string;
+  mode: "create" | "edit";
+  targetId?: string;
+  initialValues?: HotelInitialValues;
+  onSuccess?: (stay: HotelStayRow) => void;
 }
 
 interface HotelFormData {
@@ -30,10 +55,15 @@ interface HotelFormData {
 export default function ModalAddHotel({
   onClose,
   defaultDate,
+  mode,
+  targetId,
+  initialValues,
+  onSuccess,
 }: ModalAddHotelProps) {
   const trip = useCurrentTrip();
   const { getDetails } = useGooglePlaceDetails();
   const { createHotel, isSubmitting } = useCreateHotel();
+  const { updateHotel, isUpdating } = useUpdateHotel();
 
   // form data
   const [formData, setFormData] = useState<HotelFormData>({
@@ -46,15 +76,99 @@ export default function ModalAddHotel({
     bookingReference: "",
   });
 
-  // checkin / checkout
-  const [checkinDate, setCheckinDate] = useState<string>("");
-  const [checkinTime, setCheckinTime] = useState<string>("00:00");
-  const [checkoutDate, setCheckoutDate] = useState<string>("");
-  const [checkoutTime, setCheckoutTime] = useState<string>("00:00");
+  // checkin / checkout の初期値計算
+  const initialDateTimeParts = useMemo(() => {
+    if (mode === "edit" && initialValues) {
+      return {
+        checkin: convertUtcToLocalParts({
+          datetimeUtc: initialValues.checkinUtc,
+          timezone: initialValues.timezone,
+        }),
+        checkout: convertUtcToLocalParts({
+          datetimeUtc: initialValues.checkoutUtc,
+          timezone: initialValues.timezone,
+        }),
+      };
+    }
+    return { checkin: null, checkout: null };
+  }, [mode, initialValues]);
+
+  const [checkinDate, setCheckinDate] = useState<string>(
+    initialDateTimeParts.checkin?.date ?? "",
+  );
+  const [checkinTime, setCheckinTime] = useState<string>(
+    initialDateTimeParts.checkin?.time ?? "00:00",
+  );
+  const [checkoutDate, setCheckoutDate] = useState<string>(
+    initialDateTimeParts.checkout?.date ?? "",
+  );
+  const [checkoutTime, setCheckoutTime] = useState<string>(
+    initialDateTimeParts.checkout?.time ?? "00:00",
+  );
+  const [timezone, setTimezone] = useState<string>(
+    mode === "edit" ? (initialValues?.timezone ?? "") : "",
+  );
+
+  const isEditMode = mode === "edit";
+  const initializedRef = useRef<string | undefined>(undefined);
+  const previousModeRef = useRef<"create" | "edit">(mode);
 
   // 旅程の初日と最終日を初期値に
   useEffect(() => {
     if (!trip) return;
+
+    // モードが変更された場合は初期化をリセット
+    if (previousModeRef.current !== mode) {
+      initializedRef.current = undefined;
+      previousModeRef.current = mode;
+    }
+
+    if (isEditMode && initialValues) {
+      // 編集モードの初期化: targetIdが変更された場合のみ実行
+      if (initializedRef.current === targetId) return;
+      initializedRef.current = targetId;
+
+      setFormData((prev) => ({
+        ...prev,
+        name: initialValues.name ?? prev.name,
+        address: initialValues.address ?? prev.address,
+        phone: initialValues.phone ?? prev.phone,
+        notes: initialValues.notes ?? prev.notes,
+        bookingReference:
+          initialValues.bookingReference ?? prev.bookingReference,
+        googlePlaceId: initialValues.googlePlaceId ?? prev.googlePlaceId,
+        googleData: initialValues.googleData ?? prev.googleData,
+      }));
+
+      const timezoneToUse = initialValues.timezone ?? trip.timeZone ?? timezone;
+      setTimezone(timezoneToUse ?? "");
+
+      const checkinParts = extractLocalDateTimeParts({
+        datetimeUtc: initialValues.checkinUtc,
+        timezone: timezoneToUse,
+      });
+
+      if (checkinParts) {
+        setCheckinDate(checkinParts.date);
+        setCheckinTime(checkinParts.time);
+      }
+
+      const checkoutParts = extractLocalDateTimeParts({
+        datetimeUtc: initialValues.checkoutUtc,
+        timezone: timezoneToUse,
+      });
+
+      if (checkoutParts) {
+        setCheckoutDate(checkoutParts.date);
+        setCheckoutTime(checkoutParts.time);
+      }
+
+      return;
+    }
+
+    // 作成モードの初期化: 一度だけ実行
+    if (initializedRef.current !== undefined) return;
+    initializedRef.current = undefined;
 
     if (!checkinDate) {
       const zonedCheckin = toZonedIsoString(
@@ -73,7 +187,21 @@ export default function ModalAddHotel({
       );
       setCheckoutDate(zonedCheckout ?? "");
     }
-  }, [trip, checkinDate, checkoutDate, defaultDate]);
+
+    if (!timezone) {
+      setTimezone(trip.timeZone ?? "");
+    }
+  }, [
+    trip,
+    defaultDate,
+    initialValues,
+    isEditMode,
+    mode,
+    targetId,
+    timezone,
+    checkinDate,
+    checkoutDate,
+  ]);
 
   // Name入力 (自動入力がされていればAddress/Phoneをクリア)
   const handleNameChange = (value: string) => {
@@ -137,21 +265,44 @@ export default function ModalAddHotel({
       checkin: checkinDateTime,
       checkout: checkoutDateTime,
       tripId: trip.id,
+      timezone: timezone || trip.timeZone,
     };
 
-    // eslint-disable-next-line no-console
-    console.log("create hotel payload", payload);
+    if (isEditMode) {
+      if (!targetId) {
+        toast.error("Target hotel id not provided");
+        return;
+      }
 
-    // APIにPOST
+      const result = await updateHotel({
+        id: targetId,
+        ...payload,
+      });
+
+      if (result.success) {
+        toast.success("Hotel updated successfully!");
+        onSuccess?.(result.data);
+        onClose();
+      } else {
+        toast.error(result.error);
+      }
+      return;
+    }
+
     const result = await createHotel(payload);
     if (result) {
-      console.log("Success!!!!", result);
       toast.success("Hotel added successfully!");
+      onSuccess?.(result.stay);
       onClose();
     } else {
       toast.error("Failed to add hotel. Please try again.");
     }
   };
+
+  const submitting = useMemo(
+    () => (isEditMode ? isUpdating : isSubmitting),
+    [isEditMode, isSubmitting, isUpdating],
+  );
 
   if (!trip) return <div>Loading...</div>;
 
@@ -279,9 +430,15 @@ export default function ModalAddHotel({
         <Button
           type="submit"
           className="w-full mt-[1.6rem]"
-          disabled={!isValid || isSubmitting}
+          disabled={!isValid || submitting}
         >
-          {isSubmitting ? "Adding..." : "Add Hotel"}
+          {submitting
+            ? isEditMode
+              ? "Updating..."
+              : "Adding..."
+            : isEditMode
+              ? "Update Hotel"
+              : "Add Hotel"}
         </Button>
       </form>
     </div>

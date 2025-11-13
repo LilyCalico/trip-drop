@@ -111,6 +111,10 @@ export default function TripSchedulePage() {
     [mutate],
   );
 
+  const handleItemUpdated = useCallback(() => {
+    void mutate();
+  }, [mutate]);
+
   const navigateToDate = useCallback(
     (targetDate: string | null) => {
       if (!targetDate) return;
@@ -206,6 +210,7 @@ export default function TripSchedulePage() {
                     timezone={trip.timeZone ?? "UTC"}
                     googlePlaceId={spot.googlePlaceId ?? undefined}
                     onDeleted={handleItemDeleted}
+                    onUpdated={handleItemUpdated}
                   />
                 );
               }
@@ -225,9 +230,11 @@ export default function TripSchedulePage() {
                     arrivalLocation={transport.arrivalLocation}
                     departureMemo={transport.departureMemo}
                     arrivalMemo={transport.arrivalMemo}
+                    bookingReference={transport.bookingReference}
                     departureGooglePlaceId={transport.departureGooglePlaceId}
                     arrivalGooglePlaceId={transport.arrivalGooglePlaceId}
                     onDeleted={handleItemDeleted}
+                    onUpdated={handleItemUpdated}
                   />
                 );
               }
@@ -245,8 +252,11 @@ export default function TripSchedulePage() {
                   datetimeUtc={datetimeUtc}
                   timezone={hotel.timezone}
                   googlePlaceId={hotel.googlePlaceId}
+                  checkInUtc={hotel.checkInAt}
+                  checkOutUtc={hotel.checkOutAt}
                   check={hotel.check}
                   onDeleted={handleItemDeleted}
+                  onUpdated={handleItemUpdated}
                 />
               );
             })}

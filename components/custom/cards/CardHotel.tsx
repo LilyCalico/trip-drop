@@ -7,6 +7,9 @@ import CardWrapper from "@/components/custom/cards/CardWrapper";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import { useDeleteHotel } from "@/hooks/hotels/useDeleteHotel";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
+import type { Tables } from "@/types/supabasetype";
+
+type HotelStayRow = Tables<"hotel_stays">;
 
 interface CardHotelProps {
   id: string;
@@ -18,11 +21,14 @@ interface CardHotelProps {
   datetimeUtc: string | null;
   timezone: string | null;
   googlePlaceId: string | null;
+  checkInUtc?: string | null;
+  checkOutUtc?: string | null;
   check: "in" | "out" | "staying";
   onDeleted?: (
     targetId: string,
     targetType: "spot" | "transport" | "hotel",
   ) => void;
+  onUpdated?: (stay: HotelStayRow) => void;
 }
 
 const CardHotel = ({
@@ -35,8 +41,11 @@ const CardHotel = ({
   datetimeUtc,
   timezone,
   googlePlaceId,
+  checkInUtc,
+  checkOutUtc,
   check,
   onDeleted,
+  onUpdated,
 }: CardHotelProps) => {
   const { deleteHotel } = useDeleteHotel();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -104,6 +113,26 @@ const CardHotel = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         type="hotel"
+        mode="edit"
+        targetId={id}
+        initialValues={{
+          hotel: {
+            name,
+            address,
+            phone,
+            notes,
+            bookingReference,
+            googlePlaceId,
+            checkinUtc: checkInUtc ?? (check === "in" ? datetimeUtc : null),
+            checkoutUtc: checkOutUtc ?? (check === "out" ? datetimeUtc : null),
+            timezone,
+          },
+        }}
+        onSuccess={({ type, data }) => {
+          if (type === "hotel" && data) {
+            onUpdated?.(data as HotelStayRow);
+          }
+        }}
       />
     </>
   );
