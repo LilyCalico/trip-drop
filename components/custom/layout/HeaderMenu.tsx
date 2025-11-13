@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { AiFillHome } from "react-icons/ai";
 import { FaBed, FaCalendar, FaPlane, FaPlus } from "react-icons/fa";
-import Button from "@/components/custom/button/Button";
 import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
 import supabase from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
@@ -146,7 +145,7 @@ const Menu = ({
     <div
       className={cn(
         "flex flex-col justify-between",
-        "pt-[6rem] lg:pt-[3.2rem] pb-[3.2rem] px-[2.4rem] lg:px-[4.8rem]",
+        "pt-[6rem] lg:pt-[4rem] pb-[3.2rem] px-[2.4rem] lg:px-[4.8rem]",
         "w-[26rem] lg:w-[32rem] h-[100vh]",
         "fixed top-0 right-0 lg:left-0 lg:right-auto",
         "z-20",
@@ -214,15 +213,14 @@ const Menu = ({
         </div>
       </div>
 
-      <div className="flex flex-col justify-center items-center gap-[0.8rem] mt-[1.6rem]">
-        {userEmail && <p>{userEmail}</p>}
-        <Button
-          type="button"
+      <div className="flex flex-col justify-center items-center gap-[0.8rem] mt-[1.6rem] text-[1rem]">
+        {/* {userEmail && <p>{userEmail}</p>} */}
+        <p
           onClick={handleLogout}
-          className="bg-white text-black border border-gray-300 mx-auto"
+          className="cursor-pointer hover:text-gray-400 hover:scale-[1.02] transition-all duration-300"
         >
           Logout
-        </Button>
+        </p>
       </div>
     </div>
   );
