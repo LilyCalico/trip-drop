@@ -33,7 +33,7 @@ export interface HotelInitialValues {
   timezone?: string | null;
 }
 
-interface ModalAddHotelProps {
+interface ModalHotelProps {
   onClose: () => void;
   defaultDate?: string;
   mode: "create" | "edit";
@@ -52,14 +52,14 @@ interface HotelFormData {
   bookingReference: string;
 }
 
-export default function ModalAddHotel({
+export default function ModalHotel({
   onClose,
   defaultDate,
   mode,
   targetId,
   initialValues,
   onSuccess,
-}: ModalAddHotelProps) {
+}: ModalHotelProps) {
   const trip = useCurrentTrip();
   const { getDetails } = useGooglePlaceDetails();
   const { createHotel, isSubmitting } = useCreateHotel();

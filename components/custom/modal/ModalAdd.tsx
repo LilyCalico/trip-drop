@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { FaBed, FaMapPin, FaPlane } from "react-icons/fa";
-import ModalAddHotel, {
-  type HotelInitialValues,
-} from "@/components/custom/modal/ModalAddHotel";
 import ModalAddSpot, {
   type SpotInitialValues,
 } from "@/components/custom/modal/ModalAddSpot";
 import ModalAddTransport, {
   type TransportInitialValues,
 } from "@/components/custom/modal/ModalAddTransport";
+import ModalAddHotel, {
+  type HotelInitialValues,
+} from "@/components/custom/modal/ModalHotel";
 import { cn } from "@/lib/utils";
 
 interface ModalAddProps {
