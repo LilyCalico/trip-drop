@@ -342,7 +342,6 @@ export default async function handler(
           checkinDatePart,
           checkoutDatePart,
         );
-        console.log("🐹dateList", dateList);
 
         let tripDayIds: string[];
         try {
