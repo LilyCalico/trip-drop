@@ -7,6 +7,7 @@ import { FaBed, FaCalendar, FaPlane, FaPlus } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
 import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
 import supabase from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 import type { TripType } from "@/types/fronttype";
@@ -123,12 +124,18 @@ const Menu = ({
 
   return (
     <div
-      className={
-        "flex flex-col justify-between pt-[6rem] lg:pt-[3.2rem] pb-[3.2rem] px-[2.4rem] w-[26rem] h-[100vh] fixed top-0 right-0 lg:left-0 lg:right-auto z-20 transform transition-transform duration-300 ease-in-out overflow-y-auto bg-white " +
-        (isOpen
+      className={cn(
+        "flex flex-col justify-between",
+        "pt-[6rem] lg:pt-[3.2rem] pb-[3.2rem] px-[2.4rem] lg:px-[4.8rem]",
+        "w-[26rem] lg:w-[32rem] h-[100vh]",
+        "fixed top-0 right-0 lg:left-0 lg:right-auto",
+        "z-20",
+        "transform transition-transform duration-300 ease-in-out",
+        "overflow-y-auto bg-white",
+        isOpen
           ? "translate-x-0 pointer-events-auto"
-          : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto")
-      }
+          : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto",
+      )}
       aria-hidden={!isOpen}
     >
       <div>
