@@ -46,19 +46,27 @@ const MenuLabel = ({
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-[1rem]",
+        "relative flex items-center gap-[1rem]",
         "px-[1.2rem] py-[0.8rem] rounded-[0.8rem]",
         "cursor-pointer",
-        "transition-all duration-400 ease-in-out",
-        "hover:bg-gray-700 hover:scale-[1.02]",
+        "transition-transform duration-400 ease-in-out",
+        "hover:scale-[1.02]",
         "active:scale-[0.98]",
         "group",
+        "before:absolute before:inset-0",
+        "before:bg-black/5",
+        "before:rounded-[0.8rem]",
+        "before:origin-left",
+        "before:scale-x-0",
+        "before:transition-transform before:duration-400 before:ease-in-out",
+        "hover:before:scale-x-100",
+        "before:-z-10",
       )}
     >
-      <div className="text-[1.6rem] transition-colors duration-300 group-hover:text-white">
+      <div className="relative z-10 text-[1.6rem] transition-colors duration-300">
         {icon}
       </div>
-      <p className="text-[1.2rem] font-bold transition-colors duration-300 group-hover:text-white">
+      <p className="relative z-10 text-[1.2rem] font-bold transition-colors duration-300">
         {label}
       </p>
     </Link>
@@ -192,7 +200,7 @@ const Menu = ({
                             key={date}
                             href={`/trips/${activeTripId}/schedule?date=${date}`}
                             onClick={onClose}
-                            className="text-[1rem] text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                            className="text-[1rem] text-gray-600 hover:text-gray-900 hover:scale-[1.02] transition-all duration-300"
                           >
                             {format(new Date(date), "MM/dd (E)")}
                           </Link>
