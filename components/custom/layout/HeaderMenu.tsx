@@ -45,10 +45,22 @@ const MenuLabel = ({
     <Link
       href={href}
       onClick={onClick}
-      className="flex gap-[1rem] cursor-pointer hover:text-gray-500 transition-colors duration-200"
+      className={cn(
+        "flex items-center gap-[1rem]",
+        "px-[1.2rem] py-[0.8rem] rounded-[0.8rem]",
+        "cursor-pointer",
+        "transition-all duration-400 ease-in-out",
+        "hover:bg-gray-700 hover:scale-[1.02]",
+        "active:scale-[0.98]",
+        "group",
+      )}
     >
-      <div className="text-[1.6rem]">{icon}</div>
-      <p className="text-[1.2rem] font-bold">{label}</p>
+      <div className="text-[1.6rem] transition-colors duration-300 group-hover:text-white">
+        {icon}
+      </div>
+      <p className="text-[1.2rem] font-bold transition-colors duration-300 group-hover:text-white">
+        {label}
+      </p>
     </Link>
   );
 };
@@ -142,7 +154,7 @@ const Menu = ({
         {/* TOP */}
         <div>
           <h1 className="font-bold mb-[1.6rem] text-center">TRIP DROP</h1>
-          <div className="flex flex-col gap-[3.2rem] bg-section rounded-[1.6rem] p-[2.4rem]">
+          <div className="flex flex-col gap-[0.8rem] bg-section rounded-[1.6rem] px-[2.4rem] py-[1.6rem]">
             <MenuLabel icon={<AiFillHome />} label="Top" href="/" />
             <MenuLabel icon={<FaPlus />} label="Add Trip" href="/trips/new" />
           </div>
@@ -154,7 +166,7 @@ const Menu = ({
             {activeTrip?.title}
           </h1>
 
-          <div className="flex flex-col gap-[3.2rem] bg-section rounded-[1.6rem] p-[2.4rem]">
+          <div className="flex flex-col gap-[1.2rem] bg-section rounded-[1.6rem] p-[2.4rem]">
             {MenuItems.map((item) => {
               const baseHref =
                 item.label !== "Top" && activeTripId
@@ -174,7 +186,7 @@ const Menu = ({
                   {item.label === "Schedule" &&
                     activeTripId &&
                     tripDates.length > 0 && (
-                      <div className="ml-[3.6rem] mt-[1.2rem] flex flex-col gap-[0.8rem]">
+                      <div className="ml-[3.6rem] mt-[0.8rem] flex flex-col gap-[0.8rem]">
                         {tripDates.map((date) => (
                           <Link
                             key={date}
