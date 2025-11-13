@@ -1,7 +1,13 @@
-import { differenceInCalendarDays, parseISO } from "date-fns";
+import {
+  differenceInCalendarDays,
+  format,
+  isWithinInterval,
+  parseISO,
+  startOfDay,
+} from "date-fns";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/custom/button/Button";
 import CardHotel from "@/components/custom/cards/CardHotel";
 import CardSpot from "@/components/custom/cards/CardSpot";
@@ -27,10 +33,44 @@ export default function TripSchedulePage() {
     return createDateRangeArray(trip.startAt, trip.endAt);
   }, [trip?.startAt, trip?.endAt]);
 
+  // デフォルト日付を計算（旅程期間中は当日、期間外は旅程初日）
+  const defaultDate = useMemo(() => {
+    if (!trip?.startAt || !trip?.endAt) {
+      return null;
+    }
+    const today = startOfDay(new Date());
+    const startDate = startOfDay(parseISO(trip.startAt));
+    const endDate = startOfDay(parseISO(trip.endAt));
+
+    if (isWithinInterval(today, { start: startDate, end: endDate })) {
+      // 旅程期間中は当日
+      return format(today, "yyyy-MM-dd");
+    }
+    // 旅程期間外は旅程初日
+    return format(startDate, "yyyy-MM-dd");
+  }, [trip?.startAt, trip?.endAt]);
+
+  // dateが存在しない場合、デフォルト日付でURLを更新
+  useEffect(() => {
+    if (!date && defaultDate && tripId && router.isReady) {
+      void router.replace(
+        {
+          pathname: router.pathname,
+          query: { tripId, date: defaultDate },
+        },
+        undefined,
+        { shallow: true, scroll: false },
+      );
+    }
+  }, [date, defaultDate, tripId, router]);
+
+  // 実際に使用する日付（dateが存在しない場合はdefaultDateを使用）
+  const effectiveDate = date || defaultDate;
+
   const currentIndex = useMemo(() => {
-    if (!date) return -1;
-    return availableDates.indexOf(date);
-  }, [availableDates, date]);
+    if (!effectiveDate) return -1;
+    return availableDates.indexOf(effectiveDate);
+  }, [availableDates, effectiveDate]);
 
   const neighborDates =
     currentIndex === -1
@@ -42,20 +82,23 @@ export default function TripSchedulePage() {
 
   const { schedule, isLoading, error, mutate } = useTripSchedule({
     tripId: trip?.id,
-    date: date || undefined,
+    date: effectiveDate || undefined,
     neighborDates,
   });
 
   const dayLabel = useMemo(() => {
-    if (!trip || !date) return "";
+    if (!trip || !effectiveDate) return "";
     try {
       const dayIndex =
-        differenceInCalendarDays(parseISO(date), parseISO(trip.startAt)) + 1;
+        differenceInCalendarDays(
+          parseISO(effectiveDate),
+          parseISO(trip.startAt),
+        ) + 1;
       return dayIndex > 0 ? `Day ${dayIndex}` : "";
     } catch {
       return "";
     }
-  }, [date, trip]);
+  }, [effectiveDate, trip]);
 
   const handleItemDeleted = useCallback(
     (deletedId: string, targetType: "spot" | "transport" | "hotel") => {
@@ -119,7 +162,7 @@ export default function TripSchedulePage() {
     (targetDate: string | null) => {
       if (!targetDate) return;
       if (!tripId) return;
-      if (targetDate === date) return;
+      if (targetDate === effectiveDate) return;
 
       void router.push(
         {
@@ -130,7 +173,7 @@ export default function TripSchedulePage() {
         { shallow: true, scroll: false },
       );
     },
-    [date, router, tripId],
+    [effectiveDate, router, tripId],
   );
 
   if (!trip) {
@@ -141,12 +184,11 @@ export default function TripSchedulePage() {
     );
   }
 
-  if (!date) {
+  // デフォルト日付が計算されるまで待つ
+  if (!effectiveDate) {
     return (
-      <div className="px-[2.4rem] py-[3.2rem] space-y-[1.6rem]">
-        <h1 className="text-[1.6rem] font-bold text-center">
-          表示する日付を選択してください
-        </h1>
+      <div className="flex justify-center py-[4rem]">
+        <Spinner />
       </div>
     );
   }
@@ -176,13 +218,13 @@ export default function TripSchedulePage() {
     <>
       <ScheduleHeaderTouchable
         header={{
-          date,
+          date: effectiveDate,
           dayLabel,
           locationLabel: trip.title,
         }}
         navigation={{
           dates: availableDates,
-          currentDate: date,
+          currentDate: effectiveDate,
           onSelect: (targetDate) => {
             navigateToDate(targetDate);
           },
@@ -281,7 +323,7 @@ export default function TripSchedulePage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         type={"spot"}
-        defaultDate={date}
+        defaultDate={effectiveDate}
       />
     </>
   );
