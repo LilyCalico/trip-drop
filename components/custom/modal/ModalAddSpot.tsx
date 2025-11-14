@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
@@ -8,7 +8,23 @@ import InputGooglePlaces from "@/components/custom/InputGooglePlaces";
 import { Label } from "@/components/ui/label";
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import { useCreateSpot } from "@/hooks/spots/useCreateSpot";
+import { useUpdateSpot } from "@/hooks/spots/useUpdateSpot";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
+import { extractLocalDateTimeParts } from "@/lib/functions/convertUtcToLocalParts";
+import type { Tables } from "@/types/supabasetype";
+
+type SpotRow = Tables<"spots">;
+
+export interface SpotInitialValues {
+  name?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  googlePlaceId?: string | null;
+  location?: { lat: number; lng: number } | null;
+  googleData?: GooglePlaceCandidate | null;
+  visitDatetimeUtc?: string | null;
+  timezone?: string | null;
+}
 
 interface SpotFormData {
   name: string;
@@ -23,14 +39,23 @@ interface SpotFormData {
 interface ModalAddSpotProps {
   onClose: () => void;
   defaultDate?: string;
+  mode?: "create" | "edit";
+  targetId?: string;
+  initialValues?: SpotInitialValues;
+  onSuccess?: (spot: SpotRow) => void;
 }
 
 export default function ModalAddSpot({
   onClose,
   defaultDate,
+  mode = "create",
+  targetId,
+  initialValues,
+  onSuccess,
 }: ModalAddSpotProps) {
   const trip = useCurrentTrip();
   const { createSpot, isSubmitting } = useCreateSpot();
+  const { updateSpot, isUpdating } = useUpdateSpot();
 
   const [formData, setFormData] = useState<SpotFormData>({
     name: "",
@@ -43,15 +68,59 @@ export default function ModalAddSpot({
   });
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [time, setTime] = useState<string>("00:00");
+  const [selectedTimezone, setSelectedTimezone] = useState<string>("");
+
+  const isEditMode = mode === "edit";
 
   // 初期値設定: 初日の00:00
   useEffect(() => {
-    if (trip && !formData.visitDateTime) {
+    if (!trip) {
+      return;
+    }
+
+    if (isEditMode && initialValues) {
+      setFormData((prev) => ({
+        ...prev,
+        name: initialValues.name ?? prev.name,
+        address: initialValues.address ?? prev.address,
+        notes: initialValues.notes ?? prev.notes,
+        googlePlaceId: initialValues.googlePlaceId ?? prev.googlePlaceId,
+        location: initialValues.location ?? prev.location,
+        googleData: initialValues.googleData ?? prev.googleData,
+      }));
+
+      const timezoneToUse =
+        initialValues.timezone ?? trip.timeZone ?? selectedTimezone;
+      setSelectedTimezone(timezoneToUse ?? "");
+
+      const parts = extractLocalDateTimeParts({
+        datetimeUtc: initialValues.visitDatetimeUtc,
+        timezone: timezoneToUse,
+      });
+
+      if (parts) {
+        setSelectedDate(parts.date);
+        setTime(parts.time);
+      }
+      return;
+    }
+
+    if (!formData.visitDateTime) {
       const firstDay = new Date(trip.startAt);
       firstDay.setHours(0, 0, 0, 0);
       setFormData((prev) => ({ ...prev, visitDateTime: firstDay }));
     }
-  }, [trip, formData.visitDateTime]);
+
+    if (!selectedTimezone) {
+      setSelectedTimezone(trip.timeZone ?? "");
+    }
+  }, [
+    trip,
+    formData.visitDateTime,
+    initialValues,
+    isEditMode,
+    selectedTimezone,
+  ]);
 
   const handleNameChange = (value: string) => {
     setFormData((prev) => ({
@@ -84,7 +153,44 @@ export default function ModalAddSpot({
       return;
     }
 
-    const result = await createSpot({
+    const timezoneToUse = selectedTimezone || trip.timeZone;
+
+    if (!selectedDate || !time || !timezoneToUse) {
+      toast.error("Date, time, and timezone are required");
+      return;
+    }
+
+    if (isEditMode) {
+      if (!targetId) {
+        toast.error("Target spot id not provided");
+        return;
+      }
+
+      const result = await updateSpot({
+        id: targetId,
+        name: formData.name,
+        address: formData.address,
+        notes: formData.notes,
+        googlePlaceId: formData.googlePlaceId,
+        location: formData.location,
+        googleData: formData.googleData,
+        tripId: trip.id,
+        selectedDate: selectedDate,
+        selectedTime: time,
+        selectedTimezone: timezoneToUse,
+      });
+
+      if (result) {
+        toast.success("Spot updated successfully!");
+        onSuccess?.(result);
+        onClose();
+      } else {
+        toast.error("Failed to update spot. Please try again.");
+      }
+      return;
+    }
+
+    const createResult = await createSpot({
       name: formData.name,
       address: formData.address,
       notes: formData.notes,
@@ -94,11 +200,12 @@ export default function ModalAddSpot({
       tripId: trip.id,
       selectedDate: selectedDate,
       selectedTime: time,
-      selectedTimezone: trip.timeZone,
+      selectedTimezone: timezoneToUse,
     });
 
-    if (result) {
+    if (createResult) {
       toast.success("Spot added successfully!");
+      onSuccess?.(createResult);
       onClose();
     } else {
       toast.error("Failed to add spot. Please try again.");
@@ -111,10 +218,29 @@ export default function ModalAddSpot({
       setSelectedDate(defaultDate);
     }
 
-    if (trip && !selectedDate && !defaultDate) {
+    if (
+      trip &&
+      !selectedDate &&
+      !defaultDate &&
+      (!isEditMode || !initialValues?.visitDatetimeUtc)
+    ) {
       setSelectedDate(trip.startAt);
     }
-  }, [trip, selectedDate, defaultDate]);
+  }, [trip, selectedDate, defaultDate, initialValues, isEditMode]);
+
+  useEffect(() => {
+    if (isEditMode && initialValues?.name) {
+      setFormData((prev) => ({
+        ...prev,
+        name: initialValues.name ?? prev.name,
+      }));
+    }
+  }, [initialValues?.name, isEditMode]);
+
+  const submitting = useMemo(
+    () => (isEditMode ? isUpdating : isSubmitting),
+    [isEditMode, isSubmitting, isUpdating],
+  );
 
   if (!trip) {
     return <div>Loading...</div>;
@@ -189,9 +315,15 @@ export default function ModalAddSpot({
         <Button
           type="submit"
           className="w-full mt-[1.6rem]"
-          disabled={isSubmitting || !formData.name}
+          disabled={submitting || !formData.name}
         >
-          {isSubmitting ? "Adding..." : "Add Spot"}
+          {submitting
+            ? isEditMode
+              ? "Updating..."
+              : "Adding..."
+            : isEditMode
+              ? "Update Spot"
+              : "Add Spot"}
         </Button>
       </form>
     </div>

@@ -5,8 +5,11 @@ import { toast } from "sonner";
 import CardWrapper from "@/components/custom/cards/CardWrapper";
 import { useDeleteSpot } from "@/hooks/spots/useDeleteSpot";
 import { formatLocalTimeFromUtc } from "@/lib/functions/formatLocalTimeFromUtc";
+import type { Tables } from "@/types/supabasetype";
 import ButtonDelete from "../button/ButtonDelete";
 import ModalAdd from "../modal/ModalAdd";
+
+type SpotRow = Tables<"spots">;
 
 interface CardSpotProps {
   id: string;
@@ -20,6 +23,7 @@ interface CardSpotProps {
     targetId: string,
     targetType: "spot" | "transport" | "hotel",
   ) => void;
+  onUpdated?: (spot: SpotRow) => void;
 }
 
 export default function CardSpot({
@@ -31,6 +35,7 @@ export default function CardSpot({
   timezone,
   googlePlaceId,
   onDeleted,
+  onUpdated,
 }: CardSpotProps) {
   const time = formatLocalTimeFromUtc(visitDatetime, timezone);
   const { deleteSpot } = useDeleteSpot();
@@ -90,6 +95,23 @@ export default function CardSpot({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         type="spot"
+        mode="edit"
+        targetId={id}
+        initialValues={{
+          spot: {
+            name,
+            address: address ?? null,
+            notes: description ?? null,
+            googlePlaceId: googlePlaceId ?? null,
+            visitDatetimeUtc: visitDatetime,
+            timezone,
+          },
+        }}
+        onSuccess={({ type, data }) => {
+          if (type === "spot" && data) {
+            onUpdated?.(data as SpotRow);
+          }
+        }}
       />
     </>
   );
