@@ -63,8 +63,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<TransportRow | ErrorBody>,
 ) {
-  const queryId = req.query.transportId;
-  const transportId = Array.isArray(queryId) ? queryId[0] : queryId;
+  const transportId = req.query.transportId as string;
 
   if (!transportId) {
     return res.status(400).json({ error: "Transport ID is required" });
@@ -83,7 +82,6 @@ export default async function handler(
     }
 
     const accessToken = authHeader.replace("Bearer ", "");
-
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 
@@ -131,7 +129,6 @@ export default async function handler(
     if (req.method === "PATCH") {
       const body = req.body as UpdateTransportBody;
       const hasCarrierName = body.carrierName !== undefined;
-      const hasDescription = body.description !== undefined;
       const hasDepartureLocation = body.departureLocation !== undefined;
       const hasArrivalLocation = body.arrivalLocation !== undefined;
       const hasDepartureMemo = body.departureMemo !== undefined;
@@ -151,7 +148,6 @@ export default async function handler(
 
       if (
         !hasCarrierName &&
-        !hasDescription &&
         !hasDepartureLocation &&
         !hasArrivalLocation &&
         !hasDepartureMemo &&
@@ -198,10 +194,6 @@ export default async function handler(
           return res.status(400).json({ error: "carrierName is required" });
         }
         updatePayload.name = trimmedName;
-      }
-
-      if (hasDescription) {
-        updatePayload.description = toTrimmedOrNull(body.description);
       }
 
       if (hasDepartureLocation) {
@@ -371,31 +363,33 @@ export default async function handler(
       return res.status(200).json(updatedTransport);
     }
 
-    const { data, error } = await supabase
-      .from("transports")
-      .delete()
-      .eq("id", transportId)
-      .select()
-      .single();
+    if (req.method === "DELETE") {
+      const { data, error } = await supabase
+        .from("transports")
+        .delete()
+        .eq("id", transportId)
+        .select()
+        .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
+      if (error) {
+        if (error.code === "PGRST116") {
+          return res.status(404).json({ error: "Transport not found" });
+        }
+
+        console.error("Supabase error deleting transport:", error);
+        return res.status(400).json({
+          error: "Failed to delete transport",
+          details: error.message,
+          code: error.code,
+        });
+      }
+
+      if (!data) {
         return res.status(404).json({ error: "Transport not found" });
       }
 
-      console.error("Supabase error deleting transport:", error);
-      return res.status(400).json({
-        error: "Failed to delete transport",
-        details: error.message,
-        code: error.code,
-      });
+      return res.status(200).json(data);
     }
-
-    if (!data) {
-      return res.status(404).json({ error: "Transport not found" });
-    }
-
-    return res.status(200).json(data);
   } catch (error) {
     console.error("Error handling transport request:", error);
     return res.status(500).json({ error: "Internal server error" });
