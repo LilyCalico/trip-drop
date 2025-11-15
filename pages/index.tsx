@@ -17,6 +17,8 @@ export default function Home() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
+  const authLoading = useAuthStore((s) => s.loading);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
   const tripsLoading = useTripsStore((s) => s.loading);
@@ -68,8 +70,13 @@ export default function Home() {
     console.log("trips", trips);
   }, [trips]);
 
+  // ログイン確認が終わっていない、または未ログインなら描画しない
+  if (authLoading || !isAuthenticated) {
+    return null;
+  }
+
   // 旅情報のGET中はローディングスピナーを表示する
-  if (!trips && tripsLoading) {
+  if (tripsLoading) {
     return <Spinner />;
   }
 
