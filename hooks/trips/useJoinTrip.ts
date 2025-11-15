@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
+import useGetTrips from "@/hooks/trips/useGetTrips";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useTripsStore } from "@/store/useTripsStore";
 
 interface JoinTripResponse {
   success: true;
@@ -10,6 +12,8 @@ export const useJoinTrip = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const session = useAuthStore((s) => s.session);
+  const setTrips = useTripsStore((s) => s.setTrips);
+  const { fetchTrips } = useGetTrips();
 
   const joinTrip = useCallback(
     async (tripId: string, password: string): Promise<boolean> => {
@@ -35,6 +39,9 @@ export const useJoinTrip = () => {
           },
         );
 
+        const trips = await fetchTrips();
+        setTrips(trips ?? []);
+
         return true;
       } catch (err) {
         let errorMessage = "An unexpected error occurred";
@@ -51,7 +58,7 @@ export const useJoinTrip = () => {
         setLoading(false);
       }
     },
-    [session?.access_token],
+    [session?.access_token, fetchTrips, setTrips],
   );
 
   return { joinTrip, loading, error };
