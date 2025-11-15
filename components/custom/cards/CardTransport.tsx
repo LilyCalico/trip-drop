@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useDeleteTransport } from "@/hooks/transports/useDeleteTransport";
 import { formatLocalDateTimeFromUtc } from "@/lib/functions/formatLocalDateTimeFromUtc";
+import type { Tables } from "@/types/supabasetype";
 import ButtonDelete from "../button/ButtonDelete";
 import ModalAdd from "../modal/ModalAdd";
 import CardWrapper from "./CardWrapper";
@@ -20,10 +21,12 @@ interface CardTransportProps {
   arrivalMemo: string | null;
   departureGooglePlaceId: string | null;
   arrivalGooglePlaceId: string | null;
+  bookingReference?: string | null;
   onDeleted?: (
     targetId: string,
     targetType: "spot" | "transport" | "hotel",
   ) => void;
+  onUpdated?: (transport: Tables<"transports">) => void;
 }
 export default function CardTransport({
   id,
@@ -36,7 +39,11 @@ export default function CardTransport({
   departureTimezone,
   arrivalDatetime,
   arrivalTimezone,
+  departureGooglePlaceId,
+  arrivalGooglePlaceId,
+  bookingReference,
   onDeleted,
+  onUpdated,
 }: CardTransportProps) {
   const { deleteTransport } = useDeleteTransport();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -118,6 +125,29 @@ export default function CardTransport({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         type="transport"
+        mode="edit"
+        targetId={id}
+        initialValues={{
+          transport: {
+            carrierName: name,
+            departureLocation,
+            arrivalLocation,
+            departureMemo,
+            arrivalMemo,
+            bookingReference: bookingReference ?? null,
+            departureTimezone,
+            arrivalTimezone,
+            departureDatetimeUtc: departureDatetime,
+            arrivalDatetimeUtc: arrivalDatetime,
+            departureGooglePlaceId,
+            arrivalGooglePlaceId,
+          },
+        }}
+        onSuccess={({ type, data }) => {
+          if (type === "transport" && data) {
+            onUpdated?.(data as Tables<"transports">);
+          }
+        }}
       />
     </>
   );

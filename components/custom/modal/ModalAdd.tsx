@@ -156,7 +156,6 @@ export default function ModalAdd({
           {category === "transport" && (
             <ModalAddTransport
               onClose={onClose}
-              defaultDate={defaultDate}
               mode={mode ?? "create"}
               targetId={targetId}
               initialValues={initialValues?.transport}

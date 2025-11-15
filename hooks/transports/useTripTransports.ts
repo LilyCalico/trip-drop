@@ -53,30 +53,20 @@ export const useTripTransports = ({
 
   const key = useMemo<TransportsKey | null>(() => {
     if (!tripId || !accessToken) {
-      console.log("useTripTransports: key is null", {
-        tripId,
-        accessToken: accessToken ? "present" : "missing",
-      });
       return null;
     }
     const keyValue: TransportsKey = [
       `${baseURL}/trips/${tripId}/transport`,
       accessToken,
     ];
-    console.log("useTripTransports: key created", { url: keyValue[0], tripId });
     return keyValue;
   }, [accessToken, baseURL, tripId]);
 
   const fetchTransports = useCallback(
     async ([url, token]: TransportsKey): Promise<TripTransportsData> => {
-      console.log("fetchTransports called with:", {
-        url,
-        token: token ? "present" : "missing",
-      });
       const { data } = await axios.get<TripTransportsResponse>(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("fetchTransports response:", data);
       return data.transports;
     },
     [],

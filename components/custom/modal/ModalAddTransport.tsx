@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
@@ -12,19 +12,51 @@ import {
   type CreateTransportPayload,
   useCreateTransport,
 } from "@/hooks/transports/useCreateTransport";
+import {
+  type UpdateTransportParams,
+  useUpdateTransport,
+} from "@/hooks/transports/useUpdateTransport";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
+import { extractLocalDateTimeParts as convertUtcToLocalParts } from "@/lib/functions/convertUtcToLocalParts";
+import type { Tables } from "@/types/supabasetype";
+
+type TransportRow = Tables<"transports">;
+
+export interface TransportInitialValues {
+  carrierName?: string | null;
+  departureLocation?: string | null;
+  arrivalLocation?: string | null;
+  departureMemo?: string | null;
+  arrivalMemo?: string | null;
+  departureDatetimeUtc?: string | null;
+  arrivalDatetimeUtc?: string | null;
+  bookingReference?: string | null;
+  departureTimezone?: string | null;
+  arrivalTimezone?: string | null;
+  departureGooglePlaceId?: string | null;
+  arrivalGooglePlaceId?: string | null;
+  departureGoogleData?: GooglePlaceCandidate | null;
+  arrivalGoogleData?: GooglePlaceCandidate | null;
+}
 
 interface ModalAddTransportProps {
   onClose: () => void;
-  defaultDate?: string;
+  mode?: "create" | "edit";
+  targetId?: string;
+  initialValues?: TransportInitialValues;
+  onSuccess?: (transport: TransportRow) => void;
 }
 
 interface TransportFormData {
   carrierName: string;
   departureLocation: string;
   departureMemo: string;
+  departureDateTimeLocal: string;
+  departureTimezone: string;
   arrivalLocation: string;
   arrivalMemo: string;
+  arrivalDateTimeLocal: string;
+  arrivalTimezone: string;
   bookingReference: string;
   departureGooglePlaceId: string | null;
   departureGoogleData: GooglePlaceCandidate | null;
@@ -37,63 +69,85 @@ const toDateOnly = (value: string) =>
 
 export default function ModalAddTransport({
   onClose,
-  defaultDate,
+  mode = "create",
+  targetId,
+  initialValues,
+  onSuccess,
 }: ModalAddTransportProps) {
   const trip = useCurrentTrip();
-  const { createTransport, isSubmitting, error } = useCreateTransport();
+  const {
+    createTransport,
+    isSubmitting,
+    error: createError,
+  } = useCreateTransport();
+  const {
+    updateTransport,
+    isUpdating,
+    error: updateError,
+  } = useUpdateTransport();
   const [formData, setFormData] = useState<TransportFormData>({
-    carrierName: "",
-    departureLocation: "",
-    departureMemo: "",
-    arrivalLocation: "",
-    arrivalMemo: "",
-    bookingReference: "",
-    departureGooglePlaceId: null,
-    departureGoogleData: null,
-    arrivalGooglePlaceId: null,
-    arrivalGoogleData: null,
+    carrierName: initialValues?.carrierName ?? "",
+    departureLocation: initialValues?.departureLocation ?? "",
+    departureMemo: initialValues?.departureMemo ?? "",
+    departureTimezone: initialValues?.departureTimezone ?? "",
+    departureDateTimeLocal: initialValues?.departureDatetimeUtc ?? "",
+    arrivalLocation: initialValues?.arrivalLocation ?? "",
+    arrivalMemo: initialValues?.arrivalMemo ?? "",
+    arrivalTimezone: initialValues?.arrivalTimezone ?? "",
+    arrivalDateTimeLocal: initialValues?.arrivalDatetimeUtc ?? "",
+    bookingReference: initialValues?.bookingReference ?? "",
+    departureGooglePlaceId: initialValues?.departureGooglePlaceId ?? null,
+    departureGoogleData: initialValues?.departureGoogleData ?? null,
+    arrivalGooglePlaceId: initialValues?.arrivalGooglePlaceId ?? null,
+    arrivalGoogleData: initialValues?.arrivalGoogleData ?? null,
   });
-  const [departureDate, setDepartureDate] = useState<string>("");
-  const [departureTime, setDepartureTime] = useState<string>("00:00");
-  const [arrivalDate, setArrivalDate] = useState<string>("");
-  const [arrivalTime, setArrivalTime] = useState<string>("00:00");
-  const [departureTimezone, setDepartureTimezone] = useState<string>("");
-  const [arrivalTimezone, setArrivalTimezone] = useState<string>("");
+
+  const initialDateTimeParts = useMemo(() => {
+    if (mode === "edit" && initialValues) {
+      return {
+        departure: convertUtcToLocalParts({
+          datetimeUtc: initialValues.departureDatetimeUtc,
+          timezone: initialValues.departureTimezone,
+        }),
+        arrival: convertUtcToLocalParts({
+          datetimeUtc: initialValues.arrivalDatetimeUtc,
+          timezone: initialValues.arrivalTimezone,
+        }),
+      };
+    }
+  }, [mode, initialValues]);
+
+  const [departureDate, setDepartureDate] = useState<string>(
+    initialDateTimeParts?.departure?.date ?? "",
+  );
+  const [departureTime, setDepartureTime] = useState<string>(
+    initialDateTimeParts?.departure?.time ?? "00:00",
+  );
+  const [arrivalDate, setArrivalDate] = useState<string>(
+    initialDateTimeParts?.arrival?.date ?? "",
+  );
+  const [arrivalTime, setArrivalTime] = useState<string>(
+    initialDateTimeParts?.arrival?.time ?? "00:00",
+  );
+  const [departureTimezone, setDepartureTimezone] = useState<string>(
+    initialValues?.departureTimezone ?? "",
+  );
+  const [arrivalTimezone, setArrivalTimezone] = useState<string>(
+    initialValues?.arrivalTimezone ?? "",
+  );
+  const isEditMode = mode === "edit";
 
   useEffect(() => {
-    if (error) {
-      toast.error(error);
+    if (createError) {
+      toast.error(createError);
     }
-  }, [error]);
+  }, [createError]);
 
   useEffect(() => {
-    if (!trip) return;
-    if (defaultDate && departureDate === "") {
-      setDepartureDate(defaultDate);
+    if (updateError) {
+      toast.error(updateError);
     }
-    if (defaultDate && arrivalDate === "") {
-      setArrivalDate(defaultDate);
-    }
-    if (!departureDate && !defaultDate) {
-      setDepartureDate(trip.startAt);
-    }
-    if (!arrivalDate && !defaultDate) {
-      setArrivalDate(trip.endAt);
-    }
-    if (!departureTimezone) {
-      setDepartureTimezone(trip.timeZone);
-    }
-    if (!arrivalTimezone) {
-      setArrivalTimezone(trip.timeZone);
-    }
-  }, [
-    trip,
-    departureDate,
-    arrivalDate,
-    departureTimezone,
-    arrivalTimezone,
-    defaultDate,
-  ]);
+  }, [updateError]);
 
   const isValid = useMemo(() => {
     return (
@@ -154,16 +208,29 @@ export default function ModalAddTransport({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!trip) return;
-    const payload = {
-      tripId: trip.id,
+
+    const resolvedDepartureTimezone = departureTimezone || trip.timeZone;
+    const resolvedArrivalTimezone = arrivalTimezone || trip.timeZone;
+
+    if (!resolvedDepartureTimezone || !resolvedArrivalTimezone) {
+      toast.error("Timezone is required");
+      return;
+    }
+
+    if (!departureDate || !arrivalDate) {
+      toast.error("Date is required");
+      return;
+    }
+
+    const sharedFields = {
       carrierName: formData.carrierName,
       departureLocation: formData.departureLocation,
       arrivalLocation: formData.arrivalLocation,
       departureMemo: formData.departureMemo,
       arrivalMemo: formData.arrivalMemo,
       bookingReference: formData.bookingReference,
-      departureTimezone: departureTimezone || null,
-      arrivalTimezone: arrivalTimezone || null,
+      departureTimezone: resolvedDepartureTimezone,
+      arrivalTimezone: resolvedArrivalTimezone,
       departureDate: toDateOnly(departureDate),
       departureTime,
       arrivalDate: toDateOnly(arrivalDate),
@@ -172,15 +239,44 @@ export default function ModalAddTransport({
       departureGoogleData: formData.departureGoogleData,
       arrivalGooglePlaceId: formData.arrivalGooglePlaceId,
       arrivalGoogleData: formData.arrivalGoogleData,
-    } as CreateTransportPayload;
+    };
 
+    if (isEditMode) {
+      if (!targetId) {
+        toast.error("Transport ID is missing");
+        return;
+      }
+
+      const updatePayload: UpdateTransportParams = {
+        id: targetId,
+        ...sharedFields,
+      };
+
+      const updated = await updateTransport(updatePayload);
+
+      if (updated) {
+        toast.success("Transport updated");
+        onSuccess?.(updated);
+        onClose();
+      }
+      return;
+    }
+
+    const payload = {
+      tripId: trip.id,
+      ...sharedFields,
+    } as CreateTransportPayload;
+    setDepartureDate;
     const transport = await createTransport(payload);
 
     if (transport) {
       toast.success("Transport saved");
+      onSuccess?.(transport);
       onClose();
     }
   };
+
+  const submitting = isEditMode ? isUpdating : isSubmitting;
 
   if (!trip) {
     return <div>Loading...</div>;
@@ -320,9 +416,15 @@ export default function ModalAddTransport({
         <Button
           type="submit"
           className="w-full mt-[1.6rem]"
-          disabled={!isValid || isSubmitting}
+          disabled={!isValid || submitting}
         >
-          {isSubmitting ? "Saving..." : "Add Transport"}
+          {submitting
+            ? isEditMode
+              ? "Updating..."
+              : "Saving..."
+            : isEditMode
+              ? "Update Transport"
+              : "Add Transport"}
         </Button>
       </form>
     </div>
