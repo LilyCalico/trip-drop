@@ -778,6 +778,15 @@ export type Database = {
       }
     }
     Functions: {
+      join_trip_with_password: {
+        Args: {
+          trip_id: string
+          candidate_password: string
+        }
+        Returns: {
+          member_id: string
+        }[]
+      }
       _postgis_deprecate: {
         Args: { newname: string; oldname: string; version: string }
         Returns: undefined
