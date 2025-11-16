@@ -175,6 +175,9 @@ export default function GoogleMap({
     const initMap = async (): Promise<void> => {
       if (!mapRef.current) return;
 
+      // マーカーのデータが来るまで待つ
+      if (!data || data.length === 0) return;
+
       try {
         await loadGoogleMapsAPI();
         const { GoogleMap: GoogleMapClass, AdvancedMarkerElement } =
