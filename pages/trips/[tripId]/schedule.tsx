@@ -12,18 +12,22 @@ import Button from "@/components/custom/button/Button";
 import CardHotel from "@/components/custom/cards/CardHotel";
 import CardSpot from "@/components/custom/cards/CardSpot";
 import CardTransport from "@/components/custom/cards/CardTransport";
+import type { SchedulePlace } from "@/components/custom/map/GoogleMap";
+import GoogleMap from "@/components/custom/map/GoogleMap";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
 import ScheduleHeaderTouchable from "@/components/custom/trip/ScheduleHeaderTouchable";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 import { useTripSchedule } from "@/hooks/trips/useTripSchedule";
 import createDateRangeArray from "@/lib/functions/createDateRangeArray";
+import { extractSchedulePlaces } from "./lib/extractLagLng";
 
 export default function TripSchedulePage() {
   const router = useRouter();
   const { date, tripId } = router.query as { date: string; tripId: string };
   const trip = useCurrentTrip();
   const [modalOpen, setModalOpen] = useState(false);
+  const [mapData, setMapData] = useState<SchedulePlace[]>([]);
 
   // tripの取得を待って実行
   const availableDates = useMemo(() => {
@@ -85,6 +89,12 @@ export default function TripSchedulePage() {
     date: effectiveDate || undefined,
     neighborDates,
   });
+
+  useEffect(() => {
+    if (!schedule) return;
+    const places = extractSchedulePlaces(schedule);
+    setMapData(places);
+  }, [schedule]);
 
   const dayLabel = useMemo(() => {
     if (!trip || !effectiveDate) return "";
@@ -317,6 +327,8 @@ export default function TripSchedulePage() {
           </Button>
         </div>
       </div>
+
+      <GoogleMap data={mapData} />
 
       {/* Modal to add spot, hotel, or transport */}
       <ModalAdd
