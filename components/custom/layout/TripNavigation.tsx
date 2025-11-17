@@ -71,10 +71,12 @@ const TripNavigation = ({
   isOpen,
   onClose,
   embedded = false,
+  className,
 }: {
   isOpen: boolean;
   onClose: () => void;
   embedded?: boolean;
+  className?: string;
 }) => {
   const router = useRouter();
   const tripId = router.query.tripId as string | undefined;
@@ -139,6 +141,7 @@ const TripNavigation = ({
           (isOpen
             ? "translate-x-0 pointer-events-auto"
             : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto"),
+        className,
       )}
       aria-hidden={!isOpen}
     >

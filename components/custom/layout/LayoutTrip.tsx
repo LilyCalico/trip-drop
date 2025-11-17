@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import TripNavigation from "@/components/custom/layout/TripNavigation";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
+import { cn } from "@/lib/utils";
 
 export default function LayoutTrip({
   children,
@@ -56,14 +57,23 @@ export default function LayoutTrip({
   };
 
   return (
-    <div className="hidden lg:block">
+    <div className="lg:block">
       <div className="flex gap-[3.2rem]">
         {/* Schedule, Transport, Hotel, Setting */}
-        <TripNavigation isOpen={isOpen} onClose={handleMenuClick} />
+        <TripNavigation
+          isOpen={isOpen}
+          onClose={handleMenuClick}
+          className="hidden lg:block"
+        />
 
         {/* Trip Detail */}
         <div className="w-full">
-          <div className="font-family-figtree mt-[2.4rem] mb-[4.8rem] w-full pl-[3.2rem]">
+          <div
+            className={cn(
+              "sm:hidden md:hidden lg:block",
+              "font-family-figtree mt-[2.4rem] mb-[4.8rem] w-full pl-[3.2rem]",
+            )}
+          >
             <p className="text-[2.4rem] font-semibold mb-[0.8rem]">
               {displayText}
             </p>
