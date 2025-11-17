@@ -13,6 +13,7 @@ export default function LayoutTrip({
   const { date } = router.query as { date?: string };
   const trip = useCurrentTrip();
   const [isOpen, setIsOpen] = useState(false);
+  const tripTitle = trip?.title;
 
   // dateが存在しない場合のデフォルト日付を計算
   const defaultDate = useMemo(() => {
@@ -41,7 +42,10 @@ export default function LayoutTrip({
   return (
     <div className="hidden lg:block">
       <div className="flex gap-[3.2rem]">
+        {/* Schedule, Transport, Hotel, Setting */}
         <ScheduleMenu isOpen={isOpen} onClose={handleMenuClick} />
+
+        {/* Trip Detail */}
         <div className="w-full">
           <div className="font-family-figtree mt-[2.4rem] mb-[4.8rem] w-full pl-[3.2rem]">
             <p className="text-[2.4rem] font-semibold mb-[0.8rem]">
@@ -49,7 +53,7 @@ export default function LayoutTrip({
                 ? format(parseISO(effectiveDate), "MMM d EEE")
                 : ""}
             </p>
-            <p className="text-[1.2rem]">Stockholm / London</p>
+            <p className="text-[1.2rem]">{tripTitle ?? ""}</p>
           </div>
           <div className="ml-[3.2rem]">{children}</div>
         </div>
