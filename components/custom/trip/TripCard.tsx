@@ -46,7 +46,7 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
       <div className="flex items-center justify-between">
         <div
           onClick={() => {
-            router.push(`/trips/${tripId}`);
+            router.push(`/trips/${tripId}/schedule`);
           }}
           className={cn(
             "flex-1 bg-gray-50 rounded-lg",
