@@ -72,7 +72,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Header />
-      <Component {...pageProps} />
+      <div className="max-w-[140rem] mx-auto">
+        <Component {...pageProps} />
+      </div>
       <Toaster />
     </>
   );
