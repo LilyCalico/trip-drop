@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 export const stockholmCenterLatLng = {
   lat: 59.3293,
@@ -52,6 +52,10 @@ export default function GoogleMap({
   );
 
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const infoWindowRef = useRef<any>(null);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
 
   const loadGoogleMapsAPI = useCallback(async (): Promise<void> => {
     if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
@@ -172,51 +176,121 @@ export default function GoogleMap({
     [createInfoWindowContent],
   );
 
+  // 地図の初期化（一度だけ実行）
   useEffect(() => {
     const initMap = async (): Promise<void> => {
-      if (!mapRef.current) return;
-
-      // マーカーのデータが来るまで待つ
-      if (!data || data.length === 0) return;
+      if (!mapRef.current || mapInstanceRef.current) return;
 
       try {
         await loadGoogleMapsAPI();
-        const { GoogleMap: GoogleMapClass, AdvancedMarkerElement } =
-          await loadMapLibraries();
+        const { GoogleMap: GoogleMapClass } = await loadMapLibraries();
 
         const map = new GoogleMapClass(mapRef.current, MAP_CONFIG);
+        mapInstanceRef.current = map;
+
         const infoWindow = new window.google.maps.InfoWindow();
+        infoWindowRef.current = infoWindow;
 
         // 地図クリックでInfoWindowを閉じる
         map.addListener("click", () => {
           infoWindow.close();
         });
 
-        // マーカーを作成
-        data.forEach((item: any, index: number) => {
-          createMarker(item, index, map, AdvancedMarkerElement, infoWindow);
-        });
+        setIsMapInitialized(true);
       } catch (error) {
         console.error("Failed to initialize map:", error);
       }
     };
 
     initMap();
-  }, [loadGoogleMapsAPI, loadMapLibraries, createMarker, data, MAP_CONFIG]);
+
+    // クリーンアップ関数
+    return () => {
+      // マーカーを削除
+      markersRef.current.forEach((marker) => {
+        if (marker) {
+          marker.map = null;
+        }
+      });
+      markersRef.current = [];
+
+      // InfoWindow を閉じる
+      if (infoWindowRef.current) {
+        infoWindowRef.current.close();
+        infoWindowRef.current = null;
+      }
+
+      // 地図インスタンスをクリア
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current = null;
+      }
+
+      setIsMapInitialized(false);
+    };
+  }, [loadGoogleMapsAPI, loadMapLibraries, MAP_CONFIG]);
+
+  // マーカーの更新（data が変更されたとき、または地図が初期化されたとき）
+  useEffect(() => {
+    const updateMarkers = async (): Promise<void> => {
+      if (!mapInstanceRef.current || !isMapInitialized) return;
+
+      try {
+        const { AdvancedMarkerElement } = await loadMapLibraries();
+
+        // 既存のマーカーを削除
+        markersRef.current.forEach((marker) => {
+          if (marker) {
+            marker.map = null;
+          }
+        });
+        markersRef.current = [];
+
+        // 新しいマーカーを作成
+        if (data && data.length > 0 && infoWindowRef.current) {
+          data.forEach((item: any, index: number) => {
+            const marker = createMarker(
+              item,
+              index,
+              mapInstanceRef.current,
+              AdvancedMarkerElement,
+              infoWindowRef.current,
+            );
+            if (marker) {
+              markersRef.current.push(marker);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Failed to update markers:", error);
+      }
+    };
+
+    updateMarkers();
+  }, [data, createMarker, loadMapLibraries, isMapInitialized]);
+
+  // 地図の中心とズームの更新
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setCenter(MAP_CONFIG.center);
+      mapInstanceRef.current.setZoom(MAP_CONFIG.zoom);
+    }
+  }, [MAP_CONFIG]);
 
   return (
-    <div
-      className={cn(
-        "w-full lg:max-w-[55rem] lg:h-[calc(100vh-14.2rem-6.4rem)] z-10",
-        (!data || data.length === 0) &&
-          "bg-black/10 flex items-center justify-center",
-      )}
-      ref={mapRef}
-    >
-      {(!data || data.length === 0) && (
-        <p className="text-[1.2rem] text-gray-500">
-          No location info to display yet
-        </p>
+    <div className="relative w-full lg:max-w-[55rem] lg:h-[calc(100vh-14.2rem-6.4rem)] z-10">
+      <div
+        className={cn(
+          "w-full h-full",
+          (!data || data.length === 0) && "bg-black/10",
+        )}
+        ref={mapRef}
+      />
+      {(!data || data.length === 0) && !isMapInitialized && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-[1.2rem] text-gray-500">
+            No location info to display yet
+          </p>
+        </div>
       )}
     </div>
   );
