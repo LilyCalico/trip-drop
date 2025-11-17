@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import TripNavigation from "@/components/custom/layout/TripNavigation";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Header() {
@@ -59,8 +60,14 @@ export default function Header() {
         )}
       </div>
       {/* sm, md用のサイドメニュー */}
-      {isAuthenticated && isMenuOpen && (
-        <div className="fixed top-0 right-0 w-[26rem] h-full bg-white z-20 lg:hidden overflow-y-auto">
+      {isAuthenticated && (
+        <div
+          className={cn(
+            "fixed top-0 right-0 w-[26rem] h-full bg-white z-20 lg:hidden overflow-y-auto",
+            "transform transition-transform duration-300 ease-in-out",
+            isMenuOpen ? "translate-x-0" : "translate-x-full",
+          )}
+        >
           <div className="pt-[6.4rem] px-[2.4rem] pb-[3.2rem]">
             <Link
               href="/"
