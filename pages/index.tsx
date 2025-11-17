@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
 import Input from "@/components/custom/Input";
 import PageWrapper from "@/components/custom/PageWrapper";
@@ -7,6 +8,7 @@ import Spinner from "@/components/custom/Spinner";
 import TripCard from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/profile/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 
@@ -83,9 +85,21 @@ export default function Home() {
   return (
     <PageWrapper>
       <div>
-        <h1 className="text-pagetitle mb-[3.2rem]">Your Trips</h1>
+        <h1
+          className={cn(
+            "font-family-figtree font-semibold",
+            "text-[2.4rem] lg:text-[3rem]",
+            "mt-[2.4rem] mb-[4.8rem] lg:mt-[4.8rem] lg:mb-[5.6rem]",
+          )}
+        >
+          Your Trips
+        </h1>
 
-        <div className="bg-lightPink flex flex-col items-center justify-center w-full">
+        <p className="text-[1.2rem] font-family-figtree uppercase mb-[1.2rem]">
+          Upcoming
+        </p>
+
+        <div className="flex flex-col items-center justify-center w-full">
           {trips?.map((trip) => (
             <TripCard
               key={trip.id}
@@ -109,11 +123,20 @@ export default function Home() {
             onClick={() => {
               router.push("/trips/new");
             }}
-            className="mt-[3.2rem] w-full max-w-[34.5rem]"
+            className="mt-[3.2rem] bg-white border border-black/50 text-black hover:bg-black/5 transition-all duration-300"
           >
+            <FaPlus className="h-4 w-4 text-black/75" />
             New Trip
           </Button>
         </div>
+
+        <p
+          className={cn(
+            "text-[1.2rem] font-family-figtree uppercase mb-[1.2rem] mt-[5.6rem]",
+          )}
+        >
+          Past
+        </p>
       </div>
 
       {/* 名前入力モーダル */}

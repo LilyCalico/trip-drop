@@ -3,5 +3,7 @@ export default function PageWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="p-[2.4rem] max-w-[50rem] mx-auto">{children}</div>;
+  return (
+    <div className="p-[2.4rem] max-w-[66rem] mx-auto px-[3rem]">{children}</div>
+  );
 }
