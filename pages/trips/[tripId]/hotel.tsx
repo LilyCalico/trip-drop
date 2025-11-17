@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
 import Button from "@/components/custom/button/Button";
 import CardHotel from "@/components/custom/cards/CardHotel";
+import LayoutTrip from "@/components/custom/layout/LayoutTrip";
 import HeaderDate from "@/components/custom/layout/PageHeader";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
@@ -73,7 +74,7 @@ export default function HotelPage() {
   }
 
   return (
-    <>
+    <LayoutTrip>
       <HeaderDate category="hotel" />
       <div className="w-[34.5rem] pt-[3.2rem] mx-auto">
         {content}
@@ -93,6 +94,6 @@ export default function HotelPage() {
         onClose={() => setModalOpen(false)}
         type={"hotel"}
       />
-    </>
+    </LayoutTrip>
   );
 }

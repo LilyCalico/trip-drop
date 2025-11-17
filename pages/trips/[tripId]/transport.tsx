@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import Button from "@/components/custom/button/Button";
 import CardTransport from "@/components/custom/cards/CardTransport";
+import LayoutTrip from "@/components/custom/layout/LayoutTrip";
 import HeaderDate from "@/components/custom/layout/PageHeader";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
@@ -28,7 +29,7 @@ export default function TransportPage() {
   }
 
   return (
-    <>
+    <LayoutTrip>
       <HeaderDate category="transport" />
       <div className="w-[34.5rem] pt-[3.2rem] mx-auto">
         {transports?.map((transport) => (
@@ -51,6 +52,6 @@ export default function TransportPage() {
         onClose={() => setModalOpen(false)}
         type={"transport"}
       />
-    </>
+    </LayoutTrip>
   );
 }
