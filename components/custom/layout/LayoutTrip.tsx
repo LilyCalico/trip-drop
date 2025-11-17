@@ -70,7 +70,7 @@ export default function LayoutTrip({
         <div className="w-full">
           <div
             className={cn(
-              "sm:hidden md:hidden lg:block",
+              "hidden lg:block",
               "font-family-figtree mt-[2.4rem] mb-[4.8rem] w-full pl-[3.2rem]",
             )}
           >
