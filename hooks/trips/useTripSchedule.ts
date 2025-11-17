@@ -46,6 +46,7 @@ interface UseTripScheduleParams {
   tripId?: string;
   date?: string;
   neighborDates?: string[];
+  isDateAllowed?: (date: string) => boolean;
   swrConfig?: SWRConfiguration<TripScheduleData, AxiosError<ScheduleErrorBody>>;
 }
 
@@ -68,6 +69,7 @@ export const useTripSchedule = ({
   tripId,
   date,
   neighborDates,
+  isDateAllowed,
   swrConfig,
 }: UseTripScheduleParams): UseTripScheduleResult => {
   const accessToken = useAuthStore((s) => s.session?.access_token ?? null);
@@ -82,8 +84,11 @@ export const useTripSchedule = ({
     if (!tripId || !date || !accessToken) {
       return null;
     }
+    if (isDateAllowed && !isDateAllowed(date)) {
+      return null;
+    }
     return [buildScheduleUrl(tripId, baseURL), date, accessToken];
-  }, [accessToken, baseURL, date, tripId]);
+  }, [accessToken, baseURL, date, isDateAllowed, tripId]);
 
   const fetchSchedule = useCallback(
     async ([
@@ -107,6 +112,9 @@ export const useTripSchedule = ({
       if (!tripId || !accessToken || !targetDate) {
         return undefined;
       }
+      if (isDateAllowed && !isDateAllowed(targetDate)) {
+        return undefined;
+      }
       const targetKey: ScheduleKey = [
         buildScheduleUrl(tripId, baseURL),
         targetDate,
@@ -118,7 +126,7 @@ export const useTripSchedule = ({
         revalidate: false,
       }) as Promise<TripScheduleData | undefined>;
     },
-    [accessToken, baseURL, fetchSchedule, mutateGlobal, tripId],
+    [accessToken, baseURL, fetchSchedule, isDateAllowed, mutateGlobal, tripId],
   );
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<
@@ -133,7 +141,15 @@ export const useTripSchedule = ({
       }
 
       neighborDates
-        .filter((target) => target && target !== date)
+        .filter((target) => {
+          if (!target || target === date) {
+            return false;
+          }
+          if (isDateAllowed && !isDateAllowed(target)) {
+            return false;
+          }
+          return true;
+        })
         .forEach((target) => {
           void prefetch(target as string);
         });
