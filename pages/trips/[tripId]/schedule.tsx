@@ -255,7 +255,7 @@ export default function TripSchedulePage() {
 
       <div className="lg:flex lg:justify-between">
         {/* Schedule Items */}
-        <div className="px-[2.4rem] lg:px-0">
+        <div className="px-[2.4rem] lg:px-0 lg:mr-[3.2rem]">
           <div className="py-[3.2rem] lg:pt-0 space-y-[2.4rem]">
             <div className="flex flex-col gap-[1.2rem] items-center">
               {schedule?.items?.map((item, index) => {
