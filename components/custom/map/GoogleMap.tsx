@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { cn } from "@/lib/utils";
 export const stockholmCenterLatLng = {
   lat: 59.3293,
   lng: 18.0686,
@@ -205,8 +206,18 @@ export default function GoogleMap({
 
   return (
     <div
+      className={cn(
+        "w-full lg:max-w-[55rem] lg:h-[calc(100vh-14.2rem-6.4rem)] z-10",
+        (!data || data.length === 0) &&
+          "bg-black/10 flex items-center justify-center",
+      )}
       ref={mapRef}
-      className="w-full lg:max-w-[55rem] z-10 lg:h-[calc(100vh-14.2rem-6.4rem)]"
-    />
+    >
+      {(!data || data.length === 0) && (
+        <p className="text-[1.2rem] text-gray-500">
+          No location info to display yet
+        </p>
+      )}
+    </div>
   );
 }
