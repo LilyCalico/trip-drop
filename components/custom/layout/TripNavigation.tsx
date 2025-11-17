@@ -70,9 +70,11 @@ const MenuLabel = ({
 const TripNavigation = ({
   isOpen,
   onClose,
+  embedded = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  embedded?: boolean;
 }) => {
   const router = useRouter();
   const tripId = router.query.tripId as string | undefined;
@@ -130,15 +132,13 @@ const TripNavigation = ({
     <div
       className={cn(
         "flex flex-col justify-between",
-        "pt-[6rem] pb-[3.2rem] px-[2.4rem] lg:p-0 lg:ml-[6rem] lg:mt-[14.2rem]",
-        "w-[26rem] lg:w-auto lg:shrink-0 h-[100vh] lg:h-auto",
-        "fixed lg:relative top-0 right-0 lg:top-auto lg:right-auto",
-        "z-20",
-        "transform transition-transform duration-300 ease-in-out",
-        "overflow-y-auto bg-white",
-        isOpen
-          ? "translate-x-0 pointer-events-auto"
-          : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto",
+        embedded
+          ? "pt-0 pb-0 px-0 w-full h-auto relative"
+          : "pt-[6rem] pb-[3.2rem] px-[2.4rem] lg:p-0 lg:ml-[6rem] lg:mt-[14.2rem] w-[26rem] lg:w-auto lg:shrink-0 h-[100vh] lg:h-auto fixed lg:relative top-0 right-0 lg:top-auto lg:right-auto z-20 transform transition-transform duration-300 ease-in-out overflow-y-auto bg-white",
+        !embedded &&
+          (isOpen
+            ? "translate-x-0 pointer-events-auto"
+            : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto"),
       )}
       aria-hidden={!isOpen}
     >
@@ -184,4 +184,3 @@ const TripNavigation = ({
 };
 
 export default TripNavigation;
-
