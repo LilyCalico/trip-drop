@@ -203,5 +203,10 @@ export default function GoogleMap({
     initMap();
   }, [loadGoogleMapsAPI, loadMapLibraries, createMarker, data, MAP_CONFIG]);
 
-  return <div ref={mapRef} className="w-full h-[50rem] z-10" />;
+  return (
+    <div
+      ref={mapRef}
+      className="w-full lg:max-w-[55rem] z-10 lg:h-[calc(100vh-14.2rem-6.4rem)]"
+    />
+  );
 }
