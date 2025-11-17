@@ -1,13 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
-import HeaderMenu from "@/components/custom/layout/HeaderMenu";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Header() {
-  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -16,12 +13,18 @@ export default function Header() {
   };
 
   return (
-    <div className="h-[6.4rem] flex justify-between items-center px-[1.6rem]">
-      <h1 className="lg:hidden">
+    <div className="h-[6.4rem] flex justify-between items-center px-[2.4rem] lg:px-[4.8rem]">
+      <h1 className="">
         <Link href="/" className="text-[1.4rem] font-bold">
           Trip Drop
         </Link>
       </h1>
+      <Link
+        href="/"
+        className="hidden lg:block text-[1.4rem] font-bold hover:text-black/25 transition-all duration-300"
+      >
+        My Trips
+      </Link>
       {isAuthenticated && (
         <div
           onClick={handleMenuClick}
@@ -41,13 +44,6 @@ export default function Header() {
         <div
           className="fixed inset-0 bg-black/20 z-10 lg:hidden"
           onClick={() => setIsMenuOpen(false)}
-        />
-      )}
-      {isAuthenticated && (
-        <HeaderMenu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          onLoggedOut={() => router.replace("/auth/login")}
         />
       )}
     </div>
