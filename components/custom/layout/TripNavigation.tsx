@@ -67,7 +67,7 @@ const MenuLabel = ({
   );
 };
 
-const Menu = ({
+const TripNavigation = ({
   isOpen,
   onClose,
 }: {
@@ -183,4 +183,5 @@ const Menu = ({
   );
 };
 
-export default Menu;
+export default TripNavigation;
+

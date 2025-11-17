@@ -1,7 +1,7 @@
 import { format, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
-import ScheduleMenu from "@/components/custom/layout/ScheduleMenu";
+import TripNavigation from "@/components/custom/layout/TripNavigation";
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 
 export default function LayoutTrip({
@@ -59,7 +59,7 @@ export default function LayoutTrip({
     <div className="hidden lg:block">
       <div className="flex gap-[3.2rem]">
         {/* Schedule, Transport, Hotel, Setting */}
-        <ScheduleMenu isOpen={isOpen} onClose={handleMenuClick} />
+        <TripNavigation isOpen={isOpen} onClose={handleMenuClick} />
 
         {/* Trip Detail */}
         <div className="w-full">
