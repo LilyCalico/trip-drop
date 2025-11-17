@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { eachDayOfInterval, parseISO } from "date-fns";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
+import { formatLocalDateFromUtc } from "@/lib/functions/formatLocalDateFromUtc";
 import { hashPassword } from "@/lib/passwordUtils";
 import { timezones } from "@/lib/timezones";
 
@@ -177,13 +178,16 @@ export default async function handler(
     }
 
     // 3) trip_daysを自動作成（開始日から終了日までの各日付）
-    const startDate = parseISO(startAt);
-    const endDate = parseISO(endAt);
-    const tripDays = eachDayOfInterval({ start: startDate, end: endDate });
+    const timezonedStartDate = formatLocalDateFromUtc(startAt, timezone);
+    const timezonedEndDate = formatLocalDateFromUtc(endAt, timezone);
+    const tripDays =
+      timezonedStartDate && timezonedEndDate
+        ? createDateRangeArray(timezonedStartDate, timezonedEndDate)
+        : [];
 
     const tripDaysData = tripDays.map((date) => ({
       trip_id: tripId,
-      date: date.toISOString().split("T")[0], // YYYY-MM-DD形式
+      date: date,
       title: null,
     }));
 
