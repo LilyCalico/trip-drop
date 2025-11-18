@@ -10,7 +10,7 @@ export const DUMMY_USERS = [
   { id: 2, name: "Shizuku", avatarUrl: "" },
 ];
 
-interface TripCardProps {
+interface CardTripProps {
   tripId: string;
   startAt: string;
   endAt: string;
@@ -31,7 +31,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
+function CardTrip({ tripId, startAt, endAt, title, users }: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const { deleteTrip } = useDeleteTrip();
@@ -119,4 +119,4 @@ function TripCard({ tripId, startAt, endAt, title, users }: TripCardProps) {
   );
 }
 
-export default TripCard;
+export default CardTrip;

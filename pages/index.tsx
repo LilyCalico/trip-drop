@@ -3,10 +3,10 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
+import CardTrip from "@/components/custom/cards/CardTrip";
 import Input from "@/components/custom/Input";
 import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
-import TripCard from "@/components/custom/trip/TripCard";
 import { useCheckProfile } from "@/hooks/profile/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
 import { cn } from "@/lib/utils";
@@ -125,7 +125,7 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center w-full">
           {upcomingTrips.length > 0 ? (
             upcomingTrips.map((trip) => (
-              <TripCard
+              <CardTrip
                 key={trip.id}
                 tripId={trip.id}
                 startAt={trip.startAt}
@@ -170,7 +170,7 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center w-full">
           {pastTrips.length > 0 ? (
             pastTrips.map((trip) => (
-              <TripCard
+              <CardTrip
                 key={trip.id}
                 tripId={trip.id}
                 startAt={trip.startAt}
