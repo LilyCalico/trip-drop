@@ -1,7 +1,7 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
-import type { Tables } from "@/types/supabasetype";
 import { useAuthStore } from "@/store/useAuthStore";
+import type { Tables } from "@/types/supabasetype";
 
 type SpotRow = Tables<"spots">;
 
@@ -36,7 +36,11 @@ export const useUpdateSpot = () => {
         return null;
       }
 
-      if (!params.selectedDate || !params.selectedTime || !params.selectedTimezone) {
+      if (
+        !params.selectedDate ||
+        !params.selectedTime ||
+        !params.selectedTimezone
+      ) {
         setError("Date, time, and timezone are required");
         return null;
       }
@@ -96,6 +100,3 @@ export const useUpdateSpot = () => {
     error,
   };
 };
-
-
-
