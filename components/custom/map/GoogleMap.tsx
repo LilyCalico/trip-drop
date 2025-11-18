@@ -277,7 +277,7 @@ export default function GoogleMap({
   }, [MAP_CONFIG]);
 
   return (
-    <div className="relative w-full lg:max-w-[55rem] lg:h-[calc(100vh-14.2rem-6.4rem)] z-10">
+    <div className="relative w-full lg:max-w-[55rem] h-full lg:h-[calc(100vh-14.2rem-6.4rem)] z-10">
       <div
         className={cn(
           "w-full h-full",
