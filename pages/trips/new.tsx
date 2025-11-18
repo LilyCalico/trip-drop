@@ -80,7 +80,7 @@ export default function NewTripPage() {
       const result = await createTrip(requestBody);
 
       if (result.success && result.tripId) {
-        router.push(`/trips/${result.tripId}`);
+        router.push(`/trips/${result.tripId}/schedule`);
         return;
       }
 
