@@ -1,5 +1,6 @@
+import { isAfter, isSameDay, parseISO, startOfDay } from "date-fns";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Button from "@/components/custom/button/Button";
 import Input from "@/components/custom/Input";
@@ -67,9 +68,31 @@ export default function Home() {
       setLoading(false);
     }
   };
+  // トリップを Upcoming と Past に分類
+  const { upcomingTrips, pastTrips } = useMemo(() => {
+    if (!trips) {
+      return { upcomingTrips: [], pastTrips: [] };
+    }
 
-  useEffect(() => {
-    console.log("trips", trips);
+    const today = startOfDay(new Date());
+    const upcoming: typeof trips = [];
+    const past: typeof trips = [];
+
+    trips.forEach((trip) => {
+      if (trip.endAt) {
+        const endDate = startOfDay(parseISO(trip.endAt));
+        if (isAfter(endDate, today) || isSameDay(endDate, today)) {
+          upcoming.push(trip);
+        } else {
+          past.push(trip);
+        }
+      } else {
+        // endAt がない場合は Past に分類
+        past.push(trip);
+      }
+    });
+
+    return { upcomingTrips: upcoming, pastTrips: past };
   }, [trips]);
 
   // ログイン確認が終わっていない、または未ログインなら描画しない
@@ -100,22 +123,28 @@ export default function Home() {
         </p>
 
         <div className="flex flex-col items-center justify-center w-full">
-          {trips?.map((trip) => (
-            <TripCard
-              key={trip.id}
-              tripId={trip.id}
-              startAt={trip.startAt}
-              endAt={trip.endAt}
-              title={trip.title}
-              users={trip.members.map((member) => {
-                return {
-                  id: member.userId,
-                  name: member.name,
-                  avatarUrl: member.avatarUrl,
-                };
-              })}
-            />
-          ))}
+          {upcomingTrips.length > 0 ? (
+            upcomingTrips.map((trip) => (
+              <TripCard
+                key={trip.id}
+                tripId={trip.id}
+                startAt={trip.startAt}
+                endAt={trip.endAt}
+                title={trip.title}
+                users={trip.members.map((member) => {
+                  return {
+                    id: member.userId,
+                    name: member.name,
+                    avatarUrl: member.avatarUrl,
+                  };
+                })}
+              />
+            ))
+          ) : (
+            <p className="text-[1.2rem] text-gray-500 mb-[1.2rem]">
+              No upcoming trips
+            </p>
+          )}
         </div>
 
         <div className="flex justify-center">
@@ -137,6 +166,31 @@ export default function Home() {
         >
           Past
         </p>
+
+        <div className="flex flex-col items-center justify-center w-full">
+          {pastTrips.length > 0 ? (
+            pastTrips.map((trip) => (
+              <TripCard
+                key={trip.id}
+                tripId={trip.id}
+                startAt={trip.startAt}
+                endAt={trip.endAt}
+                title={trip.title}
+                users={trip.members.map((member) => {
+                  return {
+                    id: member.userId,
+                    name: member.name,
+                    avatarUrl: member.avatarUrl,
+                  };
+                })}
+              />
+            ))
+          ) : (
+            <p className="text-[1.2rem] text-gray-500 mb-[1.2rem]">
+              No past trips
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 名前入力モーダル */}
