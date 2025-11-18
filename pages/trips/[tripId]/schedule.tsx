@@ -98,7 +98,10 @@ export default function TripSchedulePage() {
   });
 
   useEffect(() => {
-    if (!schedule) return;
+    if (!schedule) {
+      setMapData([]);
+      return;
+    }
     const places = extractSchedulePlaces(schedule);
     setMapData(places);
   }, [schedule]);
@@ -232,122 +235,126 @@ export default function TripSchedulePage() {
   }
 
   return (
-    <LayoutTrip>
-      <div className="block lg:hidden">
-        <ScheduleHeaderTouchable
-          header={{
-            date: effectiveDate,
-            dayLabel,
-            locationLabel: trip.title,
-          }}
-          navigation={{
-            dates: availableDates,
-            currentDate: effectiveDate,
-            onSelect: (targetDate) => {
-              navigateToDate(targetDate);
-            },
-          }}
-          navigateToDate={navigateToDate}
-          currentIndex={currentIndex}
-          availableDates={availableDates}
-        />
-      </div>
+    <div className="pb-[8rem]">
+      <LayoutTrip>
+        <div className="block lg:hidden">
+          <ScheduleHeaderTouchable
+            header={{
+              date: effectiveDate,
+              dayLabel,
+              locationLabel: trip.title,
+            }}
+            navigation={{
+              dates: availableDates,
+              currentDate: effectiveDate,
+              onSelect: (targetDate) => {
+                navigateToDate(targetDate);
+              },
+            }}
+            navigateToDate={navigateToDate}
+            currentIndex={currentIndex}
+            availableDates={availableDates}
+          />
+        </div>
 
-      <div className="lg:flex lg:justify-between">
-        {/* Schedule Items */}
-        <div className="px-[2.4rem] lg:px-0 lg:mr-[3.2rem]">
-          <div className="py-[3.2rem] lg:pt-0 space-y-[2.4rem]">
-            <div className="flex flex-col gap-[1.2rem] items-center">
-              {schedule?.items?.map((item, index) => {
-                if (item.type === "spot") {
-                  const { spot } = item;
+        <div className="lg:flex lg:justify-between">
+          {/* Schedule Items */}
+          <div className="px-[2.4rem] lg:px-0 lg:mr-[3.2rem]">
+            <div className="py-[3.2rem] lg:pt-0 space-y-[2.4rem]">
+              <div className="flex flex-col gap-[1.2rem] items-center">
+                {schedule?.items?.map((item, index) => {
+                  if (item.type === "spot") {
+                    const { spot } = item;
+                    return (
+                      <CardSpot
+                        key={`spot-${spot.id}-${index}`}
+                        id={spot.id}
+                        name={spot.name}
+                        address={spot.address ?? undefined}
+                        description={spot.description ?? undefined}
+                        visitDatetime={spot.visitDatetime ?? ""}
+                        timezone={trip.timeZone ?? "UTC"}
+                        googlePlaceId={spot.googlePlaceId ?? undefined}
+                        onDeleted={handleItemDeleted}
+                        onUpdated={handleItemUpdated}
+                      />
+                    );
+                  }
+
+                  if (item.type === "transport") {
+                    const { transport } = item;
+                    return (
+                      <CardTransport
+                        key={`transport-${transport.id}-${index}`}
+                        id={transport.id}
+                        name={transport.name}
+                        departureDatetime={transport.departureDatetime}
+                        departureTimezone={transport.departureTimezone}
+                        arrivalDatetime={transport.arrivalDatetime}
+                        arrivalTimezone={transport.arrivalTimezone}
+                        departureLocation={transport.departureLocation}
+                        arrivalLocation={transport.arrivalLocation}
+                        departureMemo={transport.departureMemo}
+                        arrivalMemo={transport.arrivalMemo}
+                        bookingReference={transport.bookingReference}
+                        departureGooglePlaceId={
+                          transport.departureGooglePlaceId
+                        }
+                        arrivalGooglePlaceId={transport.arrivalGooglePlaceId}
+                        onDeleted={handleItemDeleted}
+                        onUpdated={handleItemUpdated}
+                      />
+                    );
+                  }
+
+                  const { hotel, datetimeUtc } = item;
                   return (
-                    <CardSpot
-                      key={`spot-${spot.id}-${index}`}
-                      id={spot.id}
-                      name={spot.name}
-                      address={spot.address ?? undefined}
-                      description={spot.description ?? undefined}
-                      visitDatetime={spot.visitDatetime ?? ""}
-                      timezone={trip.timeZone ?? "UTC"}
-                      googlePlaceId={spot.googlePlaceId ?? undefined}
+                    <CardHotel
+                      key={`hotel-${hotel.id}-${hotel.check}-${index}`}
+                      id={hotel.id}
+                      name={hotel.name}
+                      address={hotel.address}
+                      phone={hotel.phone}
+                      notes={hotel.notes}
+                      bookingReference={hotel.bookingReference}
+                      datetimeUtc={datetimeUtc}
+                      timezone={hotel.timezone}
+                      googlePlaceId={hotel.googlePlaceId}
+                      checkInUtc={hotel.checkInAt}
+                      checkOutUtc={hotel.checkOutAt}
+                      check={hotel.check}
                       onDeleted={handleItemDeleted}
                       onUpdated={handleItemUpdated}
                     />
                   );
-                }
+                })}
+              </div>
+            </div>
 
-                if (item.type === "transport") {
-                  const { transport } = item;
-                  return (
-                    <CardTransport
-                      key={`transport-${transport.id}-${index}`}
-                      id={transport.id}
-                      name={transport.name}
-                      departureDatetime={transport.departureDatetime}
-                      departureTimezone={transport.departureTimezone}
-                      arrivalDatetime={transport.arrivalDatetime}
-                      arrivalTimezone={transport.arrivalTimezone}
-                      departureLocation={transport.departureLocation}
-                      arrivalLocation={transport.arrivalLocation}
-                      departureMemo={transport.departureMemo}
-                      arrivalMemo={transport.arrivalMemo}
-                      bookingReference={transport.bookingReference}
-                      departureGooglePlaceId={transport.departureGooglePlaceId}
-                      arrivalGooglePlaceId={transport.arrivalGooglePlaceId}
-                      onDeleted={handleItemDeleted}
-                      onUpdated={handleItemUpdated}
-                    />
-                  );
-                }
-
-                const { hotel, datetimeUtc } = item;
-                return (
-                  <CardHotel
-                    key={`hotel-${hotel.id}-${hotel.check}-${index}`}
-                    id={hotel.id}
-                    name={hotel.name}
-                    address={hotel.address}
-                    phone={hotel.phone}
-                    notes={hotel.notes}
-                    bookingReference={hotel.bookingReference}
-                    datetimeUtc={datetimeUtc}
-                    timezone={hotel.timezone}
-                    googlePlaceId={hotel.googlePlaceId}
-                    checkInUtc={hotel.checkInAt}
-                    checkOutUtc={hotel.checkOutAt}
-                    check={hotel.check}
-                    onDeleted={handleItemDeleted}
-                    onUpdated={handleItemUpdated}
-                  />
-                );
-              })}
+            <div className="flex justify-center mb-[3.2rem]">
+              <Button
+                className="flex items-center gap-[0.8rem] w-full max-w-[34.5rem]"
+                onClick={() => {
+                  setModalOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Add Items
+              </Button>
             </div>
           </div>
 
-          <div className="flex justify-center mb-[3.2rem]">
-            <Button
-              className="flex items-center gap-[0.8rem] w-full max-w-[34.5rem]"
-              onClick={() => {
-                setModalOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Add Items
-            </Button>
-          </div>
+          <GoogleMap data={mapData} />
         </div>
 
-        <GoogleMap data={mapData} />
-      </div>
-
-      {/* Modal to add spot, hotel, or transport */}
-      <ModalAdd
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        type={"spot"}
-        defaultDate={effectiveDate}
-      />
-    </LayoutTrip>
+        {/* Modal to add spot, hotel, or transport */}
+        <ModalAdd
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          type={"spot"}
+          defaultDate={effectiveDate}
+        />
+      </LayoutTrip>
+    </div>
   );
 }
