@@ -104,14 +104,11 @@ export default function GoogleMap({
         : "";
 
       return `
-      <div style="padding: 8px; min-width: 200px; cursor: pointer;" onclick="window.open('${item.link}', '_blank')">
+      <div style="padding: 8px; min-width: 200px;">
         <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1976d2;">
           ${name}
         </h3>
         ${address}
-        <p style="margin: 0; color: #1976d2; font-size: 12px; text-decoration: underline;">
-          📍 Google Mapsで開く
-        </p>
       </div>
     `;
     },

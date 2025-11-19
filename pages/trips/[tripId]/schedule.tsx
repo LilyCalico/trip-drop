@@ -388,6 +388,10 @@ export default function TripSchedulePage() {
           defaultDate={effectiveDate}
         />
       </LayoutTrip>
+
+      <div className="block w-full h-[400px] lg:hidden">
+        <GoogleMap data={mapData} center={mapCenter} zoom={13} />
+      </div>
     </div>
   );
 }
