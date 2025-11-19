@@ -20,9 +20,7 @@ export default async function handler(
       email,
       password,
       options: {
-        emailRedirectTo: `${
-          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        }/?isSignedUp=true`,
+        emailRedirectTo: `https://trip-drop.vercel.app/?isSignedUp=true`,
       },
     });
 
