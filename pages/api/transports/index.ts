@@ -167,12 +167,21 @@ export default async function handler(
       return res.status(400).json({ error: "Arrival must be after departure" });
     }
 
+    const resolvedDepartureLocation = toTrimmedOrNull(departureLocation);
+    const resolvedArrivalLocation = toTrimmedOrNull(arrivalLocation);
+
+    if (!resolvedDepartureLocation || !resolvedArrivalLocation) {
+      return res
+        .status(400)
+        .json({ error: "Departure and arrival location are required" });
+    }
+
     const transportInsertBase: TransportInsert = {
       trip_id: tripId,
       name: trimmedName,
       description: toTrimmedOrNull(description),
-      departure_location: toTrimmedOrNull(departureLocation),
-      arrival_location: toTrimmedOrNull(arrivalLocation),
+      departure_location: resolvedDepartureLocation,
+      arrival_location: resolvedArrivalLocation,
       departure_datetime: departureUtc,
       arrival_datetime: arrivalUtc,
       departure_timezone: resolvedDepartureTimezone,
