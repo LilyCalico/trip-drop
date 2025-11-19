@@ -97,7 +97,12 @@ function CardTrip({
           }}
           className="cursor-pointer p-[0.8rem] mr-[1.2rem] hover:bg-warning/50 rounded-full transition-colors duration-150"
         >
-          <FaTrash className="w-[1.2rem] h-[1.2rem] text-black/75" />
+          <FaTrash
+            className={cn(
+              "w-[1.2rem] h-[1.2rem] text-black/75",
+              isUpcoming ? "text-white" : "text-black/75",
+            )}
+          />
         </button>
       </div>
       {/* <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
