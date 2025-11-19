@@ -79,7 +79,7 @@ export default function LayoutTrip({
             </p>
             <p className="text-[1.2rem]">{tripTitle ?? ""}</p>
           </div>
-          <div className="ml-[3.2rem]">{children}</div>
+          <div className="lg:ml-[3.2rem]">{children}</div>
         </div>
       </div>
     </div>
