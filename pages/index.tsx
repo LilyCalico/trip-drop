@@ -146,7 +146,7 @@ export default function Home() {
           Upcoming
         </p>
 
-        <div className="flex flex-col items-center justify-center w-full">
+        <div className="flex flex-col items-center justify-center w-full gap-[1.2rem]">
           {upcomingTrips.length > 0 ? (
             upcomingTrips.map((trip) => (
               <CardTrip
