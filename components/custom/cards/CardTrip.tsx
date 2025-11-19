@@ -1,7 +1,6 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { FaTrash, FaUserCircle } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
@@ -11,6 +10,7 @@ export const DUMMY_USERS = [
 ];
 
 interface CardTripProps {
+  isUpcoming: boolean;
   tripId: string;
   startAt: string;
   endAt: string;
@@ -31,7 +31,14 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function CardTrip({ tripId, startAt, endAt, title, users }: CardTripProps) {
+function CardTrip({
+  tripId,
+  startAt,
+  endAt,
+  title,
+  users,
+  isUpcoming,
+}: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const { deleteTrip } = useDeleteTrip();
@@ -40,24 +47,45 @@ function CardTrip({ tripId, startAt, endAt, title, users }: CardTripProps) {
     <div
       onClick={() => {
         setActiveUserId(null);
+        router.push(`/trips/${tripId}/schedule`);
       }}
-      className={cn("w-full max-w-[34.5rem]")}
+      className={cn(
+        "cursor-pointer rounded-[0.3rem] w-full transition-colors duration-300",
+        isUpcoming
+          ? "bg-[url('/img/bgimg/bgimg-date.png')] bg-cover bg-center hover:opacity-95"
+          : "hover:bg-black/10 border border-black/5",
+      )}
     >
-      <div className="flex items-center justify-between">
-        <div
-          onClick={() => {
-            router.push(`/trips/${tripId}/schedule`);
-          }}
-          className={cn(
-            "flex-1 bg-gray-50 rounded-lg",
-            "pt-[2.4rem] px-[2.4rem] pb-[3.6rem]",
-            "cursor-pointer hover:bg-gray-100 transition-colors duration-150",
-          )}
-        >
-          <p className="text-[0.8rem] mb-[0.8rem]">
+      <div
+        className={cn(
+          "flex items-center justify-between",
+          isUpcoming ? "py-[4.8rem]" : "py-[2.4rem]",
+        )}
+      >
+        <div className={cn("flex-1 rounded-lg pl-[2rem] pr-[5.6rem]")}>
+          <p
+            className={cn(
+              "mb-[1.6rem]",
+              isUpcoming ? "text-[1.2rem] text-white" : "text-[1rem]",
+            )}
+          >
             {formatDateRange(startAt, endAt)}
           </p>
-          <p className="text-[1.4rem] font-bold">{title}</p>
+          <div
+            className={cn(
+              "flex items-center font-family-figtree",
+              isUpcoming ? "h-[6.4rem]" : "h-[4.8rem]",
+            )}
+          >
+            <p
+              className={cn(
+                "font-bold line-clamp-2",
+                isUpcoming ? "text-[2rem] text-white" : "text-[1.6rem]",
+              )}
+            >
+              {title}
+            </p>
+          </div>
         </div>
         <button
           type="button"
@@ -67,12 +95,12 @@ function CardTrip({ tripId, startAt, endAt, title, users }: CardTripProps) {
               deleteTrip(tripId);
             }
           }}
-          className="ml-4 p-2 hover:bg-warning/50 rounded-full transition-colors duration-150"
+          className="cursor-pointer p-[0.8rem] mr-[1.2rem] hover:bg-warning/50 rounded-full transition-colors duration-150"
         >
-          <FaTrash className="w-[1.4rem] h-[1.4rem] text-black/75" />
+          <FaTrash className="w-[1.2rem] h-[1.2rem] text-black/75" />
         </button>
       </div>
-      <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
+      {/* <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
         {users.map((user) => (
           <div
             key={user.id}
@@ -114,7 +142,7 @@ function CardTrip({ tripId, startAt, endAt, title, users }: CardTripProps) {
             </span>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

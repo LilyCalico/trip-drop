@@ -126,6 +126,7 @@ export default function Home() {
           {upcomingTrips.length > 0 ? (
             upcomingTrips.map((trip) => (
               <CardTrip
+                isUpcoming={true}
                 key={trip.id}
                 tripId={trip.id}
                 startAt={trip.startAt}
@@ -167,11 +168,12 @@ export default function Home() {
           Past
         </p>
 
-        <div className="flex flex-col items-center justify-center w-full">
+        <div className="flex flex-col gap-[1.2rem] items-center justify-center w-full">
           {pastTrips.length > 0 ? (
             pastTrips.map((trip) => (
               <CardTrip
                 key={trip.id}
+                isUpcoming={false}
                 tripId={trip.id}
                 startAt={trip.startAt}
                 endAt={trip.endAt}
