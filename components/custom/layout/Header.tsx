@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import TripNavigation from "@/components/custom/layout/TripNavigation";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,10 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
+  useEffect(() => {
+    console.log(isAuthenticated);
+  }, [isAuthenticated]);
+
   return (
     <>
       <div className="h-[6.4rem] flex justify-between items-center px-[2.4rem] lg:px-[4.8rem]">
@@ -29,12 +33,14 @@ export default function Header() {
             Trip Drop
           </Link>
         </h1>
-        <Link
-          href="/"
-          className="hidden lg:block text-[1.4rem] font-bold hover:text-black/25 transition-all duration-300"
-        >
-          My Trips
-        </Link>
+        {isAuthenticated && (
+          <Link
+            href="/"
+            className="hidden lg:block text-[1.4rem] font-bold hover:text-black/25 transition-all duration-300"
+          >
+            My Trips
+          </Link>
+        )}
 
         {/* sm, md用のメニューボタン */}
         {isAuthenticated && (

@@ -24,6 +24,7 @@ export default function Home() {
   const authLoading = useAuthStore((s) => s.loading);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const clearAuth = useAuthStore((s) => s.clear);
+  const setAuthLoading = useAuthStore((s) => s.setLoading);
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
   const tripsLoading = useTripsStore((s) => s.loading);
@@ -112,6 +113,7 @@ export default function Home() {
   const handleLogout = async () => {
     if (logoutLoading) return;
     setLogoutLoading(true);
+    setAuthLoading(true);
     try {
       await supabase.auth.signOut();
     } catch (error) {
@@ -120,6 +122,7 @@ export default function Home() {
       clearAuth();
       clearTrips();
       setLogoutLoading(false);
+      setAuthLoading(false);
       router.push("/auth/login").catch((err) => {
         console.error("Failed to navigate after logout:", err);
       });
