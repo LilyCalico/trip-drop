@@ -14,7 +14,9 @@ import CardSpot from "@/components/custom/cards/CardSpot";
 import CardTransport from "@/components/custom/cards/CardTransport";
 import LayoutTrip from "@/components/custom/layout/LayoutTrip";
 import type { SchedulePlace } from "@/components/custom/map/GoogleMap";
-import GoogleMap from "@/components/custom/map/GoogleMap";
+import GoogleMap, {
+  stockholmCenterLatLng,
+} from "@/components/custom/map/GoogleMap";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
 import ScheduleHeaderTouchable from "@/components/custom/trip/ScheduleHeaderTouchable";
@@ -119,6 +121,37 @@ export default function TripSchedulePage() {
       return "";
     }
   }, [effectiveDate, trip]);
+
+  const mapCenter = useMemo(() => {
+    if (!mapData.length) {
+      return stockholmCenterLatLng;
+    }
+
+    const positions = mapData
+      .map((place) => place.geometry?.location)
+      .filter(
+        (location): location is { lat: number; lng: number } =>
+          typeof location?.lat === "number" &&
+          typeof location?.lng === "number",
+      );
+
+    if (!positions.length) {
+      return stockholmCenterLatLng;
+    }
+
+    const { lat, lng } = positions.reduce(
+      (acc, location) => ({
+        lat: acc.lat + location.lat,
+        lng: acc.lng + location.lng,
+      }),
+      { lat: 0, lng: 0 },
+    );
+
+    return {
+      lat: lat / positions.length,
+      lng: lng / positions.length,
+    };
+  }, [mapData]);
 
   const handleItemDeleted = useCallback(
     (deletedId: string, targetType: "spot" | "transport" | "hotel") => {
@@ -344,7 +377,7 @@ export default function TripSchedulePage() {
             </div>
           </div>
 
-          <GoogleMap data={mapData} />
+          <GoogleMap data={mapData} center={mapCenter} zoom={12} />
         </div>
 
         {/* Modal to add spot, hotel, or transport */}
