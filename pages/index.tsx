@@ -114,6 +114,7 @@ export default function Home() {
     if (logoutLoading) return;
     setLogoutLoading(true);
     setAuthLoading(true);
+
     try {
       await supabase.auth.signOut();
     } catch (error) {
