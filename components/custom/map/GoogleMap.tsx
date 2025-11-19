@@ -178,12 +178,17 @@ export default function GoogleMap({
 
   // 地図の初期化（一度だけ実行）
   useEffect(() => {
+    let isCancelled = false;
+
     const initMap = async (): Promise<void> => {
       if (!mapRef.current || mapInstanceRef.current) return;
 
       try {
         await loadGoogleMapsAPI();
+        if (isCancelled || !mapRef.current) return;
+
         const { GoogleMap: GoogleMapClass } = await loadMapLibraries();
+        if (isCancelled || !mapRef.current) return;
 
         const map = new GoogleMapClass(mapRef.current, MAP_CONFIG);
         mapInstanceRef.current = map;
@@ -206,6 +211,8 @@ export default function GoogleMap({
 
     // クリーンアップ関数
     return () => {
+      isCancelled = true;
+
       // マーカーを削除
       markersRef.current.forEach((marker) => {
         if (marker) {
