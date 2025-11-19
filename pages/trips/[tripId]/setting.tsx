@@ -1,8 +1,6 @@
-import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import ButtonAdd from "@/components/custom/button/ButtonAdd";
-import ButtonSchedule from "@/components/custom/button/ButtonSchedule";
 import LayoutTrip from "@/components/custom/layout/LayoutTrip";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
@@ -52,14 +50,7 @@ export default function TripDetailPage() {
     return <Spinner />;
   }
 
-  console.log("trip", trip);
-
   if (!loading && trip) {
-    const scheduleDates = eachDayOfInterval({
-      start: parseISO(trip.startAt),
-      end: parseISO(trip.endAt),
-    });
-
     return (
       <LayoutTrip>
         <div className="lg:max-w-[70rem] lg:mx-auto">

@@ -128,7 +128,6 @@ export default async function handler(
     }
 
     const dateList = createDateRangeArray(startDate, endDate);
-    console.log("dateList", dateList);
 
     let tripDayIds: string[];
     try {

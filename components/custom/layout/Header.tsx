@@ -21,10 +21,6 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
-  useEffect(() => {
-    console.log(isAuthenticated);
-  }, [isAuthenticated]);
-
   return (
     <>
       <div className="h-[6.4rem] flex justify-between items-center px-[2.4rem] lg:px-[4.8rem]">

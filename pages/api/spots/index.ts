@@ -147,8 +147,6 @@ export default async function handler(
       });
     }
 
-    console.log("New spot created:", data);
-
     res.status(201).json(data);
   } catch (error) {
     console.error("Error creating spot:", error);

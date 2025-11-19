@@ -49,7 +49,7 @@ export default async function handler(
     : typeof idsParam === "string"
       ? idsParam.split(",").filter(Boolean)
       : [];
-  console.log("idsArray", idsArray);
+
   if (idsArray.length === 0) {
     return res.status(400).json({ error: "Parameter 'ids' is required" });
   }

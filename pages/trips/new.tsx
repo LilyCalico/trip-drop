@@ -74,8 +74,6 @@ export default function NewTripPage() {
       password: password.trim(),
     };
 
-    console.log("requestBody", requestBody);
-
     try {
       const result = await createTrip(requestBody);
 

@@ -27,11 +27,6 @@ export default function TripDetail({
     alert("Share link copied to clipboard");
   };
 
-  // TODO: Edit Trip Button
-  // const handleEditTrip = () => {
-  //   console.log("edit trip");
-  // };
-
   return (
     <div className="p-[3.2rem] bg-white flex flex-col gap-[4rem]">
       <div className="text-center">

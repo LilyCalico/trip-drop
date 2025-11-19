@@ -26,19 +26,11 @@ export default function JoinPage() {
     } else {
       const isMember = trips.some((trip) => trip.id === tripId);
       setIsMember(isMember);
-      console.log("setIsMember", isMember);
       if (isMember) {
         router.replace(`/trips/${tripId}/schedule`);
       }
     }
   }, [tripId, trips, router]);
-
-  useEffect(() => {
-    console.log("isMember", isMember);
-  }, [isMember]);
-  useEffect(() => {
-    console.log("loading", loading);
-  }, [loading]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

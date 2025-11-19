@@ -115,7 +115,6 @@ export default async function handler(
       const temp = startAt;
       startAt = endAt;
       endAt = temp;
-      console.log("🤩Swapped dates:", { startAt, endAt });
     }
 
     // タイムゾーンの検証（許可された値のみ）
@@ -168,8 +167,6 @@ export default async function handler(
       ])
       .select();
 
-    console.log("Member insert result:", { memberData, addMemberError });
-
     if (addMemberError) {
       console.error("Add member error:", addMemberError);
       return res
@@ -201,8 +198,6 @@ export default async function handler(
         error: `insert trip days error: ${insertTripDaysError.message}`,
       });
     }
-
-    console.log(`Created ${tripDays.length} trip days for trip ${tripId}`);
 
     return res.status(201).json({ tripId });
   } catch (e) {
