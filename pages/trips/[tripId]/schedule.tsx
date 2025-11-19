@@ -23,7 +23,7 @@ import ScheduleHeaderTouchable from "@/components/custom/trip/ScheduleHeaderTouc
 import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 import { useTripSchedule } from "@/hooks/trips/useTripSchedule";
 import createDateRangeArray from "@/lib/functions/createDateRangeArray";
-import { extractSchedulePlaces } from "./lib/extractLagLng";
+import { extractSchedulePlaces } from "@/lib/functions/extractLagLng";
 
 export default function TripSchedulePage() {
   const router = useRouter();
