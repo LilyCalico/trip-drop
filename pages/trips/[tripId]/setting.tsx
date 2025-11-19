@@ -76,7 +76,7 @@ export default function TripDetailPage() {
           </div>
 
           {/* SCHEDULE DATE LIST */}
-          <Wrapper className="bg-section px-[2.4rem]">
+          {/* <Wrapper className="bg-section px-[2.4rem]">
             <Title title="SCHEDULE" />
             <div className="py-[2.4rem] flex gap-[0.4rem] w-full overflow-x-scroll">
               {scheduleDates.map((date) => (
@@ -90,7 +90,7 @@ export default function TripDetailPage() {
                 />
               ))}
             </div>
-          </Wrapper>
+          </Wrapper> */}
 
           {/* ADD BUTTONS */}
           <Wrapper className="">
