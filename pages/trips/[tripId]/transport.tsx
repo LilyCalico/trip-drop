@@ -30,7 +30,9 @@ export default function TransportPage() {
 
   return (
     <LayoutTrip>
-      <HeaderDate category="transport" />
+      <div className="lg:hidden">
+        <HeaderDate category="transport" />
+      </div>
       <div className="w-[34.5rem] pt-[3.2rem] mx-auto">
         {transports?.map((transport) => (
           <CardTransport key={transport.id} {...transport} />

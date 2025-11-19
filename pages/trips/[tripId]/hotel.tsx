@@ -75,7 +75,9 @@ export default function HotelPage() {
 
   return (
     <LayoutTrip>
-      <HeaderDate category="hotel" />
+      <div className="lg:hidden">
+        <HeaderDate category="hotel" />
+      </div>
       <div className="w-[34.5rem] pt-[3.2rem] mx-auto">
         {content}
         <Button
