@@ -9,6 +9,7 @@ import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
 import { useCheckProfile } from "@/hooks/profile/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
+import supabase from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
@@ -22,10 +23,13 @@ export default function Home() {
   const session = useAuthStore((s) => s.session);
   const authLoading = useAuthStore((s) => s.loading);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const clearAuth = useAuthStore((s) => s.clear);
   const { checkProfile } = useCheckProfile();
   const { updateProfile, error: updateProfileError } = useUpdateProfile();
   const tripsLoading = useTripsStore((s) => s.loading);
   const trips = useTripsStore((s) => s.trips);
+  const clearTrips = useTripsStore((s) => s.clearTrips);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   // プロフィールに名前の設定がなかったらモーダルを表示
   useEffect(() => {
@@ -104,6 +108,23 @@ export default function Home() {
   if (tripsLoading) {
     return <Spinner />;
   }
+
+  const handleLogout = async () => {
+    if (logoutLoading) return;
+    setLogoutLoading(true);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    } finally {
+      clearAuth();
+      clearTrips();
+      setLogoutLoading(false);
+      router.push("/auth/login").catch((err) => {
+        console.error("Failed to navigate after logout:", err);
+      });
+    }
+  };
 
   return (
     <PageWrapper>
@@ -253,6 +274,16 @@ export default function Home() {
           </div>
         </div>
       )}
+      <div className="my-[5.6rem] text-center">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="text-[1.2rem] font-medium text-black/70 hover:text-black transition-colors disabled:opacity-50 cursor-pointer"
+          disabled={logoutLoading}
+        >
+          {logoutLoading ? "Logging out..." : "Logout"}
+        </button>
+      </div>
     </PageWrapper>
   );
 }
