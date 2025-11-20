@@ -1,40 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Trip Drop
+
+A collaborative trip planning and management application built with Next.js 15, React 19, and Supabase. Plan your trips, share them with friends, and manage your itinerary all in one place.
+
+## Features
+- **Collaborative Trip Planning**: Create trips, share them with friends via password-protected links, and manage day-by-day itineraries together
+- **Comprehensive Itinerary Management**: Add spots, hotels, and transportation with Google Places integration and view everything on interactive maps
+- **Real-time Collaboration**: Work together with role-based permissions, timezone support, and secure authentication powered by Supabase
+
+<!-- ### 🧳 Trip Management
+- Create and manage multiple trips with custom titles and descriptions
+- Set trip dates with timezone support
+- Password-protected trip sharing
+- Organize trips into "Upcoming" and "Past" categories
+
+### 👥 Collaboration
+- Invite friends to join your trips with a share password
+- Role-based permissions (owner/member)
+- Real-time updates for all trip members
+- Member management with customizable permissions
+
+### 📅 Schedule Management
+- Day-by-day itinerary planning
+- Visual schedule with date navigation
+- Automatic trip day generation based on date range
+- Custom day titles
+
+### 🗺️ Places & Spots
+- Add tourist spots and attractions to your itinerary
+- Google Places API integration for location search
+- Store visit dates and times with timezone support
+- View spots on an interactive Google Map
+- Store location data using PostGIS for geospatial queries
+
+### 🏨 Accommodation
+- Manage hotel bookings and stays
+- Track check-in and check-out times
+- Link hotels to specific trip days
+- Store booking references and notes
+- Support for multi-day stays
+
+### 🚌 Transportation
+- Add transportation details (flights, trains, etc.)
+- Track departure and arrival locations
+- Store booking references
+- Time-based scheduling
+
+### 🗺️ Interactive Maps
+- Visualize all trip locations on Google Maps
+- Automatic map centering based on selected spots
+- Responsive map view for mobile and desktop
+
+### 🔐 Security
+- Supabase Authentication for secure user management
+- Row Level Security (RLS) policies for data protection
+- Password-protected trip sharing
+- Secure API routes with Bearer token authentication -->
+
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="public/img/screenshot/desktop-top.png" alt="Desktop Top" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/desktop-schedule.png" alt="Desktop Schedule" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/desktop-modal.png" alt="Desktop Modal" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/desktop-setting.png" alt="Desktop Setting" width="100%"></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="public/img/screenshot/mobile-top.png" alt="Mobile Top" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/mobile-schedule.png" alt="Mobile Schedule" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/mobile-modal.png" alt="Mobile Modal" width="100%"></td>
+    <td align="center" valign="top"><img src="public/img/screenshot/mobile-setting.png" alt="Mobile Setting" width="100%"></td>
+  </tr>
+</table>
+
+## Tech Stack
+
+
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - UI component library
+- **Zustand** - State management
+- **SWR** - Data fetching and caching
+- **Axios** - HTTP client
+- **date-fns** - Date manipulation
+- **Lucide React** - Icon library
+
+### Backend
+- **Supabase** - Backend as a Service
+  - PostgreSQL database
+  - Authentication
+  - Row Level Security (RLS)
+  - PostGIS extension for geospatial data
+- **Next.js API Routes** - Serverless API endpoints
+
+### External Services
+- **Google Places API** - Location search and details
+- **Google Maps API** - Interactive maps
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+- Node.js 18+ and npm
+- Supabase account and project
+- Google Cloud Platform account with Places API and Maps API enabled
