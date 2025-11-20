@@ -41,7 +41,7 @@ export default function JoinPage() {
 
     const success = await joinTrip(tripId, password);
     if (success) {
-      router.push(`/trips/${tripId}`);
+      router.push(`/trips/${tripId}/schedule`);
     }
   };
 
