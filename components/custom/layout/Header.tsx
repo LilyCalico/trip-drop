@@ -25,7 +25,11 @@ export default function Header() {
     <>
       <div className="h-[6.4rem] flex justify-between items-center px-[2.4rem] lg:px-[4.8rem]">
         <h1 className="">
-          <Link href="/" className="text-[1.4rem] font-bold">
+          <Link
+            href="/"
+            className="text-[1.4rem] font-bold flex items-center gap-[0.8rem] hover:text-black/25 transition-all duration-300"
+          >
+            <Image src="/tripdrop-logo.png" alt="logo" width={20} height={20} />
             Trip Drop
           </Link>
         </h1>

@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
@@ -71,6 +72,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <title>Trip Drop</title>
+      </Head>
       <Header />
       <div className="max-w-[140rem] mx-auto">
         <Component {...pageProps} />
