@@ -3,59 +3,12 @@
 A collaborative trip planning and management application built with Next.js 15, React 19, and Supabase. Plan your trips, share them with friends, and manage your itinerary all in one place.
 
 ## Features
-- **Collaborative Trip Planning**: Create trips, share them with friends via password-protected links, and manage day-by-day itineraries together
-- **Comprehensive Itinerary Management**: Add spots, hotels, and transportation with Google Places integration and view everything on interactive maps
-- **Real-time Collaboration**: Work together with role-based permissions, timezone support, and secure authentication powered by Supabase
+-  **Secure Authentication & Authorization**: Integrated Supabase Auth with custom API routes, implemented Row Level Security (RLS) policies, and Bearer token authentication for secure API communication
+- **Custom Hooks & State Management**: Modular architecture using custom React hooks for data fetching and Zustand for global state management, promoting code reusability and maintainability
+- **RESTful API Design & Database Architecture**: Designed and implemented Next.js API routes following RESTful conventions with proper error handling and validation, leveraging Supabase PostgreSQL
 
-<!-- ### 🧳 Trip Management
-- Create and manage multiple trips with custom titles and descriptions
-- Set trip dates with timezone support
-- Password-protected trip sharing
-- Organize trips into "Upcoming" and "Past" categories
-
-### 👥 Collaboration
-- Invite friends to join your trips with a share password
-- Role-based permissions (owner/member)
-- Real-time updates for all trip members
-- Member management with customizable permissions
-
-### 📅 Schedule Management
-- Day-by-day itinerary planning
-- Visual schedule with date navigation
-- Automatic trip day generation based on date range
-- Custom day titles
-
-### 🗺️ Places & Spots
-- Add tourist spots and attractions to your itinerary
-- Google Places API integration for location search
-- Store visit dates and times with timezone support
-- View spots on an interactive Google Map
-- Store location data using PostGIS for geospatial queries
-
-### 🏨 Accommodation
-- Manage hotel bookings and stays
-- Track check-in and check-out times
-- Link hotels to specific trip days
-- Store booking references and notes
-- Support for multi-day stays
-
-### 🚌 Transportation
-- Add transportation details (flights, trains, etc.)
-- Track departure and arrival locations
-- Store booking references
-- Time-based scheduling
-
-### 🗺️ Interactive Maps
-- Visualize all trip locations on Google Maps
-- Automatic map centering based on selected spots
-- Responsive map view for mobile and desktop
-
-### 🔐 Security
-- Supabase Authentication for secure user management
-- Row Level Security (RLS) policies for data protection
-- Password-protected trip sharing
-- Secure API routes with Bearer token authentication -->
-
+## Responsive Design
+#### Desktop
 <table>
   <tr>
     <td align="center" valign="top"><img src="public/img/screenshot/desktop-top.png" alt="Desktop Top" width="100%"></td>
@@ -65,6 +18,7 @@ A collaborative trip planning and management application built with Next.js 15, 
   </tr>
 </table>
 
+#### Mobile
 <table>
   <tr>
     <td align="center" valign="top"><img src="public/img/screenshot/mobile-top.png" alt="Mobile Top" width="100%"></td>
@@ -73,6 +27,7 @@ A collaborative trip planning and management application built with Next.js 15, 
     <td align="center" valign="top"><img src="public/img/screenshot/mobile-setting.png" alt="Mobile Setting" width="100%"></td>
   </tr>
 </table>
+
 
 ## Tech Stack
 
