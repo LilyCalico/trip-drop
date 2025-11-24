@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import DateCustom from "@/components/custom/DateCustom";
 import InputPassword from "@/components/custom/InputPassword";
-import PageWrapper from "@/components/custom/PageWrapper";
 import TimeZone from "@/components/custom/trip/TimeZone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +99,7 @@ export default function NewTripPage() {
   }
 
   return (
-    <div className="max-w-[45rem] mx-auto">
+    <div className="max-w-[45rem] mx-auto px-[2.4rem]">
       <h1 className="text-pagetitle mb-[3.2rem]">Create New Trip</h1>
 
       <form onSubmit={handleSubmit} className="space-y-[2rem]">
