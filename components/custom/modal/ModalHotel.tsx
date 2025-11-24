@@ -15,7 +15,7 @@ import {
   extractLocalDateTimeParts as convertUtcToLocalParts,
   extractLocalDateTimeParts,
 } from "@/lib/functions/convertUtcToLocalParts";
-import { toZonedIsoString } from "@/lib/toZonedIsoString";
+import { toZonedIsoString } from "@/lib/functions/toZonedIsoString";
 import type { Tables } from "@/types/supabasetype";
 
 type HotelStayRow = Tables<"hotel_stays">;
