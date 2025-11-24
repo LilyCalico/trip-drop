@@ -2,11 +2,11 @@ import { format } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import DateCustom from "@/components/custom/DateCustom";
-import { Input } from "@/components/custom/Input";
 import InputPassword from "@/components/custom/InputPassword";
 import PageWrapper from "@/components/custom/PageWrapper";
 import TimeZone from "@/components/custom/trip/TimeZone";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useCreateTrip from "@/hooks/trips/useCreateTrip";
 import { createUtcDateTimeForDB } from "@/lib/functions/createUtcDateTime";
@@ -112,6 +112,7 @@ export default function NewTripPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter trip title"
+            className="text-[1.6rem]"
             required
           />
         </div>
@@ -195,16 +196,14 @@ export default function NewTripPage() {
             autoComplete="new-password"
           />
           {passwordError && (
-            <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            <p className="text-red-500 mt-1">{passwordError}</p>
           )}
         </div>
 
         {/* Error Message */}
         {(submitError || createTripError) && (
           <div className="mt-4">
-            <p className="text-red-500 text-sm">
-              {submitError || createTripError}
-            </p>
+            <p className="text-red-500">{submitError || createTripError}</p>
           </div>
         )}
 

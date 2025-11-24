@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { Input } from "@/components/custom/Input";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface InputPasswordProps {
@@ -24,7 +24,7 @@ export default function InputPassword({
   required = false,
   "aria-invalid": ariaInvalid,
   "aria-label": ariaLabel,
-  autoComplete
+  autoComplete,
 }: InputPasswordProps) {
   const [showPassword, setShowPassword] = useState(false);
 

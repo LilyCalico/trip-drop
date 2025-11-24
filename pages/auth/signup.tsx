@@ -6,7 +6,7 @@ import AuthWrapper from "@/components/custom/auth/AuthWrapper";
 import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/button/Button";
-import Input from "@/components/custom/Input";
+import Input from "@/components/ui/input";
 import { useSignup } from "@/hooks/auth/useSignup";
 import { useAuthStore } from "@/store/useAuthStore";
 
