@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
@@ -16,6 +16,7 @@ interface CardTripProps {
   endAt: string;
   title: string;
   users: { id: string; name: string | null; avatarUrl: string | null }[];
+  timeZone: string;
 }
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -38,10 +39,15 @@ function CardTrip({
   title,
   users,
   isUpcoming,
+  timeZone,
 }: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const { deleteTrip } = useDeleteTrip();
+
+  useEffect(() => {
+    console.log("CardTrip", startAt, endAt, timeZone);
+  }, [startAt, endAt, timeZone]);
 
   return (
     <div
@@ -69,7 +75,7 @@ function CardTrip({
               isUpcoming ? "text-[1.2rem] text-white" : "text-[1rem]",
             )}
           >
-            {formatDateRange(startAt, endAt)}
+            {formatDateRange({ startAt, endAt, timeZone })}
           </p>
           <div
             className={cn(

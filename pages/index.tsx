@@ -152,6 +152,7 @@ export default function Home() {
             upcomingTrips.map((trip) => (
               <CardTrip
                 isUpcoming={true}
+                timeZone={trip.timeZone}
                 key={trip.id}
                 tripId={trip.id}
                 startAt={trip.startAt}
@@ -198,6 +199,7 @@ export default function Home() {
             pastTrips.map((trip) => (
               <CardTrip
                 key={trip.id}
+                timeZone={trip.timeZone}
                 isUpcoming={false}
                 tripId={trip.id}
                 startAt={trip.startAt}
