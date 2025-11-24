@@ -3,9 +3,9 @@ import { toast } from "sonner";
 import Button from "@/components/custom/button/Button";
 import DatePulldown from "@/components/custom/datetime/DatePulldown";
 import Time from "@/components/custom/datetime/Time";
+import InputGooglePlaces from "@/components/custom/InputGooglePlaces";
 import TimeZone from "@/components/custom/trip/TimeZone";
-import Input from "@/components/ui/input";
-import InputGooglePlaces from "@/components/ui/inputGooglePlaces";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
 import {

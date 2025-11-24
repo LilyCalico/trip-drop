@@ -6,7 +6,7 @@ import Button from "@/components/custom/button/Button";
 import CardTrip from "@/components/custom/cards/CardTrip";
 import PageWrapper from "@/components/custom/PageWrapper";
 import Spinner from "@/components/custom/Spinner";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { useCheckProfile } from "@/hooks/profile/useCheckProfile";
 import { useUpdateProfile } from "@/hooks/profile/useUpdateProfile";
 import supabase from "@/lib/supabaseClient";

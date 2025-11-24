@@ -6,7 +6,7 @@ import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
 import Button from "@/components/custom/button/Button";
 import Spinner from "@/components/custom/Spinner";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { useSignin } from "@/hooks/auth/useSignin";
 import { useAuthStore } from "@/store/useAuthStore";
 
