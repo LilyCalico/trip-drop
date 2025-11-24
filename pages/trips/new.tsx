@@ -100,10 +100,10 @@ export default function NewTripPage() {
   }
 
   return (
-    <PageWrapper>
+    <div className="max-w-[45rem] mx-auto">
       <h1 className="text-pagetitle mb-[3.2rem]">Create New Trip</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-[2rem]">
         {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
@@ -161,7 +161,8 @@ export default function NewTripPage() {
             min="1"
             value={numOfPeople}
             onChange={(e) => setnumOfPeople(e.target.value)}
-            placeholder="Enter number of people"
+            placeholder="1"
+            className="max-w-[10rem]"
           />
         </div>
 
@@ -216,6 +217,6 @@ export default function NewTripPage() {
           {creating ? "Creating..." : "Create Trip"}
         </Button>
       </form>
-    </PageWrapper>
+    </div>
   );
 }

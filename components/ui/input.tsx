@@ -11,7 +11,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         "bg-white border-gray-light !shadow-none text-[1.6rem]",
         "py-[1.6rem] mt-[0.4rem] px-[1rem]",
-        "placeholder:text-[1.2rem]",
+        "placeholder:text-[1.4rem]",
         className,
       )}
       {...props}
