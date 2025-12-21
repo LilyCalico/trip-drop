@@ -1,9 +1,10 @@
+import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
-import supabase from "@/lib/supabaseClient";
+import type { Database } from "@/types/supabasetype";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -16,22 +17,43 @@ export default async function handler(
   }
 
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return res.status(500).json({ error: "Supabase env not configured" });
+    }
+
+    const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `https://trip-drop.vercel.app/?isSignedUp=true`,
-      },
+        emailRedirectTo: `${baseUrl}/?isSignedUp=true`
+      }
     });
 
     if (error) {
+      console.error("Supabase signup error:", error);
       return res.status(400).json({ error: error.message });
     }
 
     return res.status(200).json({
       success: true,
       user: data.user,
-      session: data.session,
+      session: data.session
     });
   } catch (error) {
     console.error("Error during signup:", error);
