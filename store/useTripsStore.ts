@@ -11,6 +11,7 @@ interface trips {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearTrips: () => void;
+  deleteTrip: (tripId: string) => void;
 }
 
 export const useTripsStore = create<trips>((set) => ({
@@ -23,4 +24,9 @@ export const useTripsStore = create<trips>((set) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   clearTrips: () => set({ trips: null, currentTrip: null, error: null }),
+  deleteTrip: (tripId) =>
+    set((state) => ({
+      trips: state.trips?.filter((trip) => trip.id !== tripId),
+      currentTrip: null
+    }))
 }));
