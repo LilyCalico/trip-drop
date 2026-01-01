@@ -18,7 +18,8 @@ export const useSignin = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const { data } = await axios.post<SignInResponse>(
           `${baseURL}/auth/signin`,

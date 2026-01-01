@@ -27,11 +27,12 @@ const useDeleteTrip = (): UseDeleteTripResult => {
       setError(null);
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
         await axios.delete(`${baseURL}/trips/${tripId}`, {
           headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
+            Authorization: `Bearer ${session.access_token}`
+          }
         });
 
         const next = (trips ?? []).filter((t) => t.id !== tripId);
@@ -54,7 +55,7 @@ const useDeleteTrip = (): UseDeleteTripResult => {
         setDeleting(false);
       }
     },
-    [session?.access_token, trips, setTrips],
+    [session?.access_token, trips, setTrips]
   );
 
   return { deleting, error, deleteTrip };

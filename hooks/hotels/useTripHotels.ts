@@ -37,15 +37,16 @@ interface UseTripHotelsResult {
 
 export const useTripHotels = ({
   tripId,
-  swrConfig,
+  swrConfig
 }: UseTripHotelsParams = {}): UseTripHotelsResult => {
   const accessToken = useAuthStore(
-    (state) => state.session?.access_token ?? null,
+    (state) => state.session?.access_token ?? null
   );
 
   const baseURL = useMemo(
-    () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-    [],
+    () =>
+      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_URL,
+    []
   );
 
   const key = useMemo<HotelsKey | null>(() => {
@@ -55,7 +56,7 @@ export const useTripHotels = ({
 
     const keyValue: HotelsKey = [
       `${baseURL}/trips/${tripId}/hotel`,
-      accessToken,
+      accessToken
     ];
     return keyValue;
   }, [accessToken, baseURL, tripId]);
@@ -63,11 +64,11 @@ export const useTripHotels = ({
   const fetchHotels = useCallback(
     async ([url, token]: HotelsKey): Promise<TripHotelsData> => {
       const { data } = await axios.get<TripHotelsResponse>(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
       return data.hotels;
     },
-    [],
+    []
   );
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<
@@ -75,7 +76,7 @@ export const useTripHotels = ({
     AxiosError<TripHotelsErrorBody>
   >(key, fetchHotels, {
     revalidateOnFocus: false,
-    ...swrConfig,
+    ...swrConfig
   });
 
   return {
@@ -83,6 +84,6 @@ export const useTripHotels = ({
     isLoading,
     isValidating,
     error,
-    mutate,
+    mutate
   };
 };

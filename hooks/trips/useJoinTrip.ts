@@ -27,16 +27,17 @@ export const useJoinTrip = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         await axios.post<JoinTripResponse>(
           `${baseURL}/trips/${tripId}/join`,
           { password },
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
 
         const trips = await fetchTrips();
@@ -58,7 +59,7 @@ export const useJoinTrip = () => {
         setLoading(false);
       }
     },
-    [session?.access_token, fetchTrips, setTrips],
+    [session?.access_token, fetchTrips, setTrips]
   );
 
   return { joinTrip, loading, error };

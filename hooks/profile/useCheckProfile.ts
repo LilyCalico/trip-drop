@@ -22,7 +22,8 @@ export const useCheckProfile = () => {
 
     try {
       const baseURL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
       const response = await axios.get<CheckProfileResponse>(
         `${baseURL}/profile/check?userId=${session.user.id}`

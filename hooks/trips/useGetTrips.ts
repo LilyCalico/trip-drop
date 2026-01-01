@@ -41,15 +41,16 @@ const useGetTrips = (): UseGetTripsResult => {
     try {
       const headers = {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
+        Authorization: `Bearer ${session.access_token}`
       };
 
       const baseURL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
       // 1. IDs を取得
       const idsRes = await axios.get<TripsIdsResponse>(`${baseURL}/trips/ids`, {
-        headers,
+        headers
       });
 
       const tripIds = idsRes.data.tripIds ?? [];
@@ -61,21 +62,21 @@ const useGetTrips = (): UseGetTripsResult => {
       // 2. trips詳細を一括取得
       const tripsRes = await axios.get<TripsResponse>("/api/trips", {
         headers,
-        params: { ids: tripIds.join(",") },
+        params: { ids: tripIds.join(",") }
       });
 
       // 3. members詳細を一括取得
       const membersRes = await axios.get<MembersResponse>("/api/members", {
         headers,
-        params: { tripIds: tripIds.join(",") },
+        params: { tripIds: tripIds.join(",") }
       });
 
       // 4. tripsとmembersを統合
       const tripsWithMembers = tripsRes.data.trips.map((trip) => ({
         ...trip,
         members: membersRes.data.members.filter(
-          (member) => member.tripId === trip.id,
-        ),
+          (member) => member.tripId === trip.id
+        )
       }));
 
       return tripsWithMembers;

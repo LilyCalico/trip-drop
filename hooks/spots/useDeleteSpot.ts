@@ -29,11 +29,12 @@ export const useDeleteSpot = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
         await axios.delete(`${baseURL}/spots/${spotId}`, {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+            Authorization: `Bearer ${accessToken}`
+          }
         });
 
         return { success: true };
@@ -52,12 +53,11 @@ export const useDeleteSpot = () => {
         setIsDeleting(false);
       }
     },
-    [accessToken],
+    [accessToken]
   );
 
   return {
     deleteSpot,
-    isDeleting,
+    isDeleting
   };
 };
-

@@ -57,7 +57,7 @@ const parseIsoDateTime = (value?: string | null) => {
 
   return {
     date: datePart,
-    time: timeMatch[1],
+    time: timeMatch[1]
   };
 };
 
@@ -87,7 +87,7 @@ export const useCreateTransport = () => {
         time:
           payload.departureTime?.trim() ||
           parseIsoDateTime(payload.departureDateTime)?.time ||
-          null,
+          null
       };
 
       const arrivalParts = {
@@ -98,7 +98,7 @@ export const useCreateTransport = () => {
         time:
           payload.arrivalTime?.trim() ||
           parseIsoDateTime(payload.arrivalDateTime)?.time ||
-          null,
+          null
       };
 
       if (!departureParts.date || !departureParts.time) {
@@ -116,7 +116,8 @@ export const useCreateTransport = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const response = await axios.post<CreateTransportResponse>(
           `${baseURL}/transports`,
@@ -136,19 +137,19 @@ export const useCreateTransport = () => {
             arrivalDate: arrivalParts.date,
             arrivalTime: arrivalParts.time,
             departureGooglePlaceId: toTrimmedOrNull(
-              payload.departureGooglePlaceId ?? null,
+              payload.departureGooglePlaceId ?? null
             ),
             departureGoogleData: payload.departureGoogleData ?? null,
             arrivalGooglePlaceId: toTrimmedOrNull(
-              payload.arrivalGooglePlaceId ?? null,
+              payload.arrivalGooglePlaceId ?? null
             ),
-            arrivalGoogleData: payload.arrivalGoogleData ?? null,
+            arrivalGoogleData: payload.arrivalGoogleData ?? null
           },
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
 
         return response.data.transport;
@@ -161,7 +162,7 @@ export const useCreateTransport = () => {
               "error" in err.response.data
                 ? String(
                     (err.response.data as { error: string; details?: string })
-                      .error,
+                      .error
                   )
                 : err.message;
             return responseError;
@@ -180,7 +181,7 @@ export const useCreateTransport = () => {
         setIsSubmitting(false);
       }
     },
-    [session?.access_token],
+    [session?.access_token]
   );
 
   return { createTransport, isSubmitting, error };

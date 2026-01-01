@@ -77,7 +77,8 @@ export const useUpdateTransport = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const { data } = await axios.patch<TransportRow>(
           `${baseURL}/transports/${params.id}`,
@@ -98,13 +99,13 @@ export const useUpdateTransport = () => {
             departureGooglePlaceId: params.departureGooglePlaceId ?? null,
             departureGoogleData: params.departureGoogleData ?? null,
             arrivalGooglePlaceId: params.arrivalGooglePlaceId ?? null,
-            arrivalGoogleData: params.arrivalGoogleData ?? null,
+            arrivalGoogleData: params.arrivalGoogleData ?? null
           },
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
 
         return data;
@@ -125,12 +126,12 @@ export const useUpdateTransport = () => {
         setIsUpdating(false);
       }
     },
-    [session?.access_token],
+    [session?.access_token]
   );
 
   return {
     updateTransport,
     isUpdating,
-    error,
+    error
   };
 };

@@ -14,7 +14,7 @@ type DeleteHotelResult =
 export const useDeleteHotel = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const accessToken = useAuthStore(
-    (state) => state.session?.access_token ?? null,
+    (state) => state.session?.access_token ?? null
   );
 
   const deleteHotel = useCallback(
@@ -31,12 +31,13 @@ export const useDeleteHotel = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         await axios.delete(`${baseURL}/hotels/${hotelId}`, {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+            Authorization: `Bearer ${accessToken}`
+          }
         });
 
         return { success: true };
@@ -55,11 +56,11 @@ export const useDeleteHotel = () => {
         setIsDeleting(false);
       }
     },
-    [accessToken],
+    [accessToken]
   );
 
   return {
     deleteHotel,
-    isDeleting,
+    isDeleting
   };
 };

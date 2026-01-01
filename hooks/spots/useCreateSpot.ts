@@ -42,7 +42,7 @@ export const useCreateSpot = () => {
         tripId: params.tripId,
         selectedDate: params.selectedDate,
         selectedTime: params.selectedTime,
-        selectedTimezone: params.selectedTimezone,
+        selectedTimezone: params.selectedTimezone
       };
 
       // API呼び出し
@@ -52,11 +52,12 @@ export const useCreateSpot = () => {
       }
 
       const baseURL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_LOCAL_API_URL;
       const response = await axios.post(`${baseURL}/spots`, submitData, {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+          Authorization: `Bearer ${session.access_token}`
+        }
       });
 
       return response.data;
@@ -70,6 +71,6 @@ export const useCreateSpot = () => {
 
   return {
     createSpot,
-    isSubmitting,
+    isSubmitting
   };
 };

@@ -27,7 +27,7 @@ export const useUpdateHotel = () => {
 
   const updateHotel = useCallback(
     async (
-      payload: UpdateHotelPayload,
+      payload: UpdateHotelPayload
     ): Promise<
       { success: true; data: HotelStayRow } | { success: false; error: string }
     > => {
@@ -54,7 +54,8 @@ export const useUpdateHotel = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const { data } = await axios.patch<HotelStayRow>(
           `${baseURL}/hotels/${payload.id}`,
@@ -67,13 +68,13 @@ export const useUpdateHotel = () => {
             googlePlaceId: payload.googlePlaceId,
             googleData: payload.googleData,
             checkin: payload.checkin,
-            checkout: payload.checkout,
+            checkout: payload.checkout
           },
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
 
         return { success: true, data };
@@ -93,12 +94,12 @@ export const useUpdateHotel = () => {
         setIsUpdating(false);
       }
     },
-    [session?.access_token],
+    [session?.access_token]
   );
 
   return {
     updateHotel,
     isUpdating,
-    error,
+    error
   };
 };

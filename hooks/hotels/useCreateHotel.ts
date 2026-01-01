@@ -31,7 +31,8 @@ export const useCreateHotel = () => {
 
     try {
       const baseURL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_LOCAL_API_URL;
       const { data } = await axios.post(
         `${baseURL}/hotels`,
         {
@@ -44,11 +45,11 @@ export const useCreateHotel = () => {
           googleData: payload.googleData,
           checkin: payload.checkin,
           checkout: payload.checkout,
-          tripId: payload.tripId,
+          tripId: payload.tripId
         },
         {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        },
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        }
       );
       return data;
     } catch (e) {

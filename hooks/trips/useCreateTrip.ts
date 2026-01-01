@@ -47,16 +47,17 @@ const useCreateTrip = (): UseCreateTripResult => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const response = await axios.post<{ tripId?: string }>(
           `${baseURL}/trip`,
           payload,
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
         const tripId = response.data.tripId ?? "";
 
@@ -101,7 +102,7 @@ const useCreateTrip = (): UseCreateTripResult => {
         setCreating(false);
       }
     },
-    [session?.access_token, fetchTrips, setTrips, setCurrentTrip],
+    [session?.access_token, fetchTrips, setTrips, setCurrentTrip]
   );
 
   return { creating, error, createTrip };

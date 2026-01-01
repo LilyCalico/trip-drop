@@ -50,7 +50,8 @@ export const useUpdateSpot = () => {
 
       try {
         const baseURL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+          process.env.NEXT_PUBLIC_API_URL ||
+          process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
         const { data } = await axios.patch<SpotRow>(
           `${baseURL}/spots/${params.id}`,
@@ -64,13 +65,13 @@ export const useUpdateSpot = () => {
             tripId: params.tripId,
             selectedDate: params.selectedDate,
             selectedTime: params.selectedTime,
-            selectedTimezone: params.selectedTimezone,
+            selectedTimezone: params.selectedTimezone
           },
           {
             headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          },
+              Authorization: `Bearer ${session.access_token}`
+            }
+          }
         );
 
         return data;
@@ -91,12 +92,12 @@ export const useUpdateSpot = () => {
         setIsUpdating(false);
       }
     },
-    [session?.access_token],
+    [session?.access_token]
   );
 
   return {
     updateSpot,
     isUpdating,
-    error,
+    error
   };
 };

@@ -34,7 +34,7 @@ export default async function handler(
     const redirectUrl =
       process.env.NODE_ENV === "production"
         ? process.env.NEXT_PUBLIC_APP_URL
-        : process.env.NEXT_PUBLIC_LOCAL_URL;
+        : process.env.NEXT_PUBLIC_LOCAL_APP_URL;
 
     const { data, error } = await supabase.auth.signUp({
       email,

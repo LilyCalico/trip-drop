@@ -40,15 +40,16 @@ interface UseTripTransportsResult {
 
 export const useTripTransports = ({
   tripId,
-  swrConfig,
+  swrConfig
 }: UseTripTransportsParams = {}): UseTripTransportsResult => {
   const accessToken = useAuthStore(
-    (state) => state.session?.access_token ?? null,
+    (state) => state.session?.access_token ?? null
   );
 
   const baseURL = useMemo(
-    () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-    [],
+    () =>
+      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_URL,
+    []
   );
 
   const key = useMemo<TransportsKey | null>(() => {
@@ -57,7 +58,7 @@ export const useTripTransports = ({
     }
     const keyValue: TransportsKey = [
       `${baseURL}/trips/${tripId}/transport`,
-      accessToken,
+      accessToken
     ];
     return keyValue;
   }, [accessToken, baseURL, tripId]);
@@ -65,11 +66,11 @@ export const useTripTransports = ({
   const fetchTransports = useCallback(
     async ([url, token]: TransportsKey): Promise<TripTransportsData> => {
       const { data } = await axios.get<TripTransportsResponse>(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
       return data.transports;
     },
-    [],
+    []
   );
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<
@@ -77,7 +78,7 @@ export const useTripTransports = ({
     AxiosError<TripTransportsErrorBody>
   >(key, fetchTransports, {
     revalidateOnFocus: false,
-    ...swrConfig,
+    ...swrConfig
   });
 
   return {
@@ -85,6 +86,6 @@ export const useTripTransports = ({
     isLoading,
     isValidating,
     error,
-    mutate,
+    mutate
   };
 };

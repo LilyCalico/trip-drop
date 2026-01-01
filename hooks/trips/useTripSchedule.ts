@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "react";
 import useSWR, {
   type SWRConfiguration,
   type SWRResponse,
-  useSWRConfig,
+  useSWRConfig
 } from "swr";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Camelize } from "@/types/camelize";
@@ -70,14 +70,15 @@ export const useTripSchedule = ({
   date,
   neighborDates,
   isDateAllowed,
-  swrConfig,
+  swrConfig
 }: UseTripScheduleParams): UseTripScheduleResult => {
   const accessToken = useAuthStore((s) => s.session?.access_token ?? null);
   const { mutate: mutateGlobal } = useSWRConfig();
 
   const baseURL = useMemo(
-    () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-    [],
+    () =>
+      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_URL,
+    []
   );
 
   const key = useMemo<ScheduleKey | null>(() => {
@@ -94,17 +95,17 @@ export const useTripSchedule = ({
     async ([
       url,
       targetDate,
-      token,
+      token
     ]: ScheduleKey): Promise<TripScheduleData> => {
       const { data: response } = await axios.get<TripScheduleData>(url, {
         params: { date: targetDate },
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
       return response;
     },
-    [],
+    []
   );
 
   const prefetch = useCallback(
@@ -118,15 +119,15 @@ export const useTripSchedule = ({
       const targetKey: ScheduleKey = [
         buildScheduleUrl(tripId, baseURL),
         targetDate,
-        accessToken,
+        accessToken
       ];
 
       return mutateGlobal(targetKey, async () => fetchSchedule(targetKey), {
         populateCache: true,
-        revalidate: false,
+        revalidate: false
       }) as Promise<TripScheduleData | undefined>;
     },
-    [accessToken, baseURL, fetchSchedule, isDateAllowed, mutateGlobal, tripId],
+    [accessToken, baseURL, fetchSchedule, isDateAllowed, mutateGlobal, tripId]
   );
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<
@@ -154,7 +155,7 @@ export const useTripSchedule = ({
           void prefetch(target as string);
         });
     },
-    ...swrConfig,
+    ...swrConfig
   });
 
   return {
@@ -163,6 +164,6 @@ export const useTripSchedule = ({
     isValidating,
     error,
     mutate,
-    prefetch,
+    prefetch
   };
 };
