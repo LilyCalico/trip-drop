@@ -6,9 +6,10 @@ import {
   AiOutlineCalendar,
   AiOutlineCompass,
   AiOutlineHome,
-  AiOutlineSetting,
+  AiOutlineSetting
 } from "react-icons/ai";
 import { createDateRangeArray } from "@/lib/functions/createDateRangeArray";
+import { formatLocalDateFromUtc } from "@/lib/functions/formatLocalDateFromUtc";
 import { cn } from "@/lib/utils";
 import { useTripsStore } from "@/store/useTripsStore";
 import type { TripType } from "@/types/fronttype";
@@ -17,30 +18,30 @@ const MenuItems = [
   {
     label: "Schedule",
     icon: <AiOutlineCalendar />,
-    href: "schedule",
+    href: "schedule"
   },
   {
     label: "Transport",
     icon: <AiOutlineCompass />,
-    href: "transport",
+    href: "transport"
   },
   {
     label: "Hotel",
     icon: <AiOutlineHome />,
-    href: "hotel",
+    href: "hotel"
   },
   {
     label: "Setting",
     icon: <AiOutlineSetting />,
-    href: "setting",
-  },
+    href: "setting"
+  }
 ];
 
 const MenuLabel = ({
   icon,
   label,
   href,
-  onClick,
+  onClick
 }: {
   icon: React.ReactNode;
   label: string;
@@ -54,7 +55,7 @@ const MenuLabel = ({
       className={cn(
         "relative flex items-center gap-[1.2rem]",
         "cursor-pointer",
-        "hover:text-black/25 transition-all duration-300",
+        "hover:text-black/25 transition-all duration-300"
       )}
     >
       <div className="relative z-10 text-[1.6rem] transition-colors duration-300">
@@ -71,7 +72,7 @@ const TripNavigation = ({
   isOpen,
   onClose,
   embedded = false,
-  className,
+  className
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -97,7 +98,7 @@ const TripNavigation = ({
         return { trip, start };
       })
       .filter(
-        (value): value is { trip: TripType; start: Date } => value !== null,
+        (value): value is { trip: TripType; start: Date } => value !== null
       );
 
     if (parsedTrips.length === 0) {
@@ -115,7 +116,7 @@ const TripNavigation = ({
     return parsedTrips.sort(
       (a, b) =>
         Math.abs(a.start.getTime() - now.getTime()) -
-        Math.abs(b.start.getTime() - now.getTime()),
+        Math.abs(b.start.getTime() - now.getTime())
     )[0].trip;
   }, [trips]);
 
@@ -124,10 +125,16 @@ const TripNavigation = ({
   const tripDates = useMemo(() => {
     if (!trips) return [];
     const activeTrip = trips.find((trip) => trip.id === activeTripId);
-    if (!activeTrip?.startAt || !activeTrip?.endAt) {
+    if (!activeTrip?.startAt || !activeTrip?.endAt || !activeTrip?.timeZone) {
       return [];
     }
-    return createDateRangeArray(activeTrip.startAt, activeTrip.endAt);
+    const timezone = activeTrip.timeZone ?? "UTC";
+    const startDateLocal = formatLocalDateFromUtc(activeTrip.startAt, timezone);
+    const endDateLocal = formatLocalDateFromUtc(activeTrip.endAt, timezone);
+    if (!startDateLocal || !endDateLocal) {
+      return [];
+    }
+    return createDateRangeArray(startDateLocal, endDateLocal);
   }, [activeTripId, trips]);
 
   return (
@@ -141,7 +148,7 @@ const TripNavigation = ({
           (isOpen
             ? "translate-x-0 pointer-events-auto"
             : "translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto"),
-        className,
+        className
       )}
       aria-hidden={!isOpen}
     >
