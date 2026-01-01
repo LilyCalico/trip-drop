@@ -2,6 +2,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import AuthWrapper from "@/components/custom/auth/AuthWrapper";
 import ErrorMessage from "@/components/custom/auth/ErrorMessage";
 import Label from "@/components/custom/auth/Label";
@@ -17,7 +18,6 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
   const [validateError, setValidateError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
@@ -35,7 +35,6 @@ export default function SignupPage() {
   const handleOnSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidateError(null);
-    setMessage(null);
 
     if (password !== confirm) {
       setValidateError("Passwords do not match");
@@ -50,9 +49,15 @@ export default function SignupPage() {
       const result = await signup({ email, password });
 
       if (result) {
-        setMessage(
-          "A confirmation email has been sent. Please check your email and click the link to verify your account. If you didn't receive the email, this address may already be registered.",
-        );
+        const msg = "A confirmation email has been sent.";
+        const toastId = toast.success(msg, {
+          duration: Infinity,
+          position: "top-center",
+          action: {
+            label: "Close",
+            onClick: () => toast.dismiss(toastId)
+          }
+        });
         setPasswordError(null);
         setConfirmError(null);
         setShowPassword(false);
@@ -72,7 +77,7 @@ export default function SignupPage() {
     setPasswordError(
       v.length > 0 && v.length < 8
         ? "Password must be at least 8 characters"
-        : null,
+        : null
     );
 
     // パスワード変更時は確認一致も再評価
@@ -183,12 +188,6 @@ export default function SignupPage() {
           Already have an account?
         </Link>
       </div>
-
-      {message && (
-        <div className="mt-[3.2rem] text-muted-foreground text-red-500">
-          {message}
-        </div>
-      )}
     </AuthWrapper>
   );
 }
