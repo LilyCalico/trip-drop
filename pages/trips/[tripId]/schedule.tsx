@@ -132,10 +132,17 @@ export default function TripSchedulePage() {
   const dayLabel = useMemo(() => {
     if (!trip || !effectiveDate) return "";
     try {
+      const timezone = trip.timeZone ?? "UTC";
+      const startDateLocal = formatLocalDateFromUtc(trip.startAt, timezone);
+
+      if (!startDateLocal) {
+        return "";
+      }
+
       const dayIndex =
         differenceInCalendarDays(
           parseISO(effectiveDate),
-          parseISO(trip.startAt)
+          parseISO(startDateLocal)
         ) + 1;
       return dayIndex > 0 ? `Day ${dayIndex}` : "";
     } catch {
