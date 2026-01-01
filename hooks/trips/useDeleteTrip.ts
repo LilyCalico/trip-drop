@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 
@@ -26,9 +27,7 @@ const useDeleteTrip = (): UseDeleteTripResult => {
       setDeleting(true);
       setError(null);
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
         await axios.delete(`${baseURL}/trips/${tripId}`, {
           headers: {
             Authorization: `Bearer ${session.access_token}`

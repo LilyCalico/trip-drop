@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Tables } from "@/types/supabasetype";
 
@@ -49,9 +50,7 @@ export const useUpdateSpot = () => {
       setError(null);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         const { data } = await axios.patch<SpotRow>(
           `${baseURL}/spots/${params.id}`,

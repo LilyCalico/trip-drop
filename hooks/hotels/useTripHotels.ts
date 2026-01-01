@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from "axios";
 import { useCallback, useMemo } from "react";
 import useSWR, { type SWRConfiguration, type SWRResponse } from "swr";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Camelize } from "@/types/camelize";
 import type { Tables } from "@/types/supabasetype";
@@ -43,11 +44,7 @@ export const useTripHotels = ({
     (state) => state.session?.access_token ?? null
   );
 
-  const baseURL = useMemo(
-    () =>
-      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_URL,
-    []
-  );
+  const baseURL = useMemo(getApiBaseUrl, []);
 
   const key = useMemo<HotelsKey | null>(() => {
     if (!tripId || !accessToken) {

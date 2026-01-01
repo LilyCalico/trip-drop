@@ -5,6 +5,7 @@ import useSWR, {
   type SWRResponse,
   useSWRConfig
 } from "swr";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Camelize } from "@/types/camelize";
 import type { Tables } from "@/types/supabasetype";
@@ -75,10 +76,7 @@ export const useTripSchedule = ({
   const accessToken = useAuthStore((s) => s.session?.access_token ?? null);
   const { mutate: mutateGlobal } = useSWRConfig();
 
-  const baseURL =
-    (process.env.NEXT_PUBLIC_API_URL ||
-      process.env.NEXT_PUBLIC_LOCAL_API_URL) ??
-    "";
+  const baseURL = useMemo(getApiBaseUrl, []);
 
   const key = useMemo<ScheduleKey | null>(() => {
     if (!tripId || !date || !accessToken) {

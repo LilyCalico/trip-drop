@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import useGetTrips from "@/hooks/trips/useGetTrips";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
@@ -26,9 +27,7 @@ export const useJoinTrip = () => {
       setError(null);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         await axios.post<JoinTripResponse>(
           `${baseURL}/trips/${tripId}/join`,

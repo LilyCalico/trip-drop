@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface UpdateProfileResponse {
@@ -21,9 +22,7 @@ export const useUpdateProfile = () => {
       }
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         const response = await axios.put<UpdateProfileResponse>(
           `${baseURL}/profile/update`,

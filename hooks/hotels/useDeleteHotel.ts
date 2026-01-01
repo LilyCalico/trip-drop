@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 
 type DeleteHotelResult =
@@ -30,9 +31,7 @@ export const useDeleteHotel = () => {
       setIsDeleting(true);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         await axios.delete(`${baseURL}/hotels/${hotelId}`, {
           headers: {

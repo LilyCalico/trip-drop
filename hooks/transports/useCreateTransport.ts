@@ -2,6 +2,7 @@ import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
 
 import type { GooglePlaceCandidate } from "@/hooks/google/useGooglePlacesPredictions";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Database } from "@/types/supabasetype";
 
@@ -115,9 +116,7 @@ export const useCreateTransport = () => {
       setError(null);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         const response = await axios.post<CreateTransportResponse>(
           `${baseURL}/transports`,

@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 import useGetTrips from "./useGetTrips";
@@ -46,9 +47,7 @@ const useCreateTrip = (): UseCreateTripResult => {
       setError(null);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         const response = await axios.post<{ tripId?: string }>(
           `${baseURL}/trip`,

@@ -17,7 +17,7 @@ export default function TripDetail({
   description,
   startAt,
   endAt,
-  numberOfMembers,
+  numberOfMembers
 }: TripDetailProps) {
   const handleCopyShareLink = () => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

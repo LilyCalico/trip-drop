@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface CreateSpotParams {
@@ -51,9 +52,7 @@ export const useCreateSpot = () => {
         return null;
       }
 
-      const baseURL =
-        process.env.NEXT_PUBLIC_API_URL ||
-        process.env.NEXT_PUBLIC_LOCAL_API_URL;
+      const baseURL = getApiBaseUrl();
       const response = await axios.post(`${baseURL}/spots`, submitData, {
         headers: {
           Authorization: `Bearer ${session.access_token}`

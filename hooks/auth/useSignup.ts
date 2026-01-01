@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 
 interface SignupData {
   email: string;
@@ -27,9 +28,7 @@ export const useSignup = () => {
     setError(null);
 
     try {
-      const baseURL =
-        process.env.NEXT_PUBLIC_API_URL ||
-        process.env.NEXT_PUBLIC_LOCAL_API_URL;
+      const baseURL = getApiBaseUrl();
 
       const response = await axios.post<SignupResponse>(
         `${baseURL}/auth/signup`,

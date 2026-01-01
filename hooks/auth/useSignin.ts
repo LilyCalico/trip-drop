@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import supabase from "@/lib/supabaseClient";
 
 interface SignInResponse {
@@ -17,9 +18,7 @@ export const useSignin = () => {
       setError(null);
 
       try {
-        const baseURL =
-          process.env.NEXT_PUBLIC_API_URL ||
-          process.env.NEXT_PUBLIC_LOCAL_API_URL;
+        const baseURL = getApiBaseUrl();
 
         const { data } = await axios.post<SignInResponse>(
           `${baseURL}/auth/signin`,

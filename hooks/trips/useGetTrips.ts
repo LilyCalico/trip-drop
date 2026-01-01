@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import { useCallback, useState } from "react";
+import getApiBaseUrl from "@/lib/getApiBaseUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTripsStore } from "@/store/useTripsStore";
 import type { TripType } from "@/types/fronttype";
@@ -44,9 +45,7 @@ const useGetTrips = (): UseGetTripsResult => {
         Authorization: `Bearer ${session.access_token}`
       };
 
-      const baseURL =
-        process.env.NEXT_PUBLIC_API_URL ||
-        process.env.NEXT_PUBLIC_LOCAL_API_URL;
+      const baseURL = getApiBaseUrl();
 
       // 1. IDs を取得
       const idsRes = await axios.get<TripsIdsResponse>(`${baseURL}/trips/ids`, {
