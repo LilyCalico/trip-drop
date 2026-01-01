@@ -3,7 +3,7 @@ import {
   format,
   isWithinInterval,
   parseISO,
-  startOfDay,
+  startOfDay
 } from "date-fns";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
@@ -15,7 +15,7 @@ import CardTransport from "@/components/custom/cards/CardTransport";
 import LayoutTrip from "@/components/custom/layout/LayoutTrip";
 import type { SchedulePlace } from "@/components/custom/map/GoogleMap";
 import GoogleMap, {
-  stockholmCenterLatLng,
+  stockholmCenterLatLng
 } from "@/components/custom/map/GoogleMap";
 import ModalAdd from "@/components/custom/modal/ModalAdd";
 import Spinner from "@/components/custom/Spinner";
@@ -24,6 +24,7 @@ import { useCurrentTrip } from "@/hooks/trips/useCurrentTrip";
 import { useTripSchedule } from "@/hooks/trips/useTripSchedule";
 import createDateRangeArray from "@/lib/functions/createDateRangeArray";
 import { extractSchedulePlaces } from "@/lib/functions/extractLagLng";
+import { formatLocalDateFromUtc } from "@/lib/functions/formatLocalDateFromUtc";
 
 export default function TripSchedulePage() {
   const router = useRouter();
@@ -37,12 +38,20 @@ export default function TripSchedulePage() {
     if (!trip?.startAt || !trip?.endAt) {
       return [];
     }
-    return createDateRangeArray(trip.startAt, trip.endAt);
-  }, [trip?.startAt, trip?.endAt]);
+    const timezone = trip.timeZone ?? "UTC";
+    const startDateLocal = formatLocalDateFromUtc(trip.startAt, timezone);
+    const endDateLocal = formatLocalDateFromUtc(trip.endAt, timezone);
+
+    if (!startDateLocal || !endDateLocal) {
+      return [];
+    }
+
+    return createDateRangeArray(startDateLocal, endDateLocal);
+  }, [trip?.startAt, trip?.endAt, trip?.timeZone]);
 
   const isDateAllowed = useCallback(
     (targetDate: string) => availableDates.includes(targetDate),
-    [availableDates],
+    [availableDates]
   );
 
   // デフォルト日付を計算（旅程期間中は当日、期間外は旅程初日）
@@ -50,17 +59,29 @@ export default function TripSchedulePage() {
     if (!trip?.startAt || !trip?.endAt) {
       return null;
     }
+    // Thu Jan 01 2026 00:00:00 GMT+0900 (日本標準時)
     const today = startOfDay(new Date());
-    const startDate = startOfDay(parseISO(trip.startAt));
-    const endDate = startOfDay(parseISO(trip.endAt));
+
+    const timezone = trip.timeZone ?? "UTC";
+    const startDateLocal = formatLocalDateFromUtc(trip.startAt, timezone);
+    const endDateLocal = formatLocalDateFromUtc(trip.endAt, timezone);
+
+    if (!startDateLocal || !endDateLocal) {
+      return null;
+    }
+
+    // startDate Thu Jan 01 2026 00:00:00 GMT+0900 (日本標準時)
+    // endDate Sat Jan 03 2026 00:00:00 GMT+0900 (日本標準時)
+    const startDate = parseISO(startDateLocal);
+    const endDate = parseISO(endDateLocal);
 
     if (isWithinInterval(today, { start: startDate, end: endDate })) {
       // 旅程期間中は当日
       return format(today, "yyyy-MM-dd");
     }
     // 旅程期間外は旅程初日
-    return format(startDate, "yyyy-MM-dd");
-  }, [trip?.startAt, trip?.endAt]);
+    return startDateLocal;
+  }, [trip?.startAt, trip?.endAt, trip?.timeZone]);
 
   // dateが存在しない場合、デフォルト日付でURLを更新
   useEffect(() => {
@@ -68,10 +89,10 @@ export default function TripSchedulePage() {
       void router.replace(
         {
           pathname: router.pathname,
-          query: { tripId, date: defaultDate },
+          query: { tripId, date: defaultDate }
         },
         undefined,
-        { shallow: true, scroll: false },
+        { shallow: true, scroll: false }
       );
     }
   }, [date, defaultDate, tripId, router]);
@@ -89,14 +110,14 @@ export default function TripSchedulePage() {
       ? []
       : [
           availableDates[currentIndex - 1],
-          availableDates[currentIndex + 1],
+          availableDates[currentIndex + 1]
         ].filter((value): value is string => Boolean(value));
 
   const { schedule, isLoading, error, mutate } = useTripSchedule({
     tripId: trip?.id,
     date: effectiveDate || undefined,
     neighborDates,
-    isDateAllowed,
+    isDateAllowed
   });
 
   useEffect(() => {
@@ -114,7 +135,7 @@ export default function TripSchedulePage() {
       const dayIndex =
         differenceInCalendarDays(
           parseISO(effectiveDate),
-          parseISO(trip.startAt),
+          parseISO(trip.startAt)
         ) + 1;
       return dayIndex > 0 ? `Day ${dayIndex}` : "";
     } catch {
@@ -131,8 +152,7 @@ export default function TripSchedulePage() {
       .map((place) => place.geometry?.location)
       .filter(
         (location): location is { lat: number; lng: number } =>
-          typeof location?.lat === "number" &&
-          typeof location?.lng === "number",
+          typeof location?.lat === "number" && typeof location?.lng === "number"
       );
 
     if (!positions.length) {
@@ -142,14 +162,14 @@ export default function TripSchedulePage() {
     const { lat, lng } = positions.reduce(
       (acc, location) => ({
         lat: acc.lat + location.lat,
-        lng: acc.lng + location.lng,
+        lng: acc.lng + location.lng
       }),
-      { lat: 0, lng: 0 },
+      { lat: 0, lng: 0 }
     );
 
     return {
       lat: lat / positions.length,
-      lng: lng / positions.length,
+      lng: lng / positions.length
     };
   }, [mapData]);
 
@@ -169,7 +189,7 @@ export default function TripSchedulePage() {
                 return true;
               }
               return item.spot.id !== deletedId;
-            }),
+            })
           };
         }
 
@@ -177,14 +197,14 @@ export default function TripSchedulePage() {
           return {
             ...current,
             transports: current.transports.filter(
-              (transport) => transport.id !== deletedId,
+              (transport) => transport.id !== deletedId
             ),
             items: current.items.filter((item) => {
               if (item.type !== "transport") {
                 return true;
               }
               return item.transport.id !== deletedId;
-            }),
+            })
           };
         }
 
@@ -197,14 +217,14 @@ export default function TripSchedulePage() {
                 return true;
               }
               return item.hotel.id !== deletedId;
-            }),
+            })
           };
         }
 
         return current;
       }, true);
     },
-    [mutate],
+    [mutate]
   );
 
   const handleItemUpdated = useCallback(() => {
@@ -220,13 +240,13 @@ export default function TripSchedulePage() {
       void router.push(
         {
           pathname: router.pathname,
-          query: { tripId, date: targetDate },
+          query: { tripId, date: targetDate }
         },
         undefined,
-        { shallow: true, scroll: false },
+        { shallow: true, scroll: false }
       );
     },
-    [effectiveDate, router, tripId],
+    [effectiveDate, router, tripId]
   );
 
   if (!trip) {
@@ -275,14 +295,14 @@ export default function TripSchedulePage() {
             header={{
               date: effectiveDate,
               dayLabel,
-              locationLabel: trip.title,
+              locationLabel: trip.title
             }}
             navigation={{
               dates: availableDates,
               currentDate: effectiveDate,
               onSelect: (targetDate) => {
                 navigateToDate(targetDate);
-              },
+              }
             }}
             navigateToDate={navigateToDate}
             currentIndex={currentIndex}

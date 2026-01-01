@@ -55,7 +55,7 @@ const parseJsonArray = <T>(value: Json | null): T[] => {
 
 const deriveHotelCheckStatus = (
   scheduleDate: string,
-  hotelStay: HotelStayRow,
+  hotelStay: HotelStayRow
 ): HotelStayWithCheck["check"] => {
   const timezone = hotelStay.timezone || "UTC";
 
@@ -77,7 +77,7 @@ const isValidIsoDate = (value: string): boolean =>
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TripDayScheduleResponse | ErrorBody>,
+  res: NextApiResponse<TripDayScheduleResponse | ErrorBody>
 ) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -89,8 +89,8 @@ export default async function handler(
   const date = Array.isArray(dateParam)
     ? dateParam[0]
     : typeof dateParam === "string"
-      ? dateParam
-      : undefined;
+    ? dateParam
+    : undefined;
 
   if (!tripId) {
     return res.status(400).json({ error: "Parameter 'tripId' is required" });
@@ -121,7 +121,7 @@ export default async function handler(
 
     const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      auth: { persistSession: false, autoRefreshToken: false },
+      auth: { persistSession: false, autoRefreshToken: false }
     });
 
     const { data: userRes, error: userErr } = await supabase.auth.getUser();
@@ -164,8 +164,8 @@ export default async function handler(
     const hotels = parseJsonArray<HotelStayRow>(scheduleRow.hotels).map(
       (hotel): HotelStayWithCheck => ({
         ...hotel,
-        check: deriveHotelCheckStatus(scheduleDate, hotel),
-      }),
+        check: deriveHotelCheckStatus(scheduleDate, hotel)
+      })
     );
 
     type DecoratedItem =
@@ -193,8 +193,8 @@ export default async function handler(
         sortTime: parseTimestamp(spot.visit_datetime),
         payload: {
           type: "spot",
-          spot,
-        },
+          spot
+        }
       });
     });
 
@@ -206,8 +206,8 @@ export default async function handler(
           parseTimestamp(transport.arrival_datetime),
         payload: {
           type: "transport",
-          transport,
-        },
+          transport
+        }
       });
     });
 
@@ -216,8 +216,8 @@ export default async function handler(
         hotel.check === "in"
           ? hotel.check_in_at
           : hotel.check === "out"
-            ? hotel.check_out_at
-            : null;
+          ? hotel.check_out_at
+          : null;
 
       const fallbackTime =
         parseTimestamp(datetimeUtc) ??
@@ -231,8 +231,8 @@ export default async function handler(
         payload: {
           type: "hotel",
           hotel,
-          datetime_utc: datetimeUtc,
-        },
+          datetime_utc: datetimeUtc
+        }
       });
     });
 
@@ -260,21 +260,21 @@ export default async function handler(
       .filter(
         (item): item is Extract<TripDayScheduleItem, { type: "spot" }> => {
           return item.type === "spot";
-        },
+        }
       )
       .map((item) => item.spot);
 
     const sortedTransports = items
       .filter(
         (item): item is Extract<TripDayScheduleItem, { type: "transport" }> =>
-          item.type === "transport",
+          item.type === "transport"
       )
       .map((item) => item.transport);
 
     const sortedHotels = items
       .filter(
         (item): item is Extract<TripDayScheduleItem, { type: "hotel" }> =>
-          item.type === "hotel",
+          item.type === "hotel"
       )
       .map((item) => item.hotel);
 
@@ -283,7 +283,7 @@ export default async function handler(
       spots: sortedSpots,
       transports: sortedTransports,
       hotels: sortedHotels,
-      items,
+      items
     };
 
     const response = convertKeysToCamelCase(payload);
