@@ -31,17 +31,16 @@ export default async function handler(
       }
     });
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
+    const redirectUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_APP_URL
+        : process.env.NEXT_PUBLIC_LOCAL_URL;
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${baseUrl}/?isSignedUp=true`
+        emailRedirectTo: `${redirectUrl}`
       }
     });
 
