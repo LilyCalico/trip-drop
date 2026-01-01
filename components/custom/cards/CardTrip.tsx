@@ -1,9 +1,11 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
+import { toast } from "sonner";
 import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
+import { useTripsStore } from "@/store/useTripsStore";
 export const DUMMY_USERS = [
   { id: 1, name: "Kiki", avatarUrl: "/dummy-user.png" },
   { id: 2, name: "Shizuku", avatarUrl: "" }
@@ -43,7 +45,10 @@ function CardTrip({
 }: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
-  const { deleteTrip } = useDeleteTrip();
+  const { deleteTrip: deleteTripApi } = useDeleteTrip();
+  const deleteTripState = useTripsStore((s) => s.deleteTrip);
+  const trips = useTripsStore((s) => s.trips);
+  const setTrips = useTripsStore((s) => s.setTrips);
 
   return (
     <div
@@ -91,10 +96,24 @@ function CardTrip({
         </div>
         <button
           type="button"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
             if (confirm("Are you sure you want to delete this trip?")) {
-              deleteTrip(tripId);
+              // Optimistic Update: 削除前のtripデータを保存
+              const tripToRestore = trips?.find((t) => t.id === tripId);
+
+              // 先にstateから削除
+              deleteTripState(tripId);
+
+              // API呼び出し
+              const success = await deleteTripApi(tripId);
+
+              // 失敗したらロールバック
+              if (!success && tripToRestore) {
+                const currentTrips = useTripsStore.getState().trips ?? [];
+                setTrips([...currentTrips, tripToRestore]);
+                toast.error("削除に失敗しました");
+              }
             }
           }}
           className="cursor-pointer p-[0.8rem] mr-[1.2rem] hover:bg-warning/50 rounded-full transition-colors duration-150"
