@@ -75,11 +75,10 @@ export const useTripSchedule = ({
   const accessToken = useAuthStore((s) => s.session?.access_token ?? null);
   const { mutate: mutateGlobal } = useSWRConfig();
 
-  const baseURL = useMemo(
-    () =>
-      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_LOCAL_API_URL,
-    []
-  );
+  const baseURL =
+    (process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_LOCAL_API_URL) ??
+    "";
 
   const key = useMemo<ScheduleKey | null>(() => {
     if (!tripId || !date || !accessToken) {
