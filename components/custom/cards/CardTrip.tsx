@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
 export const DUMMY_USERS = [
   { id: 1, name: "Kiki", avatarUrl: "/dummy-user.png" },
-  { id: 2, name: "Shizuku", avatarUrl: "" },
+  { id: 2, name: "Shizuku", avatarUrl: "" }
 ];
 
 interface CardTripProps {
@@ -24,7 +24,7 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => {
     <div
       className={cn(
         "relative w-[2.4rem] h-[2.4rem] block",
-        "rounded-full border-2 border-gray-300 overflow-hidden",
+        "rounded-full border-2 border-gray-300 overflow-hidden"
       )}
     >
       {children}
@@ -39,15 +39,11 @@ function CardTrip({
   title,
   users,
   isUpcoming,
-  timeZone,
+  timeZone
 }: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const { deleteTrip } = useDeleteTrip();
-
-  useEffect(() => {
-    console.log("CardTrip", startAt, endAt, timeZone);
-  }, [startAt, endAt, timeZone]);
 
   return (
     <div
@@ -59,20 +55,20 @@ function CardTrip({
         "cursor-pointer rounded-[0.3rem] w-full transition-colors duration-300",
         isUpcoming
           ? "bg-[url('/img/bgimg/bgimg-date.png')] bg-cover bg-center hover:opacity-95"
-          : "hover:bg-black/10 border border-black/5",
+          : "hover:bg-black/10 border border-black/5"
       )}
     >
       <div
         className={cn(
           "flex items-center justify-between",
-          isUpcoming ? "py-[4.8rem]" : "py-[2.4rem]",
+          isUpcoming ? "py-[4.8rem]" : "py-[2.4rem]"
         )}
       >
         <div className={cn("flex-1 rounded-lg pl-[2rem] pr-[5.6rem]")}>
           <p
             className={cn(
               "mb-[1.6rem]",
-              isUpcoming ? "text-[1.2rem] text-white" : "text-[1rem]",
+              isUpcoming ? "text-[1.2rem] text-white" : "text-[1rem]"
             )}
           >
             {formatDateRange({ startAt, endAt, timeZone })}
@@ -80,13 +76,13 @@ function CardTrip({
           <div
             className={cn(
               "flex items-center font-family-figtree",
-              isUpcoming ? "h-[6.4rem]" : "h-[4.8rem]",
+              isUpcoming ? "h-[6.4rem]" : "h-[4.8rem]"
             )}
           >
             <p
               className={cn(
                 "font-bold line-clamp-2",
-                isUpcoming ? "text-[2rem] text-white" : "text-[1.6rem]",
+                isUpcoming ? "text-[2rem] text-white" : "text-[1.6rem]"
               )}
             >
               {title}
@@ -106,7 +102,7 @@ function CardTrip({
           <FaTrash
             className={cn(
               "w-[1.2rem] h-[1.2rem] text-black/75",
-              isUpcoming ? "text-white" : "text-black/75",
+              isUpcoming ? "text-white" : "text-black/75"
             )}
           />
         </button>
