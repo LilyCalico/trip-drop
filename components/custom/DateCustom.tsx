@@ -40,12 +40,12 @@ export default function DateCustom({
           <PopoverTrigger asChild>
             <Button
               className={cn(
-                "text-[1.4rem] py-[1.8rem] justify-start text-left font-normal rounded-md border border-gray-light min-w-[18rem]",
+                "text-[1.4rem] py-[1.8rem] justify-start text-left font-normal rounded-md border border-gray-light min-w-[16rem]",
                 !date && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 !h-6 !w-6 text-black " />
-              {date ? format(date, "PPP") : "Pick a date"}
+              {date ? format(date, "yyyy/MM/dd") : "Pick a date"}
               {/* Pick a date */}
             </Button>
           </PopoverTrigger>
