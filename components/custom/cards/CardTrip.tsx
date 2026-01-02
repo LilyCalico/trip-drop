@@ -17,6 +17,7 @@ interface CardTripProps {
   startAt: string;
   endAt: string;
   title: string;
+  description: string | null;
   users: { id: string; name: string | null; avatarUrl: string | null }[];
   timeZone: string;
 }
@@ -39,6 +40,7 @@ function CardTrip({
   startAt,
   endAt,
   title,
+  description,
   users,
   isUpcoming,
   timeZone
@@ -84,14 +86,19 @@ function CardTrip({
               isUpcoming ? "h-[6.4rem]" : "h-[4.8rem]"
             )}
           >
-            <p
-              className={cn(
-                "font-bold line-clamp-2",
-                isUpcoming ? "text-[2rem] text-white" : "text-[1.6rem]"
-              )}
-            >
-              {title}
-            </p>
+            <div>
+              <p
+                className={cn(
+                  "font-bold line-clamp-2",
+                  isUpcoming ? "text-[2rem] text-white" : "text-[1.6rem]"
+                )}
+              >
+                {title}
+              </p>
+              <p className="text-[1.2rem] text-gray-500 mt-2">
+                {description ?? "sample description"}
+              </p>
+            </div>
           </div>
         </div>
         <button

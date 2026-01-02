@@ -137,7 +137,7 @@ export default function Home() {
           className={cn(
             "font-family-figtree font-semibold",
             "text-[2.4rem] lg:text-[3rem]",
-            "mt-[2.4rem] mb-[4.8rem] lg:mt-[4.8rem] lg:mb-[5.6rem]",
+            "mt-[2.4rem] mb-[4.8rem] lg:mt-[4.8rem] lg:mb-[5.6rem]"
           )}
         >
           Your Trips
@@ -158,11 +158,12 @@ export default function Home() {
                 startAt={trip.startAt}
                 endAt={trip.endAt}
                 title={trip.title}
+                description={trip.description}
                 users={trip.members.map((member) => {
                   return {
                     id: member.userId,
                     name: member.name,
-                    avatarUrl: member.avatarUrl,
+                    avatarUrl: member.avatarUrl
                   };
                 })}
               />
@@ -188,7 +189,7 @@ export default function Home() {
 
         <p
           className={cn(
-            "text-[1.2rem] font-family-figtree uppercase mb-[1.2rem] mt-[5.6rem]",
+            "text-[1.2rem] font-family-figtree uppercase mb-[1.2rem] mt-[5.6rem]"
           )}
         >
           Past
@@ -205,11 +206,12 @@ export default function Home() {
                 startAt={trip.startAt}
                 endAt={trip.endAt}
                 title={trip.title}
+                description={trip.description}
                 users={trip.members.map((member) => {
                   return {
                     id: member.userId,
                     name: member.name,
-                    avatarUrl: member.avatarUrl,
+                    avatarUrl: member.avatarUrl
                   };
                 })}
               />
