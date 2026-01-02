@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { FaAngleDown, FaRegStar, FaSliders } from "react-icons/fa6";
 import DateCustom from "@/components/custom/DateCustom";
 import InputPassword from "@/components/custom/InputPassword";
 import TimeZone from "@/components/custom/trip/TimeZone";
@@ -22,10 +23,11 @@ export default function NewTripPage() {
   const [endDate, setEndDate] = useState<Date>();
   const [numOfPeople, setnumOfPeople] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [timezone, setTimezone] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] =
+    useState(false);
 
   const isFormValid =
     title.trim() &&
@@ -33,7 +35,6 @@ export default function NewTripPage() {
     Boolean(endDate) &&
     timezone &&
     password &&
-    password === confirmPassword &&
     password.length >= 8 &&
     password.length <= 30;
 
@@ -48,13 +49,13 @@ export default function NewTripPage() {
     const startAt = startDateString
       ? createUtcDateTimeForDB({
           selectedDate: startDateString,
-          selectedTimezone: timezone,
+          selectedTimezone: timezone
         })
       : null;
     const endAt = endDateString
       ? createUtcDateTimeForDB({
           selectedDate: endDateString,
-          selectedTimezone: timezone,
+          selectedTimezone: timezone
         })
       : null;
 
@@ -70,7 +71,7 @@ export default function NewTripPage() {
       endAt,
       timezone,
       numOfPeople: numOfPeople ? parseInt(numOfPeople, 10) : null,
-      password: password.trim(),
+      password: password.trim()
     };
 
     try {
@@ -89,7 +90,7 @@ export default function NewTripPage() {
     } catch (err) {
       console.error("Unexpected error submitting trip:", err);
       setSubmitError(
-        err instanceof Error ? err.message : "Unknown error occurred.",
+        err instanceof Error ? err.message : "Unknown error occurred."
       );
     }
   };
@@ -100,30 +101,24 @@ export default function NewTripPage() {
 
   return (
     <div className="max-w-[45rem] mx-auto px-[2.4rem]">
-      <h1 className="text-pagetitle mb-[3.2rem]">Create New Trip</h1>
+      <h1 className="text-pagetitle mb-[3.2rem] mt-[2.4rem]">
+        Create New Trip
+      </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-[2rem]">
+      <form onSubmit={handleSubmit} className="space-y-[2.4rem]">
         {/* Title */}
         <div className="space-y-2">
-          <Label htmlFor="title">Title *</Label>
+          <h3 className="font-bold text-[1rem] mb-[1.6rem] flex items-center gap-2">
+            <FaRegStar />
+            <span>REQUIRED INFORMATION</span>
+          </h3>
+          <Label htmlFor="title">Journey Title *</Label>
           <Input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter trip title"
             className="text-[1.6rem]"
             required
-          />
-        </div>
-
-        {/* Description */}
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Input
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter trip description"
           />
         </div>
 
@@ -148,56 +143,20 @@ export default function NewTripPage() {
           </div>
         </div>
 
-        {/* Timezone */}
-        <TimeZone timezone={timezone} setTimezone={setTimezone} />
-
-        {/* Number of People */}
-        <div className="space-y-2">
-          <Label htmlFor="num-people">Number of People</Label>
-          <Input
-            id="num-people"
-            type="number"
-            min="1"
-            value={numOfPeople}
-            onChange={(e) => setnumOfPeople(e.target.value)}
-            placeholder="1"
-            className="max-w-[10rem]"
-          />
-        </div>
-
         {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="password">Password * (8 - 30 characters)</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="password">Journey Password</Label>
+            <span className="text-[1.1rem] text-gray-500">
+              * (8 - 30 characters)
+            </span>
+          </div>
           <InputPassword
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
             autoComplete="new-password"
           />
-        </div>
-
-        {/* Confirm Password */}
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password *</Label>
-          <InputPassword
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              if (password && e.target.value && password !== e.target.value) {
-                setPasswordError("Passwords do not match");
-              } else {
-                setPasswordError("");
-              }
-            }}
-            placeholder="Confirm password"
-            aria-invalid={Boolean(passwordError)}
-            autoComplete="new-password"
-          />
-          {passwordError && (
-            <p className="text-red-500 mt-1">{passwordError}</p>
-          )}
         </div>
 
         {/* Error Message */}
@@ -206,6 +165,56 @@ export default function NewTripPage() {
             <p className="text-red-500">{submitError || createTripError}</p>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={() => setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded)}
+          className="font-bold text-[1rem] mb-[1.6rem] mt-[6rem] flex items-center gap-2 w-full text-left cursor-pointer hover:opacity-80 transition-opacity duration-200"
+        >
+          <FaSliders />
+          <span>ADDITIONAL INFORMATION</span>
+          <FaAngleDown
+            className={`transition-transform duration-300 ${
+              isAdditionalInfoExpanded ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            isAdditionalInfoExpanded
+              ? "max-h-[1000px] opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="space-y-[2.4rem]">
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Journey Description</Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            {/* Timezone */}
+            <TimeZone timezone={timezone} setTimezone={setTimezone} />
+
+            {/* Number of People */}
+            <div className="space-y-2">
+              <Label htmlFor="num-people">Number of People</Label>
+              <Input
+                id="num-people"
+                type="number"
+                min="1"
+                value={numOfPeople}
+                onChange={(e) => setnumOfPeople(e.target.value)}
+                placeholder="1"
+                className="max-w-[10rem]"
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Submit Button */}
         <Button

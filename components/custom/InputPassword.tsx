@@ -19,12 +19,12 @@ export default function InputPassword({
   id,
   value,
   onChange,
-  placeholder = "Enter password",
+  placeholder = "",
   className,
   required = false,
   "aria-invalid": ariaInvalid,
   "aria-label": ariaLabel,
-  autoComplete,
+  autoComplete
 }: InputPasswordProps) {
   const [showPassword, setShowPassword] = useState(false);
 
