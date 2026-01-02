@@ -1,10 +1,15 @@
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from "@radix-ui/react-popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
@@ -23,7 +28,7 @@ export default function DateCustom({
   labelClassName,
   htmlFor,
   date,
-  setDate,
+  setDate
 }: DateCustomProps) {
   return (
     <div>
@@ -35,11 +40,11 @@ export default function DateCustom({
           <PopoverTrigger asChild>
             <Button
               className={cn(
-                "text-[1.2rem] py-[1.5rem] justify-start text-left font-normal rounded-md border border-gray-light min-w-[16rem]",
-                !date && "text-muted-foreground",
+                "text-[1.4rem] py-[1.8rem] justify-start text-left font-normal rounded-md border border-gray-light min-w-[18rem]",
+                !date && "text-muted-foreground"
               )}
             >
-              <CalendarIcon className="mr-2 !h-5 !w-5 text-black " />
+              <CalendarIcon className="mr-2 !h-6 !w-6 text-black " />
               {date ? format(date, "PPP") : "Pick a date"}
               {/* Pick a date */}
             </Button>
@@ -50,7 +55,39 @@ export default function DateCustom({
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="bg-white"
+              className="bg-white [--cell-size:2.75rem] p-4"
+              classNames={{
+                weekday:
+                  "text-muted-foreground rounded-md flex-1 font-normal text-[1rem] select-none",
+                caption_label: "text-base",
+                day: "[&_button]:text-[1.1rem] [&_button:hover]:bg-gray-100"
+              }}
+              components={{
+                Chevron: ({ className, orientation, ...props }) => {
+                  if (orientation === "left") {
+                    return (
+                      <ChevronLeftIcon
+                        className={cn("size-5", className)}
+                        {...props}
+                      />
+                    );
+                  }
+                  if (orientation === "right") {
+                    return (
+                      <ChevronRightIcon
+                        className={cn("size-5", className)}
+                        {...props}
+                      />
+                    );
+                  }
+                  return (
+                    <ChevronDownIcon
+                      className={cn("size-5", className)}
+                      {...props}
+                    />
+                  );
+                }
+              }}
             />
           </PopoverContent>
         </Popover>
