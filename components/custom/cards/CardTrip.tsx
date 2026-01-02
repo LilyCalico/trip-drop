@@ -1,7 +1,9 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
+import { FaEllipsis } from "react-icons/fa6";
 import { toast } from "sonner";
+import ModalConfirm from "@/components/custom/modal/ModalConfirm";
 import useDeleteTrip from "@/hooks/trips/useDeleteTrip";
 import { formatDateRange } from "@/lib/functions/formatDateRange";
 import { cn } from "@/lib/utils";
@@ -47,10 +49,37 @@ function CardTrip({
 }: CardTripProps) {
   const router = useRouter();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { deleteTrip: deleteTripApi } = useDeleteTrip();
   const deleteTripState = useTripsStore((s) => s.deleteTrip);
   const trips = useTripsStore((s) => s.trips);
   const setTrips = useTripsStore((s) => s.setTrips);
+
+  const handleOpenDeleteModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    // Optimistic Update: 削除前のtripデータを保存
+    const tripToRestore = trips?.find((t) => t.id === tripId);
+
+    // 先にstateから削除
+    deleteTripState(tripId);
+
+    // モーダルを閉じる
+    setIsDeleteModalOpen(false);
+
+    // API呼び出し
+    const success = await deleteTripApi(tripId);
+
+    // 失敗したらロールバック
+    if (!success && tripToRestore) {
+      const currentTrips = useTripsStore.getState().trips ?? [];
+      setTrips([...currentTrips, tripToRestore]);
+      toast.error("Failed to delete trip");
+    }
+  };
 
   return (
     <div
@@ -103,36 +132,25 @@ function CardTrip({
         </div>
         <button
           type="button"
-          onClick={async (e) => {
-            e.stopPropagation();
-            if (confirm("Are you sure you want to delete this trip?")) {
-              // Optimistic Update: 削除前のtripデータを保存
-              const tripToRestore = trips?.find((t) => t.id === tripId);
-
-              // 先にstateから削除
-              deleteTripState(tripId);
-
-              // API呼び出し
-              const success = await deleteTripApi(tripId);
-
-              // 失敗したらロールバック
-              if (!success && tripToRestore) {
-                const currentTrips = useTripsStore.getState().trips ?? [];
-                setTrips([...currentTrips, tripToRestore]);
-                toast.error("削除に失敗しました");
-              }
-            }
-          }}
-          className="cursor-pointer p-[0.8rem] mr-[1.2rem] hover:bg-warning/50 rounded-full transition-colors duration-150"
+          onClick={handleOpenDeleteModal}
+          className="cursor-pointer p-[0.8rem] mr-[1.2rem] hover:bg-gray-500/50 hover:text-black/20 rounded-full transition-colors duration-150"
         >
-          <FaTrash
+          <FaEllipsis
             className={cn(
-              "w-[1.2rem] h-[1.2rem] text-black/75",
+              "w-[1.2rem] h-[1.2rem]",
               isUpcoming ? "text-white" : "text-black/75"
             )}
           />
         </button>
       </div>
+      <ModalConfirm
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onClick={handleDelete}
+        title="Delete this trip?"
+        text="This action cannot be undone."
+        buttonColor="bg-red-500 hover:bg-red-600"
+      />
       {/* <div className={cn("mx-auto", "-mt-[1.2rem] ml-[1.6rem]")}>
         {users.map((user) => (
           <div
